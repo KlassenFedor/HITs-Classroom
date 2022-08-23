@@ -21,6 +21,8 @@ namespace HITs_classroom.Controllers
             _coursesService = coursesService;
         }
 
+        //--------search for courses--------
+
         [HttpGet("{courseId}")]
         public IActionResult GetCourse(string courseId)
         {
@@ -122,10 +124,31 @@ namespace HITs_classroom.Controllers
             }
         }
 
+        //--------creating courses--------
+
         [HttpPost("CreateCourse")]
-        public IActionResult CreateCourse(Course course)
+        public IActionResult CreateCourse(CourseCreating course)
         {
-            return null;
+            try
+            {
+                var result = _coursesService.CreateCourse(course);
+                return new JsonResult(result);
+            }
+            catch (Exception e)
+            {
+                if (e is AggregateException)
+                {
+                    return StatusCode(500, "Credential Not found");
+                }
+                else if (e is GoogleApiException)
+                {
+                    return StatusCode(400, "OwnerId not specified.");
+                }
+                else
+                {
+                    return StatusCode(520, "Unknown error");
+                }
+            }
         }
     }
 }

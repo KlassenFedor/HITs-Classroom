@@ -15,6 +15,7 @@ namespace HITs_classroom.Services
         List<Course> GetCoursesList(CourseSearch parameters);
         List<Course> GetActiveCoursesList();
         List<Course> GetArchivedCoursesList();
+        Course CreateCourse(CourseCreating course);
     }
 
     public class CoursesService: ICoursesService
@@ -101,6 +102,24 @@ namespace HITs_classroom.Services
             } while (pageToken != null);
 
             return courses;
+        }
+
+        public Course CreateCourse(CourseCreating course)
+        {
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            var newCourse = new Course
+            {
+                Name = course.Name,
+                Section = course.Section,
+                DescriptionHeading = course.DescriptionHeading,
+                Description = course.Description,
+                Room = course.Room,
+                OwnerId = course.OwnerId,
+                CourseState = course.CourseState
+            };
+
+            newCourse = classroomService.Courses.Create(newCourse).Execute();
+            return newCourse;
         }
     }
 }

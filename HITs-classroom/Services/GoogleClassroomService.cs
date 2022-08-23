@@ -7,7 +7,7 @@ namespace HITs_classroom.Services
 {
     public class GoogleClassroomService
     {
-        static string[] Scopes = { ClassroomService.Scope.ClassroomCoursesReadonly };
+        static string[] Scopes = { ClassroomService.Scope.ClassroomCourses };
 
         public ClassroomService GetClassroomService()
         {
