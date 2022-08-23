@@ -7,6 +7,7 @@ using HITs_classroom.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Google.Apis.Util.Store;
+using HITs_classroom.Models.Course;
 
 namespace HITs_classroom.Controllers
 {
@@ -40,15 +41,34 @@ namespace HITs_classroom.Controllers
                 }
                 else
                 {
-                    throw;
+                    return StatusCode(520, "Unknown error");
                 }
             }
         }
 
         [HttpPost("Courses")]
-        public IActionResult GetCoursesList()
+        public IActionResult GetCoursesList(CourseSearch searchParameters)
         {
-            return null;
+            try
+            {
+                var response = _coursesService.GetCoursesList(searchParameters);
+                return new JsonResult(response);
+            }
+            catch (Exception e)
+            {
+                if (e is AggregateException)
+                {
+                    return StatusCode(500, "Credential Not found");
+                }
+                else if (e is GoogleApiException)
+                {
+                    return StatusCode(404, "Course does not exist.");
+                }
+                else
+                {
+                    return StatusCode(520, "Unknown error");
+                }
+            }
         }
 
         [HttpGet("ActiveCourses")]
@@ -71,7 +91,7 @@ namespace HITs_classroom.Controllers
                 }
                 else
                 {
-                    return StatusCode(520);
+                    return StatusCode(520, "Unknown error");
                 }
             }
         }
@@ -96,7 +116,8 @@ namespace HITs_classroom.Controllers
                 }
                 else
                 {
-                    return StatusCode(520);
+                    throw;
+                    return StatusCode(520, "Unknown error");
                 }
             }
         }
