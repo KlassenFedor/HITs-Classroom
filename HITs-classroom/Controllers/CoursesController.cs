@@ -173,7 +173,7 @@ namespace HITs_classroom.Controllers
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
                     return StatusCode(400, "Unable to change course," +
-                        " you should check that you are trying to change only the available fields");
+                        " you should check that you are trying to change only the available fields" + e.Message);
                 }
 
                 return StatusCode(520, "Unknown error");
@@ -192,7 +192,7 @@ namespace HITs_classroom.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public IActionResult UpdateCourse(string id, [FromBody] CourseShortModel course)
+        public IActionResult UpdateCourse(string id, [FromBody] CoursePatching course)
         {
             try
             {

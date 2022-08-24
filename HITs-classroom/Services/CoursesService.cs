@@ -20,7 +20,7 @@ namespace HITs_classroom.Services
         Course CreateCourse(CourseShortModel course);
         string DeleteCourse(string courseId);
         Course PatchCourse(string courseId, CoursePatching parameters);
-        Course UpdateCourse(string courseId, CourseShortModel parameters);
+        Course UpdateCourse(string courseId, CoursePatching parameters);
     }
 
     public class CoursesService: ICoursesService
@@ -156,7 +156,7 @@ namespace HITs_classroom.Services
             return course;
         }
 
-        public Course UpdateCourse(string courseId, CourseShortModel parameters)
+        public Course UpdateCourse(string courseId, CoursePatching parameters)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
             Course course = classroomService.Courses.Get(courseId).Execute();
@@ -197,31 +197,35 @@ namespace HITs_classroom.Services
             string result = "";
             if (model.Name != null)
             {
-                result = result + "name";
+                result = result + "name,";
             }
             if (model.OwnerId != null)
             {
-                result = result + "ownerId";
+                result = result + "ownerId,";
             }
             if (model.Section != null)
             {
-                result = result + "section";
+                result = result + "section,";
             }
             if (model.Room != null)
             {
-                result = result + "room";
+                result = result + "room,";
             }
             if (model.Description != null)
             {
-                result = result + "description";
+                result = result + "description,";
             }
             if (model.DescriptionHeading != null)
             {
-                result = result + "descriptionHeading";
+                result = result + "descriptionHeading,";
             }
             if (model.CourseState != null)
             {
-                result = result + "courseState";
+                result = result + "courseState,";
+            }
+            if (result[result.Length - 1] == ',')
+            {
+                result = result.Substring(0, result.Length - 1);
             }
             return result;
         }
