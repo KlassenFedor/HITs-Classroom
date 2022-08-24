@@ -53,6 +53,10 @@ namespace HITs_classroom.Controllers
         [HttpPost("Courses")]
         public IActionResult GetCoursesList([FromBody] CourseSearch searchParameters)
         {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
             try
             {
                 var response = _coursesService.GetCoursesList(searchParameters);
@@ -130,6 +134,10 @@ namespace HITs_classroom.Controllers
         [HttpPost("CreateCourse")]
         public IActionResult CreateCourse([FromBody] CourseShortModel course)
         {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
             try
             {
                 var result = _coursesService.CreateCourse(course);
@@ -152,11 +160,33 @@ namespace HITs_classroom.Controllers
             }
         }
 
+        [HttpPost("CreateCourseList")]
+        public IActionResult CreateCourseList([FromBody] List<CourseShortModel> courses)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
+            try
+            {
+
+            }
+            catch
+            {
+
+            }
+            return null;
+        }
+
         //--------updating courses--------
 
         [HttpPatch("patch/{id}")]
         public IActionResult PatchCourse(string id, [FromBody] CoursePatching course)
         {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
             try
             {
                 var response = _coursesService.PatchCourse(id, course);
@@ -194,6 +224,10 @@ namespace HITs_classroom.Controllers
         [HttpPut("update/{id}")]
         public IActionResult UpdateCourse(string id, [FromBody] CoursePatching course)
         {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
             try
             {
                 var response = _coursesService.UpdateCourse(id, course);
