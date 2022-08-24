@@ -2,7 +2,7 @@
 
 namespace HITs_classroom.Models.Course
 {
-    public class CourseCreating
+    public class CourseShortModel
     {
         public string Name { get; set; }
         public string? Section { get; set; }

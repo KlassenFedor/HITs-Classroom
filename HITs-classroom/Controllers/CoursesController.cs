@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Google.Apis.Util.Store;
 using HITs_classroom.Models.Course;
+using System.Text.Json;
+using System.Net;
 
 namespace HITs_classroom.Controllers
 {
@@ -49,7 +51,7 @@ namespace HITs_classroom.Controllers
         }
 
         [HttpPost("Courses")]
-        public IActionResult GetCoursesList(CourseSearch searchParameters)
+        public IActionResult GetCoursesList([FromBody] CourseSearch searchParameters)
         {
             try
             {
@@ -118,7 +120,6 @@ namespace HITs_classroom.Controllers
                 }
                 else
                 {
-                    throw;
                     return StatusCode(520, "Unknown error");
                 }
             }
@@ -127,7 +128,7 @@ namespace HITs_classroom.Controllers
         //--------creating courses--------
 
         [HttpPost("CreateCourse")]
-        public IActionResult CreateCourse(CourseCreating course)
+        public IActionResult CreateCourse([FromBody] CourseShortModel course)
         {
             try
             {
@@ -143,6 +144,119 @@ namespace HITs_classroom.Controllers
                 else if (e is GoogleApiException)
                 {
                     return StatusCode(400, "OwnerId not specified.");
+                }
+                else
+                {
+                    return StatusCode(520, "Unknown error");
+                }
+            }
+        }
+
+        //--------updating courses--------
+
+        [HttpPatch("patch/{id}")]
+        public IActionResult PatchCourse(string id, [FromBody] CoursePatching course)
+        {
+            try
+            {
+                var response = _coursesService.PatchCourse(id, course);
+                return new JsonResult(response);
+            }
+            catch (GoogleApiException e)
+            {
+                var errorResponse = e.HttpStatusCode;
+
+                if (errorResponse == HttpStatusCode.NotFound)
+                {
+                    return StatusCode(404, "Course was not found.");
+                }
+                else if (errorResponse == HttpStatusCode.BadRequest)
+                {
+                    return StatusCode(400, "Unable to change course," +
+                        " you should check that you are trying to change only the available fields");
+                }
+
+                return StatusCode(520, "Unknown error");
+            }
+            catch (Exception e)
+            {
+                if (e is AggregateException)
+                {
+                    return StatusCode(500, "Credential Not found");
+                }
+                else
+                {
+                    return StatusCode(520, "Unknown error");
+                }
+            }
+        }
+
+        [HttpPut("update/{id}")]
+        public IActionResult UpdateCourse(string id, [FromBody] CourseShortModel course)
+        {
+            try
+            {
+                var response = _coursesService.UpdateCourse(id, course);
+                return new JsonResult(response);
+            }
+            catch (GoogleApiException e)
+            {
+                var errorResponse = e.HttpStatusCode;
+
+                if (errorResponse == HttpStatusCode.NotFound)
+                {
+                    return StatusCode(404, "Course was not found.");
+                }
+                else if (errorResponse == HttpStatusCode.BadRequest)
+                {
+                    return StatusCode(400, "You are not permitted to modify this course or course is not modifable.");
+                }
+
+                return StatusCode(520, "Unknown error");
+            }
+            catch (Exception e)
+            {
+                if (e is AggregateException)
+                {
+                    return StatusCode(500, "Credential Not found");
+                }
+                else
+                {
+                    return StatusCode(520, "Unknown error");
+                }
+            }
+        }
+
+        //--------deleting courses--------
+
+        [HttpDelete("delete/{id}")]
+        public IActionResult DeleteCourse(string id)
+        {
+            try
+            {
+                var result = _coursesService.DeleteCourse(id);
+                return Ok("Course was deleted successfully");
+            }
+            catch (GoogleApiException e)
+            {
+                var errorResponse = e.HttpStatusCode;
+
+                if (errorResponse == HttpStatusCode.NotFound)
+                {
+                    return StatusCode(404, "Course was not found.");
+                }
+                else if (errorResponse == HttpStatusCode.BadRequest)
+                {
+                    return StatusCode(400, "Precondition check failed. Perhaps you should archive the course first.");
+                }
+
+                return StatusCode(520, "Unknown error");
+            }
+            catch (Exception e)
+            {
+                if (e is AggregateException)
+                {
+                    return StatusCode(500, "Credential Not found");
                 }
                 else
                 {
