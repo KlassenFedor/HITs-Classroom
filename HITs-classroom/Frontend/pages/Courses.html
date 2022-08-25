@@ -25,15 +25,50 @@
                 <div class="col-2 p-2 bg-light">
                     <ul>
                         <li>
-                            <a href="./index.html">Create and find</a>
+                            <a href="../index.html">Create course</a>
                         </li>
                         <li>
-                            <a href="./pages/courses.html">Active courses</a>
+                            <a href="./courses.html">Active courses</a>
                         </li>
                     </ul>
                 </div>
 
                 <div class="col-10 p-2 justify-content-center">
+
+                    <div class="m-2">
+                        <div class="d-grid gap-2 mx-auto col-2">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#findCourse" aria-expanded="false" aria-controls="findCourse">
+                                Find courses
+                            </button>
+                        </div>
+                        <div class="collapse m-2" id="findCourse">
+                            <div class="card card-body">
+                                <form>
+                                    <div class="row">
+                                        <div class="mb-3 col">
+                                            <label for="studentId_Search" class="form-label">Student id</label>
+                                            <input type="text" class="form-control" id="studentId_Search">
+                                        </div>
+                                        <div class="mb-3 col">
+                                            <label for="teacherId_Serach" class="form-label">Teacher id</label>
+                                            <input type="text" class="form-control" id="teacherId_Serach">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="courseState_Search" class="form-label">Course state</label>
+                                        <select class="form-select" id="courseState_Search">
+                                            <option selected>Choose course state</option>
+                                            <option value="1">ACTIVE</option>
+                                            <option value="2">ARCHIVED</option>
+                                            <option value="3">PROVISIONED</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row gap-4 p-5 justify-content-center">
                         <div class="card col-3">
                             <div class="card-header">

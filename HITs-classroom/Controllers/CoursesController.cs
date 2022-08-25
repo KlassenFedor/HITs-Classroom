@@ -25,7 +25,7 @@ namespace HITs_classroom.Controllers
 
         //--------search for courses--------
 
-        [HttpGet("{courseId}")]
+        [HttpGet("get/{courseId}")]
         public IActionResult GetCourse(string courseId)
         {
             try 
@@ -151,7 +151,7 @@ namespace HITs_classroom.Controllers
                 }
                 else if (e is GoogleApiException)
                 {
-                    return StatusCode(400, "OwnerId not specified.");
+                    return StatusCode(400, "OwnerId not specified." + e.Message);
                 }
                 else
                 {
