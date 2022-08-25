@@ -51,7 +51,9 @@ namespace HITs_classroom.Services
                 request.PageToken = pageToken;
                 request.StudentId = parameters.StudentId;
                 request.TeacherId = parameters.TeacherId;
-                request.CourseStates = parameters.CourseState;
+                CoursesResource.ListRequest.CourseStatesEnum status;
+                Enum.TryParse(parameters.CourseState, out status);
+                request.CourseStates = status;
                 var response = request.Execute();
                 if (response.Courses != null)
                 {

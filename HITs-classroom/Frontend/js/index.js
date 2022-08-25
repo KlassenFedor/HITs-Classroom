@@ -17,8 +17,8 @@ function createCourse() {
         'https://localhost:7284/api/Courses/CreateCourse',
         data
     )
-    .then(data => console.log(data))
-    .catch(error => console.error(error))
+        .then(response => console.log(response))
+        .catch(error => console.error(error))
 }
 
 function post(url, data) {

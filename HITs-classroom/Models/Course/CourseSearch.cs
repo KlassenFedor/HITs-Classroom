@@ -6,6 +6,6 @@ namespace HITs_classroom.Models.Course
     {
         public string? StudentId { get; set; }
         public string? TeacherId { get; set; }
-        public CoursesResource.ListRequest.CourseStatesEnum? CourseState { get; set; } 
+        public string? CourseState { get; set; } 
     }
 }
