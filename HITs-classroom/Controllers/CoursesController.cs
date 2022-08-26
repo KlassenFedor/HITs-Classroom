@@ -245,7 +245,7 @@ namespace HITs_classroom.Controllers
                         " you should check that you are trying to change only the available fields" + e.Message);
                 }
 
-                return StatusCode(520, "Unknown error");
+                return StatusCode(520, "Unknown error" + e.Message);
             }
             catch (Exception e)
             {

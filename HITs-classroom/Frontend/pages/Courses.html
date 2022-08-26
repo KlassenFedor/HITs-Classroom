@@ -63,6 +63,7 @@
                                             <option value="ACTIVE">ACTIVE</option>
                                             <option value="ARCHIVED">ARCHIVED</option>
                                             <option value="PROVISIONED">PROVISIONED</option>
+                                            <option value="DECLINED">DECLINED</option>
                                         </select>
                                     </div>
                                     <button type="button" class="btn btn-primary" id="searchCourseSubmitButton">Submit</button>
@@ -112,7 +113,64 @@
                         <div class="btn-group course-buttons" role="group" aria-label="Basic example">
                             <button type="button" class="btn btn-outline-secondary btn-sm del-button">Delete</button>
                             <button type="button" class="btn btn-outline-secondary btn-sm archive-button">Archive</button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm edit-button">Edit</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm edit-button" data-bs-toggle="modal" data-bs-target="#editCourseModal">Edit</button>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="editCourseModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Editing course №</h5>
+                                    <h5 class="mb-0 italic" id="courseIdForModalHeader"></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="editCourseForm">
+                                        <div class="row">
+                                            <div class="mb-3 col">
+                                                <label for="courseName_Editing" class="form-label">Course name</label>
+                                                <input type="text" class="form-control" id="courseName_Editing" name="name" required>
+                                            </div>
+                                            <div class="mb-3 col">
+                                                <label for="ownerId_Editing" class="form-label">OwnerId</label>
+                                                <input type="text" class="form-control" id="ownerId_Editing" name="ownerId" placeholder="me, email or id" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col">
+                                                <label for="courseRoom_Editing" class="form-label">Room</label>
+                                                <input type="text" class="form-control" id="courseRoom_Editing" name="room">
+                                            </div>
+                                            <div class="mb-3 col">
+                                                <label for="courseSection_Editing" class="form-label">Section</label>
+                                                <input type="text" class="form-control" id="courseSection_Editing" name="section">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col">
+                                                <label for="courseDescription_Editing" class="form-label">Description</label>
+                                                <input type="text" class="form-control" id="courseDescription_Editing" name="description">
+                                            </div>
+                                            <div class="mb-3 col">
+                                                <label for="courseDescriptionHeading_Editing" class="form-label">Description heading</label>
+                                                <input type="text" class="form-control" id="courseDescriptionHeading_Editing" name="descriptionHeading">
+                                            </div>
+                                        </div>
+                                        <select class="form-select" id="courseState_Editing" name="courseState">
+                                            <option selected></option>
+                                            <option value="ACTIVE">ACTIVE</option>
+                                            <option value="ARCHIVED">ARCHIVED</option>
+                                            <option value="PROVISIONED">PROVISIONED</option>
+                                            <option value="DECLINED">DECLINED</option>
+                                        </select>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" id="editCourseBtn" data-bs-dismiss="modal">Save changes</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

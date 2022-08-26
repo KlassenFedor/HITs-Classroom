@@ -13,6 +13,8 @@
     findActiveCourses();
 });
 
+//--------Adding, deleting, changing courses on the page--------
+
 function convertCoursesFromJsonToArray(json) {
     console.log('convertCoursesFromJsonToArray');
     let newArray = [];
@@ -36,6 +38,8 @@ function prepareCourseFromJson(course) {
 
 //filling course card fields from json
 function prepareCourseCard(course, courseClone) {
+
+    //course fields filling
     let courseName = courseClone.querySelector('.course-name');
     courseName.innerText = course['name'];
     let courseSection = courseClone.querySelector('.course-section');
@@ -47,6 +51,7 @@ function prepareCourseCard(course, courseClone) {
     let courseState = courseClone.querySelector('.course-state');
     courseState.innerText = course['courseState'];
 
+    //adding event listeners
     let delButton = courseClone.querySelector('.del-button');
     if (course['courseState'] != "ARCHIVED") {
         delButton.classList.add('disabled');
@@ -56,11 +61,24 @@ function prepareCourseCard(course, courseClone) {
     }
     delButton.addEventListener('click', deleteCourse);
     delButton.currentId = course['id'];
+
     let archiveButton = courseClone.querySelector('.archive-button');
     archiveButton.addEventListener('click', archiveCourse);
     archiveButton.currentId = course['id'];
+
     let editButton = courseClone.querySelector('.edit-button');
-    editButton.addEventListener('click', editCourse.bind(course['id']));
+    editButton.addEventListener('click', fillModalForEditing);
+    editButton.currentId = course['id'];
+    editButton.currentName = course['name'];
+    editButton.currentOwnerId = course['ownerId'];
+    editButton.currentDescription = course['description'];
+    editButton.currentDescriptionHeading = course['descriptionHeading'];
+    editButton.currentRoom = course['room'];
+    editButton.currentSection = course['section'];
+    editButton.currentCourseState = course['courseState'];
+
+    let saveChangesBtn = document.querySelector('#editCourseBtn');
+    saveChangesBtn.addEventListener('click', editCourse);
 
     return courseClone;
 }
@@ -85,6 +103,21 @@ function deleteCourseCard(Id) {
     placeForCourses.removeChild(courseCard);
 }
 
+function fillModalForEditing(event) {
+    let editingModal = document.querySelector('#editCourseModal');
+    let editCourseForm = editingModal.querySelector('#editCourseForm');
+    editingModal.querySelector('#courseIdForModalHeader').innerHTML = event.currentTarget.currentId;
+    editCourseForm.querySelector('#courseName_Editing').value = event.currentTarget.currentName;
+    editCourseForm.querySelector('#ownerId_Editing').value = event.currentTarget.currentOwnerId;
+    editCourseForm.querySelector('#courseRoom_Editing').value = event.currentTarget.currentRoom;
+    editCourseForm.querySelector('#courseSection_Editing').value = event.currentTarget.currentSection;
+    editCourseForm.querySelector('#courseDescription_Editing').value = event.currentTarget.currentDescription;
+    editCourseForm.querySelector('#courseDescriptionHeading_Editing').value = event.currentTarget.currentDescriptionHeading;
+    editCourseForm.querySelector('#courseState_Editing').value = event.currentTarget.currentCourseState;
+}
+
+//--------Wrappers for HTTP methods--------
+
 function archiveCourse(event) {
     console.log('archiveCourse');
     var data = new Object;
@@ -98,7 +131,20 @@ function archiveCourse(event) {
 }
 
 function editCourse() {
-
+    console.log('editCourse');
+    var data = new Object();
+    for (const pair of new FormData(document.querySelector('#editCourseForm'))) {
+        if (pair[1] != null && pair[1] != '') {
+            data[pair[0]] = pair[1];
+        }
+    }
+    data = JSON.stringify(data);
+    putRequest(
+        'https://localhost:7284/api/Courses/update/' + document.querySelector('#courseIdForModalHeader').innerHTML,
+        data
+    )
+        .then(response => editCourseCard(response))
+        .catch(error => console.error(error))
 }
 
 function deleteCourse(event) {
@@ -151,6 +197,8 @@ function findCourseById() {
         .catch(error => console.error(error));
 }
 
+//--------Implementing HTTP methods--------
+
 function postRequest(url, data) {
     return fetch(url,
         {
@@ -176,6 +224,19 @@ function patchRequest(url, data) {
     return fetch(url,
         {
             method: "PATCH",
+            body: data
+        }
+    ).then(response => response.json());
+}
+
+function putRequest(url, data) {
+    return fetch(url,
+        {
+            method: "PUT",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
             body: data
         }
     ).then(response => response.json());

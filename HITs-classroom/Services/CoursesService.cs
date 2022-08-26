@@ -234,7 +234,7 @@ namespace HITs_classroom.Services
             }
             if (parameters.CourseState != null)
             {
-                course.Description = parameters.Description;
+                course.CourseState = parameters.CourseState;
             }
             course = classroomService.Courses.Update(course, courseId).Execute();
             return course;
