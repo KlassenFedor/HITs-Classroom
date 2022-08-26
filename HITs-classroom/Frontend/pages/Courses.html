@@ -59,7 +59,7 @@
                                     <div class="mb-3">
                                         <label for="courseState_Search" class="form-label">Course state</label>
                                         <select class="form-select" id="courseState_Search" name="courseState">
-                                            <option selected>Choose course state</option>
+                                            <option selected></option>
                                             <option value="ACTIVE">ACTIVE</option>
                                             <option value="ARCHIVED">ARCHIVED</option>
                                             <option value="PROVISIONED">PROVISIONED</option>
@@ -93,7 +93,7 @@
                     </div>
 
                     <div class="row gap-4 p-5 justify-content-center" id="allCourses">
-                        <div class="col-2">Loading...</div>
+                        <div class="col-2 text-center">Loading...</div>
                     </div>
 
                     <div class="card col-3 p-0 course-card d-none">
@@ -109,10 +109,10 @@
                             <p class="fst-italic my-font-size-12 mb-0">Course status:</p>
                             <p class="course-state">ACTIVE</p>
                         </div>
-                        <div class="btn-group" role="group" aria-label="Basic example">
-                            <button type="button" class="btn btn-outline-secondary btn-sm">Delete</button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm">Archive</button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm">Edit</button>
+                        <div class="btn-group course-buttons" role="group" aria-label="Basic example">
+                            <button type="button" class="btn btn-outline-secondary btn-sm del-button">Delete</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm archive-button">Archive</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm edit-button">Edit</button>
                         </div>
                     </div>
 

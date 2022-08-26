@@ -180,6 +180,45 @@ namespace HITs_classroom.Controllers
 
         //--------updating courses--------
 
+        [HttpPatch("archive/{id}")]
+        public IActionResult ArchiveCourse(string id)
+        {
+            try
+            {
+                CoursePatching course = new CoursePatching();
+                course.CourseState = "ARCHIVED";
+                var response = _coursesService.PatchCourse(id, course);
+                return new JsonResult(response);
+            }
+            catch (GoogleApiException e)
+            {
+                var errorResponse = e.HttpStatusCode;
+
+                if (errorResponse == HttpStatusCode.NotFound)
+                {
+                    return StatusCode(404, "Course was not found.");
+                }
+                else if (errorResponse == HttpStatusCode.BadRequest)
+                {
+                    return StatusCode(400, "Unable to change course," +
+                        " you should check that you are trying to change only the available fields" + e.Message);
+                }
+
+                return StatusCode(520, "Unknown error");
+            }
+            catch (Exception e)
+            {
+                if (e is AggregateException)
+                {
+                    return StatusCode(500, "Credential Not found");
+                }
+                else
+                {
+                    return StatusCode(520, "Unknown error");
+                }
+            }
+        }
+
         [HttpPatch("patch/{id}")]
         public IActionResult PatchCourse(string id, [FromBody] CoursePatching course)
         {
