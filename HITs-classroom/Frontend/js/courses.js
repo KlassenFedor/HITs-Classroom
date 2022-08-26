@@ -127,7 +127,7 @@ function archiveCourse(event) {
         data
     )
         .then(response => editCourseCard(response))
-        .catch(error => console.error(error))
+        .catch(error => () => { console.error(error), alert('Failed to archive course') })
 }
 
 function editCourse() {
@@ -139,12 +139,17 @@ function editCourse() {
         }
     }
     data = JSON.stringify(data);
-    putRequest(
-        'https://localhost:7284/api/Courses/update/' + document.querySelector('#courseIdForModalHeader').innerHTML,
-        data
-    )
-        .then(response => editCourseCard(response))
-        .catch(error => console.error(error))
+    if (data['name'] == null || data['ownerId'] == null) {
+        alert('Fields "name" and "ownerId" must be filled');
+    }
+    else {
+        putRequest(
+            'https://localhost:7284/api/Courses/update/' + document.querySelector('#courseIdForModalHeader').innerHTML,
+            data
+        )
+            .then(response => editCourseCard(response))
+            .catch(error => { console.error(error), alert('Failed to edit course') })
+    }
 }
 
 function deleteCourse(event) {
@@ -153,7 +158,7 @@ function deleteCourse(event) {
         'https://localhost:7284/api/Courses/delete/' + event.currentTarget.currentId.toString()
     )
         .then(deleteCourseCard(event.currentTarget.currentId.toString()))
-        .catch(error => console.error(error))
+        .catch(error => { console.error(error), alert('Failed to delete course') })
 }
 
 function findActiveCourses() {
@@ -166,7 +171,7 @@ function findActiveCourses() {
         data
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
-        .catch(error => console.error(error))
+        .catch(error => {console.error(error), alert('Courses are currently unavailable') })
 }
 
 function findCourses() {
@@ -184,7 +189,7 @@ function findCourses() {
         data
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
-        .catch(error => console.error(error))
+        .catch(error => { console.error(error), alert('Failed to find courses') })
 }
 
 function findCourseById() {
@@ -194,7 +199,7 @@ function findCourseById() {
         'https://localhost:7284/api/Courses/Get/' + Id.toString()
     )
         .then(response => addCoursesToPage([prepareCourseFromJson(response)]))
-        .catch(error => console.error(error));
+        .catch(error => { console.error(error), alert('Failed to find course') });
 }
 
 //--------Implementing HTTP methods--------

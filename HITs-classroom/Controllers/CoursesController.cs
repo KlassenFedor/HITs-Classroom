@@ -151,7 +151,7 @@ namespace HITs_classroom.Controllers
                 }
                 else if (e is GoogleApiException)
                 {
-                    return StatusCode(400, "OwnerId not specified." + e.Message);
+                    return StatusCode(400, "OwnerId not specified.");
                 }
                 else
                 {
@@ -201,7 +201,7 @@ namespace HITs_classroom.Controllers
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
                     return StatusCode(400, "Unable to change course," +
-                        " you should check that you are trying to change only the available fields" + e.Message);
+                        " you should check that you are trying to change only the available fields");
                 }
 
                 return StatusCode(520, "Unknown error");
@@ -242,7 +242,7 @@ namespace HITs_classroom.Controllers
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
                     return StatusCode(400, "Unable to change course," +
-                        " you should check that you are trying to change only the available fields" + e.Message);
+                        " you should check that you are trying to change only the available fields");
                 }
 
                 return StatusCode(520, "Unknown error" + e.Message);
