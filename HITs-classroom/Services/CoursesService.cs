@@ -21,6 +21,7 @@ namespace HITs_classroom.Services
         string DeleteCourse(string courseId);
         Course PatchCourse(string courseId, CoursePatching parameters);
         Course UpdateCourse(string courseId, CoursePatching parameters);
+        List<Course> CreateCoursesList(List<CourseShortModel> courses);
     }
 
     public class CoursesService: ICoursesService
