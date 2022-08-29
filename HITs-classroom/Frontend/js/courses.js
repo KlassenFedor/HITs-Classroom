@@ -163,12 +163,8 @@ function deleteCourse(event) {
 
 function findActiveCourses() {
     console.log('findActiveCourses');
-    var data = new Object();
-    data.courseState = "ACTIVE";
-    data = JSON.stringify(data);
-    postRequest(
-        'https://localhost:7284/api/Courses/Courses',
-        data
+    getRequest(
+        'https://localhost:7284/api/Courses/Courses?courseState=ACTIVE'
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
         .catch(error => {console.error(error), alert('Courses are currently unavailable') })
@@ -176,17 +172,16 @@ function findActiveCourses() {
 
 function findCourses() {
     console.log('findCourses');
-    var data = new Object();
+    let queryParameters = '';
     for (const pair of new FormData(document.querySelector('#searchCoursesForm'))) {
         if (pair[1] != null && pair[1] != '') {
-            data[pair[0]] = pair[1];
+            queryParameters = queryParameters + '&' + pair[0].toString() + '=' + pair[1].toString();
         }
     }
-    data = JSON.stringify(data);
-    console.log(data);
-    postRequest(
-        'https://localhost:7284/api/Courses/Courses',
-        data
+    queryParameters = queryParameters.slice(1);
+    console.log(queryParameters);
+    getRequest(
+        'https://localhost:7284/api/Courses/Courses?' + queryParameters
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
         .catch(error => { console.error(error), alert('Failed to find courses') })

@@ -72,8 +72,8 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Invalid input data.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpPost("Courses")]
-        public IActionResult GetCoursesList([FromBody] CourseSearch searchParameters)
+        [HttpGet("Courses")]
+        public IActionResult GetCoursesList()
         {
             if (!ModelState.IsValid)
             {
@@ -81,6 +81,11 @@ namespace HITs_classroom.Controllers
             }
             try
             {
+                var queryParameters = Request.Query;
+                var searchParameters = new CourseSearch();
+                searchParameters.StudentId = queryParameters["studentId"];
+                searchParameters.TeacherId = queryParameters["teacherId"];
+                searchParameters.CourseState = queryParameters["courseState"];
                 var response = _coursesService.GetCoursesList(searchParameters);
                 return new JsonResult(response);
             }
