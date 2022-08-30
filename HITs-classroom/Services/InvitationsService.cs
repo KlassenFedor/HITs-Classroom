@@ -2,6 +2,7 @@
 using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Enums;
 using HITs_classroom.Models.Invitation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using System.Text.Json;
 
@@ -12,15 +13,17 @@ namespace HITs_classroom.Services
         Invitation CreateInvitation(InvitationManagementModel parameters);
         string DeleteInvitation(string id);
         Invitation GetInvitation(string id);
-        string CheckInvitationStatus(string id);
+        Task<InvitationStatus> CheckInvitationStatus(string id);
     }
 
     public class InvitationsService: IInvitationsService
     {
         private GoogleClassroomService _googleClassroomService;
-        public InvitationsService(GoogleClassroomService googleClassroomService)
+        private ApplicationDbContext _context;
+        public InvitationsService(GoogleClassroomService googleClassroomService, ApplicationDbContext context)
         {
             _googleClassroomService = googleClassroomService;
+            _context = context;
         }
 
         public Invitation CreateInvitation(InvitationManagementModel parameters)
@@ -55,9 +58,71 @@ namespace HITs_classroom.Services
             return response;
         }
 
-        public string CheckInvitationStatus(string id)
+        public async Task<InvitationStatus> CheckInvitationStatus(string id)
         {
-            return null;
+            var classroomService = _googleClassroomService.GetClassroomService();
+            var invitation = await _context.Invitations.Where(i => i.Id == id).FirstOrDefaultAsync();
+            if (invitation != null)
+            {
+                if (invitation.IsAccepted)
+                {
+                    return InvitationStatus.ACCEPTED;
+                }
+
+                InvitationManagementModel invitationParameters = new InvitationManagementModel
+                {
+                    CourseId = invitation.CourseId,
+                    Role = invitation.Role,
+                    UserId = invitation.UserId
+                };
+
+                if (CheckIfUserAcceptedInvitaton(invitationParameters, classroomService))
+                {
+                    invitation.IsAccepted = true;
+                    await _context.SaveChangesAsync();
+                    return InvitationStatus.ACCEPTED;
+                }
+                return InvitationStatus.NOT_ACCEPTED;
+            }
+            return InvitationStatus.NOT_EXISTS;
+        }
+
+        private bool CheckIfUserAcceptedInvitaton(InvitationManagementModel invitation, ClassroomService classroomService)
+        {
+            if (invitation.Role == (int)CourseRoleEnum.STUDENT)
+            {
+                try
+                {
+                    var student = classroomService.Courses.Students.Get(invitation.CourseId, invitation.UserId).Execute();
+                    if (student != null)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                catch (Exception e)
+                {
+                    return false;
+                }
+            }
+            else if (invitation.Role == (int)CourseRoleEnum.TEACHER)
+            {
+                try
+                {
+                    var teacher = classroomService.Courses.Teachers.Get(invitation.CourseId, invitation.UserId).Execute();
+                    if (teacher != null)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                catch (Exception e)
+                {
+                    return false;
+                }
+            }
+
+            return false;
         }
     }
 }
