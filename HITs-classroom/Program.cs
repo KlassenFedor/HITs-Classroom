@@ -1,4 +1,6 @@
+using HITs_classroom;
 using HITs_classroom.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 
@@ -20,7 +22,13 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddCors();
 
+var connection = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection));
+
 var app = builder.Build();
+
+using var serviceScope = app.Services.CreateScope();
+var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
