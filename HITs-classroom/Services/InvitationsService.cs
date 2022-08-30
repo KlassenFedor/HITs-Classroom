@@ -1,4 +1,5 @@
-﻿using Google.Apis.Classroom.v1;
+﻿using Google;
+using Google.Apis.Classroom.v1;
 using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Enums;
 using HITs_classroom.Models.Invitation;
@@ -76,13 +77,20 @@ namespace HITs_classroom.Services
                     UserId = invitation.UserId
                 };
 
-                if (CheckIfUserAcceptedInvitaton(invitationParameters, classroomService))
+                try
                 {
-                    invitation.IsAccepted = true;
-                    await _context.SaveChangesAsync();
-                    return InvitationStatus.ACCEPTED;
+                    if (CheckIfUserAcceptedInvitaton(invitationParameters, classroomService))
+                    {
+                        invitation.IsAccepted = true;
+                        await _context.SaveChangesAsync();
+                        return InvitationStatus.ACCEPTED;
+                    }
+                    return InvitationStatus.NOT_ACCEPTED;
                 }
-                return InvitationStatus.NOT_ACCEPTED;
+                catch (Exception e)
+                {
+                    throw;
+                }
             }
             return InvitationStatus.NOT_EXISTS;
         }
@@ -100,9 +108,16 @@ namespace HITs_classroom.Services
                     }
                     return false;
                 }
-                catch (Exception e)
+                catch (GoogleApiException e)
                 {
-                    return false;
+                    if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
             else if (invitation.Role == (int)CourseRoleEnum.TEACHER)

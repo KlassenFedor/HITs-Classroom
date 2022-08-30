@@ -16,9 +16,28 @@ namespace HITs_classroom.Controllers
             _invitationsService = invitationsService;
         }
 
+        /// <summary>
+        /// Creates the invitation
+        /// </summary>
+        /// <remarks>
+        /// courseId - classroom-assigned identifier or an alias (if exists).
+        /// userId - identifier of the invited user.
+        /// role - role to invite the user to have.
+        /// </remarks>
+        /// <response code="400">Invalid input data.</response>
+        /// <response code="403">You are not permitted to create invitations for this course
+        /// or the requested user's account is disabled or the user already has this role
+        /// or a role with greater permissions.</response>
+        /// <response code="404">Course or user does not exist.</response>
+        /// <response code="409">Invitation already exists.</response>
+        /// <response code="500">Credential Not found.</response>
         [HttpPost("create")]
         public IActionResult CreateInvitation([FromBody] InvitationManagementModel parameters)
         {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
             try
             {
                 var invitation = _invitationsService.CreateInvitation(parameters);
@@ -54,7 +73,17 @@ namespace HITs_classroom.Controllers
             }
         }
 
-        [HttpDelete("delete/{id:string}")]
+
+        /// <summary>
+        /// Deletes the invitation
+        /// </summary>
+        /// <remarks>
+        /// id - invitation Id
+        /// </remarks>
+        /// <response code="403">You are not permitted to delete invitations for this course.</response>
+        /// <response code="404">No invitation exists with the requested ID.</response>
+        /// <response code="500">Credential Not found.</response>
+        [HttpDelete("delete/{id}")]
         public IActionResult DeleteInvitation(string id)
         {
             try
@@ -86,6 +115,15 @@ namespace HITs_classroom.Controllers
             }
         }
 
+        /// <summary>
+        /// Search for a invitation by id.
+        /// </summary>
+        /// <remarks>
+        /// id - invitation Id
+        /// </remarks>
+        /// <response code="403">You are not permitted to delete invitations for this course.</response>
+        /// <response code="404">No invitation exists with the requested ID.</response>
+        /// <response code="500">Credential Not found.</response>
         [HttpGet("{id:int}")]
         public IActionResult GetInvitation(string id)
         {
@@ -118,7 +156,16 @@ namespace HITs_classroom.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        /// <summary>
+        /// Сhecks the status of the invitation
+        /// </summary>
+        /// <remarks>
+        /// id - invitation Id
+        /// Possible statuses: ACCEPTED, NOT_ACCEPTED, NOT_EXISTS (if the invitation is not found).
+        /// </remarks>
+        /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
+        /// <response code="500">Credential Not found.</response>
+        [HttpPost("{id}")]
         public IActionResult СheckInvitationStatus(string id)
         {
             try
@@ -128,14 +175,7 @@ namespace HITs_classroom.Controllers
             }
             catch (GoogleApiException e)
             {
-                if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    return StatusCode(404, "No invitation exists with the requested ID.");
-                }
-                else
-                {
-                    return StatusCode(403, "You are not permitted to check invitations for this course.");
-                }
+                return StatusCode(403, "You are not permitted to check invitations for this course.");
             }
             catch (Exception e)
             {
