@@ -7,7 +7,11 @@ namespace HITs_classroom.Services
 {
     public class GoogleClassroomService
     {
-        static string[] Scopes = { ClassroomService.Scope.ClassroomCourses };
+        static string[] Scopes = { 
+            ClassroomService.Scope.ClassroomCourses,
+            ClassroomService.Scope.ClassroomRosters,
+            ClassroomService.Scope.ClassroomProfileEmails
+        };
 
         public ClassroomService GetClassroomService()
         {
@@ -31,7 +35,7 @@ namespace HITs_classroom.Services
                 credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.FromStream(stream).Secrets,
                     Scopes,
-                    "user",
+                    "user-test",
                     CancellationToken.None,
                     new FileDataStore(credPath, true)).Result;
             }

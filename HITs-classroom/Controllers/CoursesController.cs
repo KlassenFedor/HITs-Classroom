@@ -63,17 +63,21 @@ namespace HITs_classroom.Controllers
         /// Returns a list of courses corresponding to the specified parameters.
         /// </summary>
         /// <remarks>
+        /// Query parameters:
+        /// 
         /// studentId - restricts returned courses to those having a student with the specified identifier.
+        /// 
         /// teacherId - restricts returned courses to those having a teacher with the specified identifier.
         /// (the numeric identifier for the user, the email address of the user, the string literal "me", indicating the requesting user).
-        /// courseState - Restricts returned courses to those in one of the specified states.
+        /// 
+        /// courseState - restricts returned courses to those in one of the specified states.
         /// The default value is ACTIVE, ARCHIVED, PROVISIONED, DECLINED.
         /// </remarks>
         /// <response code="400">Invalid input data.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
         [HttpGet("Courses")]
-        public IActionResult GetCoursesList()
+        public IActionResult GetCoursesList([FromQuery] string? studentId, [FromQuery] string? teacherId, [FromQuery] string? courseState)
         {
             if (!ModelState.IsValid)
             {
@@ -81,11 +85,10 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                var queryParameters = Request.Query;
                 var searchParameters = new CourseSearch();
-                searchParameters.StudentId = queryParameters["studentId"];
-                searchParameters.TeacherId = queryParameters["teacherId"];
-                searchParameters.CourseState = queryParameters["courseState"];
+                searchParameters.StudentId = studentId;
+                searchParameters.TeacherId = teacherId;
+                searchParameters.CourseState = courseState;
                 var response = _coursesService.GetCoursesList(searchParameters);
                 return new JsonResult(response);
             }
@@ -204,7 +207,7 @@ namespace HITs_classroom.Controllers
                 }
                 else if (e is GoogleApiException)
                 {
-                    return StatusCode(404, "OwnerId not specified.");
+                    return StatusCode(404, "OwnerId not specified." + e.Message);
                 }
                 else
                 {

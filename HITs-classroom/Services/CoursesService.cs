@@ -21,7 +21,7 @@ namespace HITs_classroom.Services
         string DeleteCourse(string courseId);
         Course PatchCourse(string courseId, CoursePatching parameters);
         Course UpdateCourse(string courseId, CoursePatching parameters);
-        List<Course> CreateCoursesList(List<CourseShortModel> courses);
+        //List<Course> CreateCoursesList(List<CourseShortModel> courses);
     }
 
     public class CoursesService: ICoursesService
@@ -135,46 +135,46 @@ namespace HITs_classroom.Services
             return newCourse;
         }
 
-        public List<Course> CreateCoursesList(List<CourseShortModel> courses)
-        {
-            ClassroomService classroomService;
-            try
-            {
-                classroomService = _googleClassroomService.GetClassroomService();
-                List<Course> result = new List<Course>();
+        //public List<Course> CreateCoursesList(List<CourseShortModel> courses)
+        //{
+        //    ClassroomService classroomService;
+        //    try
+        //    {
+        //        classroomService = _googleClassroomService.GetClassroomService();
+        //        List<Course> result = new List<Course>();
 
-                foreach (var courseShortModel in courses)
-                {
-                    var newCourse = new Course
-                    {
-                        Name = courseShortModel.Name,
-                        Section = courseShortModel.Section,
-                        DescriptionHeading = courseShortModel.DescriptionHeading,
-                        Description = courseShortModel.Description,
-                        Room = courseShortModel.Room,
-                        OwnerId = courseShortModel.OwnerId,
-                        CourseState = courseShortModel.CourseState
-                    };
+        //        foreach (var courseShortModel in courses)
+        //        {
+        //            var newCourse = new Course
+        //            {
+        //                Name = courseShortModel.Name,
+        //                Section = courseShortModel.Section,
+        //                DescriptionHeading = courseShortModel.DescriptionHeading,
+        //                Description = courseShortModel.Description,
+        //                Room = courseShortModel.Room,
+        //                OwnerId = courseShortModel.OwnerId,
+        //                CourseState = courseShortModel.CourseState
+        //            };
 
-                    try
-                    {
-                        Course newExistingCourse = classroomService.Courses.Create(newCourse).Execute();
-                        result.Add(newExistingCourse);
-                    }
-                    catch
-                    {
-                        newCourse.CourseState = CoursesResource.ListRequest.CourseStatesEnum.COURSESTATEUNSPECIFIED.ToString();
-                        result.Add(newCourse);
-                    }
-                }
+        //            try
+        //            {
+        //                Course newExistingCourse = classroomService.Courses.Create(newCourse).Execute();
+        //                result.Add(newExistingCourse);
+        //            }
+        //            catch
+        //            {
+        //                newCourse.CourseState = CoursesResource.ListRequest.CourseStatesEnum.COURSESTATEUNSPECIFIED.ToString();
+        //                result.Add(newCourse);
+        //            }
+        //        }
 
-                return result;
-            }
-            catch
-            {
-                throw;
-            }
-        }
+        //        return result;
+        //    }
+        //    catch
+        //    {
+        //        throw;
+        //    }
+        //}
 
         public string DeleteCourse(string courseId)
         {
