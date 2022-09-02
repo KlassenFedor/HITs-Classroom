@@ -39,12 +39,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'get/{invitationId}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'get/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(404, "No invitation exists with the requested ID.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'get/{invitationId}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'get/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(403, "You are not permitted to get invitations for this course.");
                 }
             }
@@ -52,12 +52,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'get/{invitationId}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'get/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'get/{invitationId}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'get/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -83,19 +83,19 @@ namespace HITs_classroom.Controllers
             }
             catch (GoogleApiException e)
             {
-                _logger.LogInformation("An error was found when executing the request 'check/{invitationId}'", e.Message);
+                _logger.LogInformation("An error was found when executing the request 'check/{{invitationId}}'. {error}", e.Message);
                 return StatusCode(403, "You are not permitted to check invitations for this course.");
             }
             catch (Exception e)
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'check/{invitationId}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'check/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'check/{invitationId}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'check/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -119,19 +119,19 @@ namespace HITs_classroom.Controllers
             }
             catch (GoogleApiException e)
             {
-                _logger.LogInformation("An error was found when executing the request 'update'", e.Message);
+                _logger.LogInformation("An error was found when executing the request 'update'. {error}", e.Message);
                 return StatusCode(403, "You are not permitted to update invitations for this course.");
             }
             catch (Exception e)
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'update'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'update'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'update'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'update'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -156,19 +156,19 @@ namespace HITs_classroom.Controllers
             }
             catch (GoogleApiException e)
             {
-                _logger.LogInformation("An error was found when executing the request 'update{courseId}'", e.Message);
+                _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                 return StatusCode(403, "You are not permitted to update invitations for this course.");
             }
             catch (Exception e)
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'update{courseId}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'update{courseId}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -205,17 +205,17 @@ namespace HITs_classroom.Controllers
             {
                 if (e.HttpStatusCode == System.Net.HttpStatusCode.Conflict)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
                     return StatusCode(409, "Invitation already exists.");
                 }
                 else if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
                     return StatusCode(404, "Course or user does not exist.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
                     return StatusCode(403, "You are not permitted to create invitations for this course" +
                         " or the requested users account is disabled or" +
                         " the user already has this role or a role with greater permissions." + e.Message);
@@ -225,12 +225,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -258,12 +258,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'delete/{invitationid}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'delete/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(404, "No invitation exists with the requested ID.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'delete/{invitationid}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'delete/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(403, "You are not permitted to delete invitations for this course.");
                 }
             }
@@ -271,12 +271,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'delete/{invitationid}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'delete/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'delete/{invitationid}'", e.Message);
+                    _logger.LogInformation("An error was found when executing the request 'delete/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
