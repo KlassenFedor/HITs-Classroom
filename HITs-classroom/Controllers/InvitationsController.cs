@@ -11,9 +11,11 @@ namespace HITs_classroom.Controllers
     public class InvitationsController : ControllerBase
     {
         private readonly IInvitationsService _invitationsService;
-        public InvitationsController(IInvitationsService invitationsService)
+        private readonly ILogger _logger;
+        public InvitationsController(IInvitationsService invitationsService, ILogger<InvitationsController> logger)
         {
             _invitationsService = invitationsService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -25,22 +27,24 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not permitted to delete invitations for this course.</response>
         /// <response code="404">No invitation exists with the requested ID.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetInvitation(string id)
+        [HttpGet("get/{invitationId}")]
+        public async Task<IActionResult> GetInvitation(string invitationId)
         {
             try
             {
-                var result = await _invitationsService.GetInvitation(id);
+                var result = await _invitationsService.GetInvitation(invitationId);
                 return Ok(new JsonResult(result).Value);
             }
             catch (GoogleApiException e)
             {
                 if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'get/{invitationId}'", e.Message);
                     return StatusCode(404, "No invitation exists with the requested ID.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'get/{invitationId}'", e.Message);
                     return StatusCode(403, "You are not permitted to get invitations for this course.");
                 }
             }
@@ -48,10 +52,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'get/{invitationId}'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'get/{invitationId}'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -67,26 +73,29 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpGet("check/{id}")]
-        public async Task<IActionResult> СheckInvitationStatus(string id)
+        [HttpGet("check/{invitationId}")]
+        public async Task<IActionResult> СheckInvitationStatus(string invitationId)
         {
             try
             {
-                var result = await _invitationsService.CheckInvitationStatus(id);
+                var result = await _invitationsService.CheckInvitationStatus(invitationId);
                 return Ok(result);
             }
             catch (GoogleApiException e)
             {
+                _logger.LogInformation("An error was found when executing the request 'check/{invitationId}'", e.Message);
                 return StatusCode(403, "You are not permitted to check invitations for this course.");
             }
             catch (Exception e)
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'check/{invitationId}'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'check/{invitationId}'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -110,50 +119,56 @@ namespace HITs_classroom.Controllers
             }
             catch (GoogleApiException e)
             {
+                _logger.LogInformation("An error was found when executing the request 'update'", e.Message);
                 return StatusCode(403, "You are not permitted to update invitations for this course.");
             }
             catch (Exception e)
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'update'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'update'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
         }
 
         /// <summary>
-        /// Update the status of the invitation
+        /// Update the statuses of the invitations
         /// </summary>
         /// <remarks>
         /// id - course identifier.
-        /// Сheck the invitation and updates the value of the field IsAccepted.
+        /// Сheck the invitations and updates the values of the field IsAccepted.
         /// </remarks>
         /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpPost("update/{id}")]
-        public async Task<IActionResult> UpdateIvitations(string id)
+        [HttpPost("update/{courseId}")]
+        public async Task<IActionResult> UpdateCourseIvitations(string courseId)
         {
             try
             {
-                await _invitationsService.UpdateCourseInvitations(id);
+                await _invitationsService.UpdateCourseInvitations(courseId);
                 return Ok();
             }
             catch (GoogleApiException e)
             {
+                _logger.LogInformation("An error was found when executing the request 'update{courseId}'", e.Message);
                 return StatusCode(403, "You are not permitted to update invitations for this course.");
             }
             catch (Exception e)
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'update{courseId}'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'update{courseId}'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -190,14 +205,17 @@ namespace HITs_classroom.Controllers
             {
                 if (e.HttpStatusCode == System.Net.HttpStatusCode.Conflict)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
                     return StatusCode(409, "Invitation already exists.");
                 }
                 else if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
                     return StatusCode(404, "Course or user does not exist.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
                     return StatusCode(403, "You are not permitted to create invitations for this course" +
                         " or the requested users account is disabled or" +
                         " the user already has this role or a role with greater permissions." + e.Message);
@@ -207,10 +225,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -226,22 +246,24 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not permitted to delete invitations for this course.</response>
         /// <response code="404">No invitation exists with the requested ID.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteInvitation(string id)
+        [HttpDelete("delete/{invitationId}")]
+        public async Task<IActionResult> DeleteInvitation(string invitationId)
         {
             try
             {
-                var result = await _invitationsService.DeleteInvitation(id);
+                var result = await _invitationsService.DeleteInvitation(invitationId);
                 return Ok("Successfully deleted.");
             }
             catch (GoogleApiException e)
             {
                 if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'delete/{invitationid}'", e.Message);
                     return StatusCode(404, "No invitation exists with the requested ID.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'delete/{invitationid}'", e.Message);
                     return StatusCode(403, "You are not permitted to delete invitations for this course.");
                 }
             }
@@ -249,10 +271,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'delete/{invitationid}'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'delete/{invitationid}'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }

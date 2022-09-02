@@ -19,9 +19,11 @@ namespace HITs_classroom.Controllers
     public class CoursesController : ControllerBase
     {
         private readonly ICoursesService _coursesService;
-        public CoursesController(ICoursesService coursesService)
+        private readonly ILogger _logger;
+        public CoursesController(ICoursesService coursesService, ILogger<CoursesController> logger)
         {
             _coursesService = coursesService;
+            _logger = logger;
         }
 
         //--------search for courses--------
@@ -46,14 +48,17 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'get/{courseId}'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else if (e is GoogleApiException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'get/{courseId}'", e.Message);
                     return StatusCode(404, "Course does not exist.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'get/{courseId}'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -76,7 +81,7 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Invalid input data.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpGet("Courses")]
+        [HttpGet("list")]
         public IActionResult GetCoursesList([FromQuery] string? studentId, [FromQuery] string? teacherId, [FromQuery] string? courseState)
         {
             if (!ModelState.IsValid)
@@ -96,14 +101,17 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'list'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else if (e is ArgumentNullException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'list'", e.Message);
                     return StatusCode(404, "No courses found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'list'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -117,7 +125,7 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpGet("ActiveCourses")]
+        [HttpGet("active")]
         public IActionResult GetActiveCoursesList()
         {
             try 
@@ -129,14 +137,17 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'active'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else if (e is GoogleApiException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'active'", e.Message);
                     return StatusCode(404, "No courses found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'active'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -150,7 +161,7 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpGet("ArchivedCourses")]
+        [HttpGet("archived")]
         public IActionResult GetArchivedCoursesList()
         {
             try
@@ -162,14 +173,17 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'archived'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else if (e is GoogleApiException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'archived'", e.Message);
                     return StatusCode(404, "No courses found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'archived'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -187,7 +201,7 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Invalid input data.</response>
         /// <response code="404">OwnerId not specified.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpPost("CreateCourse")]
+        [HttpPost("create")]
         public IActionResult CreateCourse([FromBody] CourseShortModel course)
         {
             if (!ModelState.IsValid)
@@ -203,14 +217,17 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else if (e is GoogleApiException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
                     return StatusCode(404, "OwnerId not specified." + e.Message);
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'create'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -258,14 +275,14 @@ namespace HITs_classroom.Controllers
         /// </response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpPatch("archive/{id}")]
-        public IActionResult ArchiveCourse(string id)
+        [HttpPatch("archive/{courseId}")]
+        public IActionResult ArchiveCourse(string courseId)
         {
             try
             {
                 CoursePatching course = new CoursePatching();
                 course.CourseState = "ARCHIVED";
-                var response = _coursesService.PatchCourse(id, course);
+                var response = _coursesService.PatchCourse(courseId, course);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -274,10 +291,12 @@ namespace HITs_classroom.Controllers
 
                 if (errorResponse == HttpStatusCode.NotFound)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'archive{courseId}'", e.Message);
                     return StatusCode(404, "Course was not found.");
                 }
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'archive{courseId}'", e.Message);
                     return StatusCode(400, "Unable to change course," +
                         " you should check that you are trying to change only the available fields");
                 }
@@ -288,10 +307,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'archive{courseId}'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'archive{courseId}'", e.Message);
                     return StatusCode(520, "Unknown error");
                 }
             }
@@ -307,8 +328,8 @@ namespace HITs_classroom.Controllers
         /// you should check that you are trying to change only the available fields.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpPatch("patch/{id}")]
-        public IActionResult PatchCourse(string id, [FromBody] CoursePatching course)
+        [HttpPatch("patch/{courseId}")]
+        public IActionResult PatchCourse(string courseId, [FromBody] CoursePatching course)
         {
             if (!ModelState.IsValid)
             {
@@ -316,7 +337,7 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                var response = _coursesService.PatchCourse(id, course);
+                var response = _coursesService.PatchCourse(courseId, course);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -325,24 +346,29 @@ namespace HITs_classroom.Controllers
 
                 if (errorResponse == HttpStatusCode.NotFound)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'patch{courseId}'", e.Message);
                     return StatusCode(404, "Course was not found.");
                 }
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'patch{courseId}'", e.Message);
                     return StatusCode(400, "Unable to change course," +
                         " you should check that you are trying to change only the available fields.");
                 }
 
+                _logger.LogInformation("An error was found when executing the request 'patch{courseId}'", e.Message);
                 return StatusCode(520, "Unknown error.");
             }
             catch (Exception e)
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'patch{courseId}'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'patch{courseId}'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -357,8 +383,8 @@ namespace HITs_classroom.Controllers
         /// <response code="400">You are not permitted to modify this course or course is not modifable.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpPut("update/{id}")]
-        public IActionResult UpdateCourse(string id, [FromBody] CoursePatching course)
+        [HttpPut("update/{courseId}")]
+        public IActionResult UpdateCourse(string courseId, [FromBody] CoursePatching course)
         {
             if (!ModelState.IsValid)
             {
@@ -366,7 +392,7 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                var response = _coursesService.UpdateCourse(id, course);
+                var response = _coursesService.UpdateCourse(courseId, course);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -375,10 +401,12 @@ namespace HITs_classroom.Controllers
 
                 if (errorResponse == HttpStatusCode.NotFound)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'update{courseId}'", e.Message);
                     return StatusCode(404, "Course was not found.");
                 }
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'update{courseId}'", e.Message);
                     return StatusCode(400, "You are not permitted to modify this course or course is not modifable.");
                 }
 
@@ -388,10 +416,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'update{courseId}'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'update{courseId}'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -408,13 +438,13 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Precondition check failed. Perhaps you should archive the course first.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpDelete("delete/{id}")]
-        public IActionResult DeleteCourse(string id)
+        [HttpDelete("delete/{courseId}")]
+        public IActionResult DeleteCourse(string courseId)
         {
             try
             {
-                var result = _coursesService.DeleteCourse(id);
-                return Ok("Course was deleted successfully.");
+                var result = _coursesService.DeleteCourse(courseId);
+                return new JsonResult("Course was deleted successfully.");
             }
             catch (GoogleApiException e)
             {
@@ -422,10 +452,12 @@ namespace HITs_classroom.Controllers
 
                 if (errorResponse == HttpStatusCode.NotFound)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'delete{courseId}'", e.Message);
                     return StatusCode(404, "Course was not found.");
                 }
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'delete{courseId}'", e.Message);
                     return StatusCode(400, "Precondition check failed. Perhaps you should archive the course first.");
                 }
 
@@ -435,10 +467,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
+                    _logger.LogInformation("An error was found when executing the request 'delete{courseId}'", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
                 else
                 {
+                    _logger.LogInformation("An error was found when executing the request 'delete{courseId}'", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }

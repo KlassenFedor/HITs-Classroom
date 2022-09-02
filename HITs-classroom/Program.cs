@@ -1,10 +1,18 @@
 using HITs_classroom;
+using HITs_classroom.Jobs;
 using HITs_classroom.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Quartz;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.ConfigureLogging(logging =>
+{
+    logging.ClearProviders();
+    logging.AddConsole();
+});
 
 // Add services to the container.
 
@@ -29,6 +37,8 @@ var app = builder.Build();
 
 using var serviceScope = app.Services.CreateScope();
 var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+
+InvitationsScheduler.Start();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

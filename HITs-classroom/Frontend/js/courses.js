@@ -138,11 +138,11 @@ function editCourse() {
             data[pair[0]] = pair[1];
         }
     }
-    data = JSON.stringify(data);
     if (data['name'] == null || data['ownerId'] == null) {
         alert('Fields "name" and "ownerId" must be filled');
     }
     else {
+        data = JSON.stringify(data);
         putRequest(
             'https://localhost:7284/api/Courses/update/' + document.querySelector('#courseIdForModalHeader').innerHTML,
             data
@@ -164,7 +164,7 @@ function deleteCourse(event) {
 function findActiveCourses() {
     console.log('findActiveCourses');
     getRequest(
-        'https://localhost:7284/api/Courses/Courses?courseState=ACTIVE'
+        'https://localhost:7284/api/Courses/list?courseState=ACTIVE'
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
         .catch(error => {console.error(error), alert('Courses are currently unavailable') })
@@ -181,7 +181,7 @@ function findCourses() {
     queryParameters = queryParameters.slice(1);
     console.log(queryParameters);
     getRequest(
-        'https://localhost:7284/api/Courses/Courses?' + queryParameters
+        'https://localhost:7284/api/Courses/list?' + queryParameters
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
         .catch(error => { console.error(error), alert('Failed to find courses') })
@@ -191,7 +191,7 @@ function findCourseById() {
     console.log('findCourseById');
     var Id = document.querySelector('#courseId_Serach').value;
     getRequest(
-        'https://localhost:7284/api/Courses/Get/' + Id.toString()
+        'https://localhost:7284/api/Courses/get/' + Id.toString()
     )
         .then(response => addCoursesToPage([prepareCourseFromJson(response)]))
         .catch(error => { console.error(error), alert('Failed to find course') });
