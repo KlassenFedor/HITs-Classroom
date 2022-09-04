@@ -14,14 +14,13 @@ namespace HITs_classroom.Jobs
             IJobDetail job = JobBuilder.Create<InvitationsUpdater>().Build();
 
             ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity("trigger1", "group1")
+                .WithIdentity("invitationsUpdating", "ivitationsGroup")
                 .StartNow()
                 .WithSimpleSchedule(x => x
                     .WithIntervalInMinutes(86400)
                     .RepeatForever())
                 .Build();
 
-            Debug.WriteLine("start");
             await scheduler.ScheduleJob(job, trigger);
         }
     }

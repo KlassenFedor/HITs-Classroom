@@ -190,7 +190,7 @@ namespace HITs_classroom.Controllers
         /// <response code="409">Invitation already exists.</response>
         /// <response code="500">Credential Not found.</response>
         [HttpPost("create")]
-        public async Task<IActionResult> CreateInvitation([FromBody] InvitationManagementModel parameters)
+        public async Task<IActionResult> CreateInvitation([FromBody] InvitationCreatingModel parameters)
         {
             if (!ModelState.IsValid)
             {

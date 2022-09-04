@@ -13,9 +13,9 @@ namespace HITs_classroom.Services
 {
     public interface IInvitationsService
     {
-        Task<Invitation> CreateInvitation(InvitationManagementModel parameters);
+        Task<Invitation> CreateInvitation(InvitationCreatingModel parameters);
         Task<string> DeleteInvitation(string id);
-        Task<Invitation> GetInvitation(string id);
+        Task<InvitationInfoModel> GetInvitation(string id);
         Task<string> CheckInvitationStatus(string id);
         Task UpdateCourseInvitations(string? courseId);
         Task UpdateAllInvitations();
@@ -31,11 +31,11 @@ namespace HITs_classroom.Services
             _context = context;
         }
 
-        public async Task<Invitation> CreateInvitation(InvitationManagementModel parameters)
+        public async Task<Invitation> CreateInvitation(InvitationCreatingModel parameters)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
             Invitation newInvitation = new Invitation();
-            newInvitation.UserId = parameters.UserId;
+            newInvitation.UserId = parameters.Email;
             newInvitation.CourseId = parameters.CourseId;
             newInvitation.Role = ((CourseRoleEnum)parameters.Role).ToString();
 
@@ -45,8 +45,10 @@ namespace HITs_classroom.Services
             InvitationDbModel invitationDbModel = new InvitationDbModel();
             invitationDbModel.Id = response.Id;
             invitationDbModel.CourseId = parameters.CourseId;
-            invitationDbModel.UserId = parameters.UserId;
+            invitationDbModel.Email = parameters.Email;
             invitationDbModel.Role = parameters.Role;
+            invitationDbModel.CreationTime = DateTime.Now;
+            invitationDbModel.UpdateTime = DateTime.Now;
             await _context.Invitations.AddAsync(invitationDbModel);
             await _context.SaveChangesAsync();
 
@@ -69,16 +71,18 @@ namespace HITs_classroom.Services
             return JsonSerializer.Serialize(response);
         }
 
-        public async Task<Invitation> GetInvitation(string id)
+        public async Task<InvitationInfoModel> GetInvitation(string id)
         {
             var invitation = await _context.Invitations.FirstOrDefaultAsync(i => i.Id == id);
-            Invitation response = new Invitation();
+            InvitationInfoModel response = new InvitationInfoModel();
             if (invitation != null)
             {
                 response.Id = invitation.Id;
-                response.UserId = invitation.UserId;
+                response.Email = invitation.Email;
                 response.CourseId = invitation.CourseId;
                 response.Role = ((CourseRoleEnum)invitation.Role).ToString();
+                response.IsAccepted = response.IsAccepted;
+                response.UpdateTime = response.UpdateTime;
                 return response;
             }
 
@@ -150,9 +154,10 @@ namespace HITs_classroom.Services
 
             foreach (var invitation in invitations)
             {
-                if (users.Contains(invitation.UserId))
+                if (users.Contains(invitation.Email))
                 {
                     invitation.IsAccepted = true;
+                    invitation.UpdateTime = DateTime.Now;
                     _context.Entry(invitation).State = EntityState.Modified;
                 }
             }
