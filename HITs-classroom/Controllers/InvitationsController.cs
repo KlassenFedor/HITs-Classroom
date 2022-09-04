@@ -64,6 +64,51 @@ namespace HITs_classroom.Controllers
         }
 
         /// <summary>
+        /// Search for the course invitations.
+        /// </summary>
+        /// <remarks>
+        /// courseId - course Identifier.
+        /// </remarks>
+        /// <response code="403">You are not permitted to delete invitations for this course.</response>
+        /// <response code="404">No invitation exists with the requested ID.</response>
+        /// <response code="500">Credential Not found.</response>
+        [HttpGet("list/{courseId}")]
+        public async Task<IActionResult> GetCourseInvitations(string courseId)
+        {
+            try
+            {
+                var result = await _invitationsService.GetCourseInvitations(courseId);
+                return Ok(new JsonResult(result));
+            }
+            catch (GoogleApiException e)
+            {
+                if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'list/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(404, "No invitation exists with the requested ID.");
+                }
+                else
+                {
+                    _logger.LogInformation("An error was found when executing the request 'list/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(403, "You are not permitted to get invitations for this course.");
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is AggregateException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'list/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credential Not found.");
+                }
+                else
+                {
+                    _logger.LogInformation("An error was found when executing the request 'list/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(520, "Unknown error.");
+                }
+            }
+        }
+
+        /// <summary>
         /// Сhecks the status of the invitation
         /// </summary>
         /// <remarks>

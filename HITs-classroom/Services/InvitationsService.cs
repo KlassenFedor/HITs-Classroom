@@ -19,6 +19,7 @@ namespace HITs_classroom.Services
         Task<string> CheckInvitationStatus(string id);
         Task UpdateCourseInvitations(string? courseId);
         Task UpdateAllInvitations();
+        Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId);
     }
 
     public class InvitationsService: IInvitationsService
@@ -96,15 +97,15 @@ namespace HITs_classroom.Services
             {
                 if (invitation.IsAccepted)
                 {
-                    return InvitationStatus.ACCEPTED.ToString();
+                    return InvitationStatusEnum.ACCEPTED.ToString();
                 }
                 else
                 {
-                    return InvitationStatus.NOT_ACCEPTED.ToString();
+                    return InvitationStatusEnum.NOT_ACCEPTED.ToString();
                 }
                 
             }
-            return InvitationStatus.NOT_EXISTS.ToString();
+            return InvitationStatusEnum.NOT_EXISTS.ToString();
         }
 
         public async Task UpdateAllInvitations()
@@ -163,6 +164,23 @@ namespace HITs_classroom.Services
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId)
+        {
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            List<InvitationDbModel> invitations = await _context.Invitations.Where(i => i.CourseId == courseId).ToListAsync();
+            List<InvitationInfoModel> invitationInfoModels = invitations.Select(i => new InvitationInfoModel
+            {
+                Id = i.Id,
+                CourseId = i.CourseId,
+                Email = i.Email,
+                Role = ((CourseRoleEnum)i.Role).ToString(),
+                IsAccepted = i.IsAccepted,
+                UpdateTime = i.UpdateTime
+            }).ToList();
+
+            return invitationInfoModels;
         }
     }
 }
