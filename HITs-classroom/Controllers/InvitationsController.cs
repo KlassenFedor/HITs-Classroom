@@ -78,7 +78,7 @@ namespace HITs_classroom.Controllers
             try
             {
                 var result = await _invitationsService.GetCourseInvitations(courseId);
-                return Ok(new JsonResult(result));
+                return Ok(new JsonResult(result).Value);
             }
             catch (GoogleApiException e)
             {

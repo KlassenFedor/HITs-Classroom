@@ -40,6 +40,8 @@ function prepareCourseFromJson(course) {
 function prepareCourseCard(course, courseClone) {
 
     //course fields filling
+    let courseCardLink = courseClone.querySelector('.course-card-link');
+    courseCardLink.setAttribute('href', courseCardLink.getAttribute('href') + course['id']);
     let courseName = courseClone.querySelector('.course-name');
     courseName.innerText = course['name'];
     let courseSection = courseClone.querySelector('.course-section');
