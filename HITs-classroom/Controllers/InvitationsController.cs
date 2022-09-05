@@ -154,7 +154,7 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [HttpPost("update")]
+        [HttpPost("updateAll")]
         public async Task<IActionResult> UpdateAllInvitations()
         {
             try
@@ -296,8 +296,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                var result = await _invitationsService.DeleteInvitation(invitationId);
-                return Ok("Successfully deleted.");
+                await _invitationsService.DeleteInvitation(invitationId);
+                return Ok(new JsonResult("Successfully deleted."));
             }
             catch (GoogleApiException e)
             {

@@ -14,7 +14,7 @@ function createCourse() {
     }
     data = JSON.stringify(data);
     post(
-        'https://localhost:7284/api/Courses/CreateCourse',
+        'https://localhost:7284/api/Courses/create',
         data
     )
         .then(response => console.log(response))

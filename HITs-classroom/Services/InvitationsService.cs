@@ -14,7 +14,7 @@ namespace HITs_classroom.Services
     public interface IInvitationsService
     {
         Task<Invitation> CreateInvitation(InvitationCreatingModel parameters);
-        Task<string> DeleteInvitation(string id);
+        Task DeleteInvitation(string id);
         Task<InvitationInfoModel> GetInvitation(string id);
         Task<string> CheckInvitationStatus(string id);
         Task UpdateCourseInvitations(string? courseId);
@@ -56,20 +56,20 @@ namespace HITs_classroom.Services
             return response;
         }
 
-        public async Task<string> DeleteInvitation(string id)
+        public async Task DeleteInvitation(string id)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
-            var request = classroomService.Invitations.Delete(id);
-            var response = request.Execute();
-
             InvitationDbModel? invitationDbModel = await _context.Invitations.FirstOrDefaultAsync(i => i.Id == id);
             if (invitationDbModel != null)
             {
+                if (!invitationDbModel.IsAccepted)
+                {
+                    ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+                    var request = classroomService.Invitations.Delete(id);
+                    var response = request.Execute();
+                }
                 _context.Invitations.Remove(invitationDbModel);
                 await _context.SaveChangesAsync();
             }
-
-            return JsonSerializer.Serialize(response);
         }
 
         public async Task<InvitationInfoModel> GetInvitation(string id)
@@ -158,9 +158,9 @@ namespace HITs_classroom.Services
                 if (users.Contains(invitation.Email))
                 {
                     invitation.IsAccepted = true;
-                    invitation.UpdateTime = DateTime.Now;
-                    _context.Entry(invitation).State = EntityState.Modified;
                 }
+                invitation.UpdateTime = DateTime.Now;
+                _context.Entry(invitation).State = EntityState.Modified;
             }
 
             await _context.SaveChangesAsync();

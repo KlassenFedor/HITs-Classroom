@@ -53,7 +53,33 @@
                     </nav>
                     <div class="tab-content" id="courseDetailsContent">
                         <div class="tab-pane fade show p-2 active" id="nav-members" role="tabpanel" aria-labelledby="nav-members-tab">
-                            .
+                            <button type="button" class="btn btn-primary" id="members-update-btn">Update</button>
+                            <div>Teachers</div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teachersPlace">
+                                </tbody>
+                            </table>
+                            <div>Students</div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentsPlace">
+                                </tbody>
+                            </table>
                         </div>
                         <div class="tab-pane fade p-2" id="nav-invitations" role="tabpanel" aria-labelledby="nav-invitations-tab">
                             <div>
@@ -68,6 +94,7 @@
                                         <th scope="col">Role</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Last update</th>
+                                        <th scope="col">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="invitationsPlace">
@@ -90,8 +117,8 @@
                             <div class="modal-body">
                                 <form id="createInvitationForm">
                                     <div class="mb-3">
-                                        <label for="invitation-creating-user" class="form-label">UserId</label>
-                                        <input type="email" class="form-control" id="invitation-creating-user" name="userId">
+                                        <label for="invitation-creating-user" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="invitation-creating-user" name="email">
                                     </div>
                                     <div>Role</div>
                                     <select class="form-select" id="invitation-creating-role" name="role">
@@ -116,13 +143,36 @@
     <d-none-elements>
         <table>
             <tbody>
+
                 <tr class="invitationRow d-none">
                     <th scope="row" class="invitation-number"></th>
                     <td class="invitation-email"></td>
                     <td class="invitation-role"></td>
                     <td class="invitation-status"></td>
                     <td class="invitation-last-update"></td>
+                    <td class="m-0 p-0">
+                        <button type="button" class="btn btn-danger invitation-delete">Delete</button>
+                    </td>
                 </tr>
+
+                <tr class="teacherRow d-none">
+                    <th scope="row" class="teacher-number"></th>
+                    <td class="teacher-name"></td>
+                    <td class="student-email"></td>
+                    <td class="m-0 p-0">
+                        <button type="button" class="btn btn-danger teacher-delete">Delete</button>
+                    </td>
+                </tr>
+
+                <tr class="studentRow d-none">
+                    <th scope="row" class="student-number"></th>
+                    <td class="student-name"></td>
+                    <td class="student-email"></td>
+                    <td class="m-0 p-0">
+                        <button type="button" class="btn btn-danger student-delete">Delete</button>
+                    </td>
+                </tr>
+
             </tbody>
         </table>
     </d-none-elements>
