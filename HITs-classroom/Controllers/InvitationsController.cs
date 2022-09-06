@@ -326,5 +326,48 @@ namespace HITs_classroom.Controllers
                 }
             }
         }
+
+        [HttpPost("resend/{invitationId}")]
+        public async Task<IActionResult> ResendInvitation(string invitationId)
+        {
+            try
+            {
+                await _invitationsService.ResendInvitation(invitationId);
+                return Ok();
+            }
+            catch (GoogleApiException e)
+            {
+                if (e.HttpStatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
+                    return StatusCode(409, "Invitation already exists.");
+                }
+                else if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
+                    return StatusCode(404, "Course or user does not exist.");
+                }
+                else
+                {
+                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
+                    return StatusCode(403, "You are not permitted to create invitations for this course" +
+                        " or the requested users account is disabled or" +
+                        " the user already has this role or a role with greater permissions." + e.Message);
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is AggregateException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
+                    return StatusCode(500, "Credential Not found.");
+                }
+                else
+                {
+                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
+                    return StatusCode(520, "Unknown error.");
+                }
+            }
+        }
     }
 }

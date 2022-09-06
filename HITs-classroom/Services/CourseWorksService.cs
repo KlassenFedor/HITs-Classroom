@@ -85,7 +85,7 @@ namespace HITs_classroom.Services
                 UserInfoModel user = new UserInfoModel();
                 user.UserId = response.Id;
                 user.Email = response.EmailAddress;
-                user.UserName = response.Name.FullName;
+                user.Name = response.Name.FullName;
 
                 return user;
             }

@@ -1,4 +1,6 @@
-﻿window.addEventListener('load', function () {
+﻿const path = 'https://localhost:7284/';
+
+window.addEventListener('load', function () {
 
     const searchBtn = document.querySelector('#searchCourseSubmitButton');
     if (searchBtn) {
@@ -125,7 +127,7 @@ function archiveCourse(event) {
     var data = new Object;
     data = JSON.stringify(data);
     patchRequest(
-        'https://localhost:7284/api/Courses/archive/' + event.currentTarget.currentId.toString(),
+        path + 'api/Courses/archive/' + event.currentTarget.currentId.toString(),
         data
     )
         .then(response => editCourseCard(response))
@@ -146,7 +148,7 @@ function editCourse() {
     else {
         data = JSON.stringify(data);
         putRequest(
-            'https://localhost:7284/api/Courses/update/' + document.querySelector('#courseIdForModalHeader').innerHTML,
+            path = 'api/Courses/update/' + document.querySelector('#courseIdForModalHeader').innerHTML,
             data
         )
             .then(response => editCourseCard(response))
@@ -157,7 +159,7 @@ function editCourse() {
 function deleteCourse(event) {
     console.log('deleteCourse');
     deleteRequest(
-        'https://localhost:7284/api/Courses/delete/' + event.currentTarget.currentId.toString()
+        path + 'api/Courses/delete/' + event.currentTarget.currentId.toString()
     )
         .then(deleteCourseCard(event.currentTarget.currentId.toString()))
         .catch(error => { console.error(error), alert('Failed to delete course') })
@@ -166,7 +168,7 @@ function deleteCourse(event) {
 function findActiveCourses() {
     console.log('findActiveCourses');
     getRequest(
-        'https://localhost:7284/api/Courses/list?courseState=ACTIVE'
+        path + 'api/Courses/list?courseState=ACTIVE'
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
         .catch(error => {console.error(error), alert('Courses are currently unavailable') })
@@ -183,7 +185,7 @@ function findCourses() {
     queryParameters = queryParameters.slice(1);
     console.log(queryParameters);
     getRequest(
-        'https://localhost:7284/api/Courses/list?' + queryParameters
+        path + 'api/Courses/list?' + queryParameters
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
         .catch(error => { console.error(error), alert('Failed to find courses') })
@@ -193,7 +195,7 @@ function findCourseById() {
     console.log('findCourseById');
     var Id = document.querySelector('#courseId_Serach').value;
     getRequest(
-        'https://localhost:7284/api/Courses/get/' + Id.toString()
+        path + 'api/Courses/get/' + Id.toString()
     )
         .then(response => addCoursesToPage([prepareCourseFromJson(response)]))
         .catch(error => { console.error(error), alert('Failed to find course') });

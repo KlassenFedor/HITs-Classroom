@@ -82,6 +82,10 @@ namespace HITs_classroom.Controllers
             try
             {
                 var result = _courseMembersService.GetTeachersList(courseId);
+                if (result.Count == 0)
+                {
+                    return new JsonResult(new Object());
+                }
                 return new JsonResult(result);
             }
             catch (GoogleApiException e)

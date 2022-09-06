@@ -53,7 +53,7 @@
                     </nav>
                     <div class="tab-content" id="courseDetailsContent">
                         <div class="tab-pane fade show p-2 active" id="nav-members" role="tabpanel" aria-labelledby="nav-members-tab">
-                            <button type="button" class="btn btn-primary" id="members-update-btn">Update</button>
+                            <button type="button" class="btn btn-primary" id="members-get-btn">Update</button>
                             <div>Teachers</div>
                             <table class="table">
                                 <thead>
@@ -123,7 +123,6 @@
                                     <div>Role</div>
                                     <select class="form-select" id="invitation-creating-role" name="role">
                                         <option selected></option>
-                                        <option value=1>STUDENT</option>
                                         <option value=2>TEACHER</option>
                                     </select>
                                 </form>
@@ -151,6 +150,7 @@
                     <td class="invitation-status"></td>
                     <td class="invitation-last-update"></td>
                     <td class="m-0 p-0">
+                        <button type="button" class="btn btn-warning invitation-resend">Resend</button>
                         <button type="button" class="btn btn-danger invitation-delete">Delete</button>
                     </td>
                 </tr>
@@ -158,7 +158,7 @@
                 <tr class="teacherRow d-none">
                     <th scope="row" class="teacher-number"></th>
                     <td class="teacher-name"></td>
-                    <td class="student-email"></td>
+                    <td class="teacher-email"></td>
                     <td class="m-0 p-0">
                         <button type="button" class="btn btn-danger teacher-delete">Delete</button>
                     </td>

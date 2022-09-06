@@ -1,12 +1,13 @@
 ﻿using Google.Apis.Classroom.v1;
 using Google.Apis.Classroom.v1.Data;
+using HITs_classroom.Models.ClassrooomUser;
 
 namespace HITs_classroom.Services
 {
     public interface ICourseMembersService
     {
-        List<Student> GetStudentsList(string courseId);
-        public List<Teacher> GetTeachersList(string courseId);
+        List<UserInfoModel> GetStudentsList(string courseId);
+        public List<UserInfoModel> GetTeachersList(string courseId);
         public void DeleteStudent(string courseId, string studentId);
         public void DeleteTeacher(string courseId, string teacherId);
     }
@@ -18,7 +19,7 @@ namespace HITs_classroom.Services
             _googleClassroomService = googleClassroomService;
         }
 
-        public List<Student> GetStudentsList(string courseId)
+        public List<UserInfoModel> GetStudentsList(string courseId)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
 
@@ -30,14 +31,24 @@ namespace HITs_classroom.Services
                 request.PageSize = 100;
                 request.PageToken = pageToken;
                 var response = request.Execute();
-                students.AddRange(response.Students);
+                if (response.Students != null)
+                {
+                    students.AddRange(response.Students);
+                }
                 pageToken = response.NextPageToken;
             } while (pageToken != null);
-            
-            return students;
+
+            List<UserInfoModel> users = new List<UserInfoModel>();
+            users = students.Select(s => new UserInfoModel { 
+                UserId = s.UserId,
+                Email = s.Profile.EmailAddress,
+                Name = s.Profile.Name.FullName
+            }).ToList();
+
+            return users;
         }
 
-        public List<Teacher> GetTeachersList(string courseId)
+        public List<UserInfoModel> GetTeachersList(string courseId)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
 
@@ -49,11 +60,22 @@ namespace HITs_classroom.Services
                 request.PageSize = 100;
                 request.PageToken = pageToken;
                 var response = request.Execute();
-                teachers.AddRange(response.Teachers);
+                if (response.Teachers != null)
+                {
+                    teachers.AddRange(response.Teachers);
+                }
                 pageToken = response.NextPageToken;
             } while (pageToken != null);
 
-            return teachers;
+            List<UserInfoModel> users = new List<UserInfoModel>();
+            users = teachers.Select(t => new UserInfoModel
+            {
+                UserId = t.UserId,
+                Email = t.Profile.EmailAddress,
+                Name = t.Profile.Name.FullName
+            }).ToList();
+
+            return users;
         }
 
         public void DeleteStudent(string courseId, string studentId)

@@ -20,6 +20,7 @@ namespace HITs_classroom.Services
         Task UpdateCourseInvitations(string? courseId);
         Task UpdateAllInvitations();
         Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId);
+        Task ResendInvitation(string invitationId);
     }
 
     public class InvitationsService: IInvitationsService
@@ -61,11 +62,24 @@ namespace HITs_classroom.Services
             InvitationDbModel? invitationDbModel = await _context.Invitations.FirstOrDefaultAsync(i => i.Id == id);
             if (invitationDbModel != null)
             {
-                if (!invitationDbModel.IsAccepted)
+                try
                 {
                     ClassroomService classroomService = _googleClassroomService.GetClassroomService();
                     var request = classroomService.Invitations.Delete(id);
                     var response = request.Execute();
+                }
+                catch (GoogleApiException e)
+                {
+                    if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        _context.Invitations.Remove(invitationDbModel);
+                        await _context.SaveChangesAsync();
+                        return;
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
                 _context.Invitations.Remove(invitationDbModel);
                 await _context.SaveChangesAsync();
@@ -181,6 +195,24 @@ namespace HITs_classroom.Services
             }).ToList();
 
             return invitationInfoModels;
+        }
+
+        public async Task ResendInvitation(string invitationId)
+        {
+            await DeleteInvitation(invitationId);
+            InvitationDbModel? oldInvitation = await _context.Invitations.FindAsync(invitationId);
+            if (!(oldInvitation == null))
+            {
+                InvitationCreatingModel newInvitation = new InvitationCreatingModel();
+                newInvitation.CourseId = oldInvitation.CourseId;
+                newInvitation.Email = oldInvitation.Email;
+                newInvitation.Role = oldInvitation.Role;
+                await CreateInvitation(newInvitation);
+            }
+            else
+            {
+                throw new NullReferenceException();
+            }
         }
     }
 }

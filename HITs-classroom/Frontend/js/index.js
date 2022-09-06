@@ -1,4 +1,6 @@
-﻿window.addEventListener('load', function () {
+﻿const path = 'https://localhost:7284/';
+
+window.addEventListener('load', function () {
     const createBtn = document.querySelector('#createCourseSubmitButton');
     if (createBtn) {
         createBtn.addEventListener("click", createCourse);
@@ -14,7 +16,7 @@ function createCourse() {
     }
     data = JSON.stringify(data);
     post(
-        'https://localhost:7284/api/Courses/create',
+        path + 'api/Courses/create',
         data
     )
         .then(response => console.log(response))

@@ -1,4 +1,6 @@
-﻿namespace HITs_classroom.Models.Invitation
+﻿using HITs_classroom.Models.Course;
+
+namespace HITs_classroom.Models.Invitation
 {
     public class InvitationDbModel
     {
@@ -9,5 +11,6 @@
         public bool IsAccepted { get; set; }
         public DateTime CreationTime { get; set; }
         public DateTime UpdateTime { get; set; }
+        public CourseDbModel Course { get; set; }
     }
 }
