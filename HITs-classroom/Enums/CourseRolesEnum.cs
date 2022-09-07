@@ -1,6 +1,6 @@
 ﻿namespace HITs_classroom.Enums
 {
-    public enum CourseRoleEnum
+    public enum CourseRolesEnum
     {
         COURSE_ROLE_UNSPECIFIED = 0,
         STUDENT = 1,

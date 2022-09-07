@@ -82,7 +82,7 @@ namespace HITs_classroom.Controllers
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
         [HttpGet("list")]
-        public IActionResult GetCoursesList([FromQuery] string? studentId, [FromQuery] string? teacherId, [FromQuery] string? courseState)
+        public async Task<IActionResult> GetCoursesList([FromQuery] string? studentId, [FromQuery] string? teacherId, [FromQuery] string? courseState)
         {
             if (!ModelState.IsValid)
             {
@@ -94,7 +94,7 @@ namespace HITs_classroom.Controllers
                 searchParameters.StudentId = studentId;
                 searchParameters.TeacherId = teacherId;
                 searchParameters.CourseState = courseState;
-                var response = _coursesService.GetCoursesListFromGoogleClassroom(searchParameters);
+                var response = await _coursesService.GetCoursesListFromGoogleClassroom(searchParameters);
                 return new JsonResult(response);
             }
             catch (Exception e)

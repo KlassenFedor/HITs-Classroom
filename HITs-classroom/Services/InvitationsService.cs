@@ -3,6 +3,7 @@ using Google;
 using Google.Apis.Classroom.v1;
 using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Enums;
+using HITs_classroom.Models.Course;
 using HITs_classroom.Models.Invitation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.UserSecrets;
@@ -21,6 +22,7 @@ namespace HITs_classroom.Services
         Task UpdateAllInvitations();
         Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId);
         Task ResendInvitation(string invitationId);
+        Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId);
     }
 
     public class InvitationsService: IInvitationsService
@@ -39,7 +41,7 @@ namespace HITs_classroom.Services
             Invitation newInvitation = new Invitation();
             newInvitation.UserId = parameters.Email;
             newInvitation.CourseId = parameters.CourseId;
-            newInvitation.Role = ((CourseRoleEnum)parameters.Role).ToString();
+            newInvitation.Role = ((CourseRolesEnum)parameters.Role).ToString();
 
             var request = classroomService.Invitations.Create(newInvitation);
             var response = request.Execute();
@@ -95,7 +97,7 @@ namespace HITs_classroom.Services
                 response.Id = invitation.Id;
                 response.Email = invitation.Email;
                 response.CourseId = invitation.CourseId;
-                response.Role = ((CourseRoleEnum)invitation.Role).ToString();
+                response.Role = ((CourseRolesEnum)invitation.Role).ToString();
                 response.IsAccepted = response.IsAccepted;
                 response.UpdateTime = response.UpdateTime;
                 return response;
@@ -180,6 +182,28 @@ namespace HITs_classroom.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId) 
+        { 
+            InvitationDbModel? invitation = await _context.Invitations.Where(i => i.CourseId == courseId &&
+                i.Role == (int)CourseRolesEnum.TEACHER && !i.IsAccepted).FirstOrDefaultAsync();
+            if (invitation == null)
+            {
+                CourseDbModel? course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+                if (course != null)
+                {
+                    course.HasAllTeachers = true;
+                    _context.Entry(course).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    throw new NullReferenceException();
+                }
+            }
+            return false;
+        }
+
         public async Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
@@ -189,7 +213,7 @@ namespace HITs_classroom.Services
                 Id = i.Id,
                 CourseId = i.CourseId,
                 Email = i.Email,
-                Role = ((CourseRoleEnum)i.Role).ToString(),
+                Role = ((CourseRolesEnum)i.Role).ToString(),
                 IsAccepted = i.IsAccepted,
                 UpdateTime = i.UpdateTime
             }).ToList();

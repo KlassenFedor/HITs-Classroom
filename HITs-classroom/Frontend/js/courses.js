@@ -43,7 +43,7 @@ function prepareCourseCard(course, courseClone) {
 
     //course fields filling
     let courseCardLink = courseClone.querySelector('.course-card-link');
-    courseCardLink.setAttribute('href', courseCardLink.getAttribute('href') + course['id']);
+    courseCardLink.setAttribute('href', courseCardLink.getAttribute('href') + course['courseId']);
     let courseName = courseClone.querySelector('.course-name');
     courseName.innerText = course['name'];
     let courseSection = courseClone.querySelector('.course-section');
@@ -54,6 +54,15 @@ function prepareCourseCard(course, courseClone) {
     courseEnrollmentCode.innerText = course['enrollmentCode'];
     let courseState = courseClone.querySelector('.course-state');
     courseState.innerText = course['courseState'];
+    let hasAllTeachers = courseClone.querySelector('.has-all-course-teachers');
+    if (course['hasAllTeachers']) {
+        hasAllTeachers.classList.add('text-success');
+        hasAllTeachers.innerText = 'Has all teachers'
+    }
+    else {
+        hasAllTeachers.classList.add('text-danger');
+        hasAllTeachers.innerText = 'Has not all teachers'
+    }
 
     //adding event listeners
     let delButton = courseClone.querySelector('.del-button');
@@ -64,15 +73,15 @@ function prepareCourseCard(course, courseClone) {
         delButton.classList.remove('disabled');
     }
     delButton.addEventListener('click', deleteCourse);
-    delButton.currentId = course['id'];
+    delButton.currentId = course['courseId'];
 
     let archiveButton = courseClone.querySelector('.archive-button');
     archiveButton.addEventListener('click', archiveCourse);
-    archiveButton.currentId = course['id'];
+    archiveButton.currentId = course['courseId'];
 
     let editButton = courseClone.querySelector('.edit-button');
     editButton.addEventListener('click', fillModalForEditing);
-    editButton.currentId = course['id'];
+    editButton.currentId = course['courseId'];
     editButton.currentName = course['name'];
     editButton.currentOwnerId = course['ownerId'];
     editButton.currentDescription = course['description'];

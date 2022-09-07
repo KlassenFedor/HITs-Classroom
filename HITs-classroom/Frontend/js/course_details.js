@@ -7,6 +7,8 @@ window.addEventListener('load', function () {
         .addEventListener('click', createInvitation);
     const getMembersButton = this.document.querySelector('#members-get-btn')
         .addEventListener('click', getMembers);
+    const updateCourseTeachersButton = this.document.querySelector('#course-update-teachers-button')
+        .addEventListener('click', updateTeachersInvitations);
 
     getCourseInvitations();
 });
@@ -87,6 +89,27 @@ function showInvitationsList(json) {
         invitationRow.classList.remove('d-none');
         invitationRow.id = json[i]['id'];
         invitationsPlace.appendChild(invitationRow);
+    }
+}
+
+function updateTeachersInvitations() {
+    console.log('updateTeachersInvitations');
+    getRequest(
+        path + 'api/Invitations/checkTeachersInvitations/' + window.location.href.split('?')[1].split('=')[1]
+    )
+        .then(response => showCourseStatus(response))
+        .catch(error => { console.error(error), alert('Unable to get update teachers invitations') })
+}
+
+function showCourseStatus(response) {
+    const statusPlace = document.querySelector('#course-has-all-teachers');
+    if (response) {
+        statusPlace.innerHTML = 'All teachers accepted invitations';
+        statusPlace.classList.add('text-success');
+    }
+    else {
+        statusPlace.innerHTML = 'Not all teachers accepted invitations';
+        statusPlace.classList.add('text-danger');
     }
 }
 

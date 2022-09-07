@@ -18,7 +18,7 @@ namespace HITs_classroom.Services
     {
         Course GetCourseFromGoogleClassroom(string courseId);
         Task<CourseInfoModel> GetCourseFromDb(string courseId);
-        List<Course> GetCoursesListFromGoogleClassroom(CourseSearch parameters);
+        Task<List<CourseInfoModel>> GetCoursesListFromGoogleClassroom(CourseSearch parameters);
         List<Course> GetActiveCoursesListFromGoogleClassroom();
         Task<List<CourseInfoModel>> GetActiveCoursesListFromDb();
         List<Course> GetArchivedCoursesListFromGoogleClassroom();
@@ -58,7 +58,7 @@ namespace HITs_classroom.Services
             throw new NullReferenceException();
         }
 
-        public List<Course> GetCoursesListFromGoogleClassroom(CourseSearch parameters)
+        public async Task<List<CourseInfoModel>> GetCoursesListFromGoogleClassroom(CourseSearch parameters)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
             string pageToken = null;
@@ -87,7 +87,17 @@ namespace HITs_classroom.Services
                 pageToken = response.NextPageToken;
             } while (pageToken != null);
 
-            return courses;
+            List<CourseInfoModel> courseInfoModels = new List<CourseInfoModel>();
+            foreach (var course in courses)
+            {
+                CourseDbModel? courseDb = await _context.Courses.FirstOrDefaultAsync(c => c.Id == course.Id);
+                if (courseDb != null)
+                {
+                    courseInfoModels.Add(CreateCourseInfoModelFromCourseDbModel(courseDb));
+                }
+            }
+
+            return courseInfoModels;
         }
 
         public List<Course> GetActiveCoursesListFromGoogleClassroom()
@@ -388,11 +398,11 @@ namespace HITs_classroom.Services
         public async Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom()
         {
             CourseSearch courseSearch = new CourseSearch();
-            List<Course> courses = GetCoursesListFromGoogleClassroom(courseSearch);
+            List<CourseInfoModel> courses = await GetCoursesListFromGoogleClassroom(courseSearch);
             List<CourseInfoModel> response = new List<CourseInfoModel>();
             foreach (var course in courses)
             {
-                response.Add(await AddCourseIfNotExistsInDb(course.Id));
+                response.Add(await AddCourseIfNotExistsInDb(course.CourseId));
             }
 
             return response;

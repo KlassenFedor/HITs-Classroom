@@ -369,5 +369,21 @@ namespace HITs_classroom.Controllers
                 }
             }
         }
+
+        [HttpGet("checkTeachersInvitations/{courseId}")]
+        public async Task<IActionResult> CheckTeachersInvitations(string courseId)
+        {
+            try
+            {
+                var response = await _invitationsService.CheckIfAllTeachersAcceptedInvitations(courseId);
+                return new JsonResult(response);
+            }
+            catch (Exception e)
+            {
+                _logger.LogInformation("An error was found when executing the request" +
+                    " 'checkTeachersInvitations/{{courseId}}'. {error}", e.Message);
+                return StatusCode(404, "Probably couldn't find a course");
+            }
+        }
     }
 }
