@@ -37,11 +37,11 @@ namespace HITs_classroom.Controllers
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
         [HttpGet("get/{courseId}")]
-        public IActionResult GetCourse(string courseId)
+        public async Task<IActionResult> GetCourse(string courseId)
         {
             try 
             {
-                Course course = _coursesService.GetCourse(courseId);
+                CourseInfoModel course = await _coursesService.GetCourseFromDb(courseId);
                 return new JsonResult(course);
             }
             catch (Exception e)
@@ -94,7 +94,7 @@ namespace HITs_classroom.Controllers
                 searchParameters.StudentId = studentId;
                 searchParameters.TeacherId = teacherId;
                 searchParameters.CourseState = courseState;
-                var response = _coursesService.GetCoursesList(searchParameters);
+                var response = _coursesService.GetCoursesListFromGoogleClassroom(searchParameters);
                 return new JsonResult(response);
             }
             catch (Exception e)
@@ -130,7 +130,7 @@ namespace HITs_classroom.Controllers
         {
             try 
             { 
-                var response = _coursesService.GetActiveCoursesList();
+                var response = _coursesService.GetActiveCoursesListFromDb();
                 return new JsonResult(response);
             }
             catch (Exception e)
@@ -166,7 +166,7 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                var response = _coursesService.GetArchivedCoursesList();
+                var response = _coursesService.GetArchivedCoursesListFromDb();
                 return new JsonResult(response);
             }
             catch (Exception e)
@@ -473,6 +473,34 @@ namespace HITs_classroom.Controllers
                 else
                 {
                     _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
+                    return StatusCode(520, "Unknown error.");
+                }
+            }
+        }
+
+        [HttpPost("synchronize")]
+        public async Task<IActionResult> SynchronizeCourses()
+        {
+            try
+            {
+                var response = await _coursesService.SynchronizeCoursesListsInDbAndGoogleClassroom();
+                return new JsonResult(response);
+            }
+            catch (Exception e)
+            {
+                if (e is AggregateException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", e.Message);
+                    return StatusCode(500, "Credential Not found.");
+                }
+                else if (e is GoogleApiException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", e.Message);
+                    return StatusCode(404, "GoogleApi exception.");
+                }
+                else
+                {
+                    _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }

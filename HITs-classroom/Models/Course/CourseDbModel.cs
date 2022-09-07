@@ -11,7 +11,6 @@ namespace HITs_classroom.Models.Course
         public string? Description { get; set; }
         public string? DescriptionHeading { get; set; }
         public string? Room { get; set; }
-        public string OwnerId { get; set; }
         public int CourseState { get; set; }
         public bool HasAllTeachers { get; set; }
         public List<InvitationDbModel> Invitations { get; set; }

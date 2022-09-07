@@ -5,41 +5,60 @@ using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using HITs_classroom.Models.Course;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Any;
 using System.Net;
 using System.Reflection;
 using System.Text.Json;
+using static Google.Apis.Classroom.v1.CoursesResource.ListRequest;
 
 namespace HITs_classroom.Services
 {
     public interface ICoursesService
     {
-        Course GetCourse(string courseId);
-        List<Course> GetCoursesList(CourseSearch parameters);
-        List<Course> GetActiveCoursesList();
-        List<Course> GetArchivedCoursesList();
-        Course CreateCourse(CourseShortModel course);
-        string DeleteCourse(string courseId);
-        Course PatchCourse(string courseId, CoursePatching parameters);
-        Course UpdateCourse(string courseId, CoursePatching parameters);
+        Course GetCourseFromGoogleClassroom(string courseId);
+        Task<CourseInfoModel> GetCourseFromDb(string courseId);
+        List<Course> GetCoursesListFromGoogleClassroom(CourseSearch parameters);
+        List<Course> GetActiveCoursesListFromGoogleClassroom();
+        Task<List<CourseInfoModel>> GetActiveCoursesListFromDb();
+        List<Course> GetArchivedCoursesListFromGoogleClassroom();
+        Task<List<CourseInfoModel>> GetArchivedCoursesListFromDb();
+        Task<CourseInfoModel> CreateCourse(CourseShortModel course);
+        Task DeleteCourse(string courseId);
+        Task<CourseInfoModel> PatchCourse(string courseId, CoursePatching parameters);
+        Task<CourseInfoModel> UpdateCourse(string courseId, CoursePatching parameters);
+
+        Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom();
         //List<Course> CreateCoursesList(List<CourseShortModel> courses);
     }
 
     public class CoursesService: ICoursesService
     {
         private GoogleClassroomService _googleClassroomService;
-        public CoursesService(GoogleClassroomService googleClassroomService)
+        private ApplicationDbContext _context;
+        public CoursesService(GoogleClassroomService googleClassroomService, ApplicationDbContext context)
         {
             _googleClassroomService = googleClassroomService;
+            _context = context;
         }
 
-        public Course GetCourse(string courseId)
+        public Course GetCourseFromGoogleClassroom(string courseId)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
             Course course = classroomService.Courses.Get(courseId).Execute();
             return course;
         }
+        public async Task<CourseInfoModel> GetCourseFromDb(string courseId)
+        {
+            CourseDbModel? course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            if (course != null)
+            {
+                return CreateCourseInfoModelFromCourseDbModel(course);
+            }
+            throw new NullReferenceException();
+        }
 
-        public List<Course> GetCoursesList(CourseSearch parameters)
+        public List<Course> GetCoursesListFromGoogleClassroom(CourseSearch parameters)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
             string pageToken = null;
@@ -54,7 +73,7 @@ namespace HITs_classroom.Services
                 request.TeacherId = parameters.TeacherId;
                 if (parameters.CourseState != null)
                 {
-                    CoursesResource.ListRequest.CourseStatesEnum status;
+                    CourseStatesEnum status;
                     if (Enum.TryParse(parameters.CourseState, out status))
                     {
                         request.CourseStates = status;
@@ -71,7 +90,7 @@ namespace HITs_classroom.Services
             return courses;
         }
 
-        public List<Course> GetActiveCoursesList()
+        public List<Course> GetActiveCoursesListFromGoogleClassroom()
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
             string pageToken = null;
@@ -82,7 +101,37 @@ namespace HITs_classroom.Services
                 var request = classroomService.Courses.List();
                 request.PageSize = 100;
                 request.PageToken = pageToken;
-                request.CourseStates = CoursesResource.ListRequest.CourseStatesEnum.ACTIVE;
+                request.CourseStates = CourseStatesEnum.ACTIVE;
+                var response = request.Execute();
+                if (response.Courses != null)
+                {
+                    courses.AddRange(response.Courses);
+                }
+                pageToken = response.NextPageToken;
+            } while (pageToken != null);
+
+            return courses;
+        }
+        public async Task<List<CourseInfoModel>> GetActiveCoursesListFromDb()
+        {
+            List<CourseDbModel> courses = new List<CourseDbModel>();
+            courses = await _context.Courses
+                .Where(c => c.CourseState == (int)CourseStatesEnum.ACTIVE).ToListAsync();
+            return courses.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
+        }
+
+        public List<Course> GetArchivedCoursesListFromGoogleClassroom()
+        {
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            string pageToken = null;
+            var courses = new List<Course>();
+
+            do
+            {
+                var request = classroomService.Courses.List();
+                request.PageSize = 100;
+                request.PageToken = pageToken;
+                request.CourseStates = CourseStatesEnum.ARCHIVED;
                 var response = request.Execute();
                 if (response.Courses != null)
                 {
@@ -94,30 +143,15 @@ namespace HITs_classroom.Services
             return courses;
         }
 
-        public List<Course> GetArchivedCoursesList()
+        public async Task<List<CourseInfoModel>> GetArchivedCoursesListFromDb()
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
-            string pageToken = null;
-            var courses = new List<Course>();
-
-            do
-            {
-                var request = classroomService.Courses.List();
-                request.PageSize = 100;
-                request.PageToken = pageToken;
-                request.CourseStates = CoursesResource.ListRequest.CourseStatesEnum.ARCHIVED;
-                var response = request.Execute();
-                if (response.Courses != null)
-                {
-                    courses.AddRange(response.Courses);
-                }
-                pageToken = response.NextPageToken;
-            } while (pageToken != null);
-
-            return courses;
+            List<CourseDbModel> courses = new List<CourseDbModel>();
+            courses = await _context.Courses
+                .Where(c => c.CourseState == (int)CourseStatesEnum.ARCHIVED).ToListAsync();
+            return courses.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
         }
 
-        public Course CreateCourse(CourseShortModel parameters)
+        public async Task<CourseInfoModel> CreateCourse(CourseShortModel parameters)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
             var newCourse = new Course
@@ -132,7 +166,21 @@ namespace HITs_classroom.Services
             };
 
             newCourse = classroomService.Courses.Create(newCourse).Execute();
-            return newCourse;
+            CourseDbModel courseDb = new CourseDbModel
+            {
+                Id = newCourse.Id,
+                Name = newCourse.Name,
+                Section = newCourse.Section,
+                Description = newCourse.Description,
+                DescriptionHeading = newCourse.DescriptionHeading,
+                Room = newCourse.Room,
+                CourseState = (int)Enum.Parse<CourseStatesEnum>(newCourse.CourseState),
+                HasAllTeachers = true
+            };
+            await _context.Courses.AddAsync(courseDb);
+            await _context.SaveChangesAsync();
+
+            return CreateCourseInfoModelFromCourseDbModel(courseDb);
         }
 
         //public List<Course> CreateCoursesList(List<CourseShortModel> courses)
@@ -176,15 +224,19 @@ namespace HITs_classroom.Services
         //    }
         //}
 
-        public string DeleteCourse(string courseId)
+        public async Task DeleteCourse(string courseId)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
 
-            var response = JsonSerializer.Serialize(classroomService.Courses.Delete(courseId).Execute());
-            return response;
+            var response = classroomService.Courses.Delete(courseId).Execute();
+            CourseDbModel? course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            if (course != null)
+            {
+                _context.Courses.Remove(course);
+            }
         }
 
-        public Course PatchCourse(string courseId, CoursePatching parameters)
+        public async Task<CourseInfoModel> PatchCourse(string courseId, CoursePatching parameters)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
             string updateMask = MakeMaskFromCourseModel(parameters);
@@ -202,43 +254,58 @@ namespace HITs_classroom.Services
             var request = classroomService.Courses.Patch(course, courseId);
             request.UpdateMask = updateMask;
             course = request.Execute();
-            return course;
+
+            CourseDbModel? courseDb = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            if (courseDb != null)
+            {
+                if (parameters.Name != null) courseDb.Name = parameters.Name;
+                if (parameters.Section != null) courseDb.Section = parameters.Section;
+                if (parameters.Description != null) courseDb.Description = parameters.Description;
+                if (parameters.DescriptionHeading != null) courseDb.DescriptionHeading = parameters.DescriptionHeading;
+                if (parameters.Room != null) courseDb.Room = parameters.Room;
+                if (parameters.CourseState != null) courseDb.CourseState = (int)Enum.Parse<CourseStatesEnum>(parameters.CourseState);
+
+                _context.Entry(courseDb).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return CreateCourseInfoModelFromCourseDbModel(courseDb);
+            }
+
+            throw new Exception();
         }
 
-        public Course UpdateCourse(string courseId, CoursePatching parameters)
+        public async Task<CourseInfoModel> UpdateCourse(string courseId, CoursePatching parameters)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService();
             Course course = classroomService.Courses.Get(courseId).Execute();
-            if (parameters.Name != null)
+            if (parameters.Name != null) course.Name = parameters.Name;
+            if (parameters.OwnerId != null) course.OwnerId = parameters.OwnerId;
+            if (parameters.Section != null) course.Section = parameters.Section;
+            if (parameters.Room != null) course.Room = parameters.Room;
+            if (parameters.Description != null) course.Description = parameters.Description;
+            if (parameters.DescriptionHeading != null) course.DescriptionHeading = parameters.DescriptionHeading;
+            if (parameters.CourseState != null) course.CourseState = parameters.CourseState;
+
+            course = classroomService.Courses.Update(course, courseId).Execute();
+
+            CourseDbModel? courseDb = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            if (courseDb != null)
             {
                 course.Name = parameters.Name;
-            }
-            if (parameters.OwnerId != null)
-            {
                 course.OwnerId = parameters.OwnerId;
-            }
-            if (parameters.Section != null)
-            {
                 course.Section = parameters.Section;
-            }
-            if (parameters.Room != null)
-            {
                 course.Room = parameters.Room;
-            }
-            if (parameters.Description != null)
-            {
                 course.Description = parameters.Description;
-            }
-            if (parameters.DescriptionHeading != null)
-            {
                 course.DescriptionHeading = parameters.DescriptionHeading;
-            }
-            if (parameters.CourseState != null)
-            {
                 course.CourseState = parameters.CourseState;
+
+                _context.Entry(courseDb).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return CreateCourseInfoModelFromCourseDbModel(courseDb);
             }
-            course = classroomService.Courses.Update(course, courseId).Execute();
-            return course;
+
+            throw new Exception();
         }
 
         private string MakeMaskFromCourseModel(CoursePatching model)
@@ -277,6 +344,58 @@ namespace HITs_classroom.Services
                 result = result.Substring(0, result.Length - 1);
             }
             return result;
+        }
+
+        private CourseInfoModel CreateCourseInfoModelFromCourseDbModel(CourseDbModel courseDb)
+        {
+            CourseInfoModel courseInfoModel = new CourseInfoModel();
+            courseInfoModel.CourseId = courseDb.Id;
+            courseInfoModel.Name = courseDb.Name;
+            courseInfoModel.Room = courseDb.Room;
+            courseInfoModel.Description = courseDb.Description;
+            courseInfoModel.DescriptionHeading = courseDb.DescriptionHeading;
+            courseInfoModel.Section = courseDb.Section;
+            courseInfoModel.CourseState = ((CourseStatesEnum)courseDb.CourseState).ToString();
+            courseInfoModel.HasAllTeachers = courseDb.HasAllTeachers;
+
+            return courseInfoModel;
+        }
+
+        public async Task<CourseInfoModel> AddCourseIfNotExistsInDb(string courseId)
+        {
+            CourseDbModel? courseDb = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            if (courseDb == null)
+            {
+                Course course = GetCourseFromGoogleClassroom(courseId);
+                courseDb = new CourseDbModel
+                {
+                    Id = course.Id,
+                    Name = course.Name,
+                    Section = course.Section,
+                    Description = course.Description,
+                    DescriptionHeading = course.DescriptionHeading,
+                    Room = course.Room,
+                    CourseState = (int)Enum.Parse<CourseStatesEnum>(course.CourseState),
+                    HasAllTeachers = true
+                };
+                await _context.Courses.AddAsync(courseDb);
+                await _context.SaveChangesAsync();
+            }
+
+            return CreateCourseInfoModelFromCourseDbModel(courseDb);
+        }
+
+        public async Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom()
+        {
+            CourseSearch courseSearch = new CourseSearch();
+            List<Course> courses = GetCoursesListFromGoogleClassroom(courseSearch);
+            List<CourseInfoModel> response = new List<CourseInfoModel>();
+            foreach (var course in courses)
+            {
+                response.Add(await AddCourseIfNotExistsInDb(course.Id));
+            }
+
+            return response;
         }
     }
 }
