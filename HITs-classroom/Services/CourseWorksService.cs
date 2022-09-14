@@ -8,8 +8,8 @@ namespace HITs_classroom.Services
 {
     public interface ICourseWorksService
     {
-        List<GradeModel> GetGradesForCourseWork(string courseId, string courseWorkId, List<string>? users);
-        void SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users);
+        List<GradeModel> GetGradesForCourseWork(string courseId, string courseWorkId, List<string>? users, string relatedUser);
+        void SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users, string relatedUser);
     }
 
     public class CourseWorksService: ICourseWorksService
@@ -19,9 +19,9 @@ namespace HITs_classroom.Services
         {
             _googleClassroomService = googleClassroomService;
         }
-        public List<GradeModel> GetGradesForCourseWork(string courseId, string courseWorkId, List<string>? users)
+        public List<GradeModel> GetGradesForCourseWork(string courseId, string courseWorkId, List<string>? users, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
 
             string pageToken = null;
             List<StudentSubmission> submissions = new List<StudentSubmission>();
@@ -46,7 +46,7 @@ namespace HITs_classroom.Services
                 gradeModel.CourseWorkId = courseWorkId;
                 gradeModel.StudentId = submission.UserId;
                 gradeModel.Grade = submission.AssignedGrade;
-                UserInfoModel userInfoModel = GetUserInfo(submission.UserId);
+                UserInfoModel userInfoModel = GetUserInfo(submission.UserId, relatedUser);
                 if (userInfoModel != null)
                 {
                     gradeModel.StudentEmail = userInfoModel.Email;
@@ -63,9 +63,9 @@ namespace HITs_classroom.Services
 
             return grades;
         }
-        public void SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users)
+        public void SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
 
             ModifyCourseWorkAssigneesRequest courseWorkModification = new ModifyCourseWorkAssigneesRequest();
             courseWorkModification.AssigneeMode = AssigneeModeEnum.INDIVIDUAL_STUDENTS.ToString();
@@ -74,9 +74,9 @@ namespace HITs_classroom.Services
             var response = request.Execute();
         }
 
-        private UserInfoModel GetUserInfo(string UserId)
+        private UserInfoModel GetUserInfo(string UserId, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             var request = classroomService.UserProfiles.Get(UserId);
             var response = request.Execute();
 

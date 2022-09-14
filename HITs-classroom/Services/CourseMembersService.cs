@@ -6,10 +6,10 @@ namespace HITs_classroom.Services
 {
     public interface ICourseMembersService
     {
-        List<UserInfoModel> GetStudentsList(string courseId);
-        public List<UserInfoModel> GetTeachersList(string courseId);
-        public void DeleteStudent(string courseId, string studentId);
-        public void DeleteTeacher(string courseId, string teacherId);
+        List<UserInfoModel> GetStudentsList(string courseId, string relatedUser);
+        public List<UserInfoModel> GetTeachersList(string courseId, string relatedUser);
+        public void DeleteStudent(string courseId, string studentId, string relatedUser);
+        public void DeleteTeacher(string courseId, string teacherId, string relatedUser);
     }
     public class CourseMembersService: ICourseMembersService
     {
@@ -19,9 +19,9 @@ namespace HITs_classroom.Services
             _googleClassroomService = googleClassroomService;
         }
 
-        public List<UserInfoModel> GetStudentsList(string courseId)
+        public List<UserInfoModel> GetStudentsList(string courseId, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
 
             string pageToken = null;
             List<Student> students = new List<Student>();
@@ -48,9 +48,9 @@ namespace HITs_classroom.Services
             return users;
         }
 
-        public List<UserInfoModel> GetTeachersList(string courseId)
+        public List<UserInfoModel> GetTeachersList(string courseId, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
 
             string pageToken = null;
             List<Teacher> teachers = new List<Teacher>();
@@ -78,16 +78,16 @@ namespace HITs_classroom.Services
             return users;
         }
 
-        public void DeleteStudent(string courseId, string studentId)
+        public void DeleteStudent(string courseId, string studentId, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             var request = classroomService.Courses.Students.Delete(courseId, studentId);
             var response = request.Execute();
         }
 
-        public void DeleteTeacher(string courseId, string teacherId)
+        public void DeleteTeacher(string courseId, string teacherId, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             var request = classroomService.Courses.Teachers.Delete(courseId, teacherId);
             var response = request.Execute();
         }

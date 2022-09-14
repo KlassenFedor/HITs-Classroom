@@ -3,6 +3,7 @@ using HITs_classroom.Models.Invitation;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace HITs_classroom.Controllers
 {
@@ -77,7 +78,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                var result = await _invitationsService.GetCourseInvitations(courseId);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                var result = await _invitationsService.GetCourseInvitations(courseId, relatedUser);
                 return Ok(new JsonResult(result).Value);
             }
             catch (GoogleApiException e)
@@ -159,7 +161,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                await _invitationsService.UpdateAllInvitations();
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                await _invitationsService.UpdateAllInvitations(relatedUser);
                 return Ok();
             }
             catch (GoogleApiException e)
@@ -196,7 +199,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                await _invitationsService.UpdateCourseInvitations(courseId);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                await _invitationsService.UpdateCourseInvitations(courseId, relatedUser);
                 return Ok();
             }
             catch (GoogleApiException e)
@@ -243,7 +247,8 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                var invitation = await _invitationsService.CreateInvitation(parameters);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                var invitation = await _invitationsService.CreateInvitation(parameters, relatedUser);
                 return new JsonResult(invitation);
             }
             catch (GoogleApiException e)
@@ -296,7 +301,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                await _invitationsService.DeleteInvitation(invitationId);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                await _invitationsService.DeleteInvitation(invitationId, relatedUser);
                 return Ok(new JsonResult("Successfully deleted."));
             }
             catch (GoogleApiException e)
@@ -332,7 +338,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                await _invitationsService.ResendInvitation(invitationId);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                await _invitationsService.ResendInvitation(invitationId, relatedUser);
                 return Ok();
             }
             catch (GoogleApiException e)

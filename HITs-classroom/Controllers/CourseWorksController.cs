@@ -4,6 +4,7 @@ using HITs_classroom.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Security.Claims;
 
 namespace HITs_classroom.Controllers
 {
@@ -24,7 +25,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                _courseWorksService.SetAdmittedStudentsForCourseWork(courseId, courseWorkId, users);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                _courseWorksService.SetAdmittedStudentsForCourseWork(courseId, courseWorkId, users, relatedUser);
                 return Ok();
             }
             catch (GoogleApiException e)

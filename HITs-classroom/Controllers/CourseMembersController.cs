@@ -3,6 +3,7 @@ using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace HITs_classroom.Controllers
 {
@@ -32,7 +33,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                var result = _courseMembersService.GetStudentsList(courseId);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                var result = _courseMembersService.GetStudentsList(courseId, relatedUser);
                 return new JsonResult(result);
             }
             catch (GoogleApiException e)
@@ -81,7 +83,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                var result = _courseMembersService.GetTeachersList(courseId);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                var result = _courseMembersService.GetTeachersList(courseId, relatedUser);
                 if (result.Count == 0)
                 {
                     return new JsonResult(new Object());
@@ -136,7 +139,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                _courseMembersService.DeleteStudent(courseId, studentId);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                _courseMembersService.DeleteStudent(courseId, studentId, relatedUser);
                 return Ok();
             }
             catch (GoogleApiException e)
@@ -187,7 +191,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                _courseMembersService.DeleteTeacher(courseId, teacherId);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                _courseMembersService.DeleteTeacher(courseId, teacherId, relatedUser);
                 return Ok();
             }
             catch (GoogleApiException e)

@@ -16,19 +16,19 @@ namespace HITs_classroom.Services
 {
     public interface ICoursesService
     {
-        Course GetCourseFromGoogleClassroom(string courseId);
-        Task<CourseInfoModel> GetCourseFromDb(string courseId);
-        Task<List<CourseInfoModel>> GetCoursesListFromGoogleClassroom(CourseSearch parameters);
-        List<Course> GetActiveCoursesListFromGoogleClassroom();
+        Course GetCourseFromGoogleClassroom(string courseId, string relatedUser);
+        Task<CourseInfoModel> GetCourseFromDb(string courseId, string user);
+        Task<List<CourseInfoModel>> GetCoursesListFromGoogleClassroom(CourseSearch parameters, string relatedUser);
+        List<Course> GetActiveCoursesListFromGoogleClassroom(string relatedUser);
         Task<List<CourseInfoModel>> GetActiveCoursesListFromDb();
-        List<Course> GetArchivedCoursesListFromGoogleClassroom();
+        List<Course> GetArchivedCoursesListFromGoogleClassroom(string relatedUser);
         Task<List<CourseInfoModel>> GetArchivedCoursesListFromDb();
-        Task<CourseInfoModel> CreateCourse(CourseShortModel course);
-        Task DeleteCourse(string courseId);
-        Task<CourseInfoModel> PatchCourse(string courseId, CoursePatching parameters);
-        Task<CourseInfoModel> UpdateCourse(string courseId, CoursePatching parameters);
+        Task<CourseInfoModel> CreateCourse(CourseShortModel parameters, string relatedUser);
+        Task DeleteCourse(string courseId, string relatedUser);
+        Task<CourseInfoModel> PatchCourse(string courseId, CoursePatching parameters, string relatedUser);
+        Task<CourseInfoModel> UpdateCourse(string courseId, CoursePatching parameters, string relatedUser);
 
-        Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom();
+        Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom(string relatedUser);
         //List<Course> CreateCoursesList(List<CourseShortModel> courses);
     }
 
@@ -42,15 +42,15 @@ namespace HITs_classroom.Services
             _context = context;
         }
 
-        public Course GetCourseFromGoogleClassroom(string courseId)
+        public Course GetCourseFromGoogleClassroom(string courseId, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             Course course = classroomService.Courses.Get(courseId).Execute();
             return course;
         }
-        public async Task<CourseInfoModel> GetCourseFromDb(string courseId)
+        public async Task<CourseInfoModel> GetCourseFromDb(string courseId, string user)
         {
-            CourseDbModel? course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            CourseDbModel? course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId && c.RelatedUser == user);
             if (course != null)
             {
                 return CreateCourseInfoModelFromCourseDbModel(course);
@@ -58,9 +58,9 @@ namespace HITs_classroom.Services
             throw new NullReferenceException();
         }
 
-        public async Task<List<CourseInfoModel>> GetCoursesListFromGoogleClassroom(CourseSearch parameters)
+        public async Task<List<CourseInfoModel>> GetCoursesListFromGoogleClassroom(CourseSearch parameters, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             string pageToken = null;
             var courses = new List<Course>();
 
@@ -100,9 +100,9 @@ namespace HITs_classroom.Services
             return courseInfoModels;
         }
 
-        public List<Course> GetActiveCoursesListFromGoogleClassroom()
+        public List<Course> GetActiveCoursesListFromGoogleClassroom(string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             string pageToken = null;
             var courses = new List<Course>();
 
@@ -130,9 +130,9 @@ namespace HITs_classroom.Services
             return courses.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
         }
 
-        public List<Course> GetArchivedCoursesListFromGoogleClassroom()
+        public List<Course> GetArchivedCoursesListFromGoogleClassroom(string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             string pageToken = null;
             var courses = new List<Course>();
 
@@ -161,9 +161,9 @@ namespace HITs_classroom.Services
             return courses.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
         }
 
-        public async Task<CourseInfoModel> CreateCourse(CourseShortModel parameters)
+        public async Task<CourseInfoModel> CreateCourse(CourseShortModel parameters, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             var newCourse = new Course
             {
                 Name = parameters.Name,
@@ -185,7 +185,8 @@ namespace HITs_classroom.Services
                 DescriptionHeading = newCourse.DescriptionHeading,
                 Room = newCourse.Room,
                 CourseState = (int)Enum.Parse<CourseStatesEnum>(newCourse.CourseState),
-                HasAllTeachers = true
+                HasAllTeachers = true,
+                RelatedUser = relatedUser
             };
             await _context.Courses.AddAsync(courseDb);
             await _context.SaveChangesAsync();
@@ -234,9 +235,9 @@ namespace HITs_classroom.Services
         //    }
         //}
 
-        public async Task DeleteCourse(string courseId)
+        public async Task DeleteCourse(string courseId, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
 
             var response = classroomService.Courses.Delete(courseId).Execute();
             CourseDbModel? course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
@@ -246,9 +247,9 @@ namespace HITs_classroom.Services
             }
         }
 
-        public async Task<CourseInfoModel> PatchCourse(string courseId, CoursePatching parameters)
+        public async Task<CourseInfoModel> PatchCourse(string courseId, CoursePatching parameters, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             string updateMask = MakeMaskFromCourseModel(parameters);
 
             Course course = new Course
@@ -284,9 +285,9 @@ namespace HITs_classroom.Services
             throw new Exception();
         }
 
-        public async Task<CourseInfoModel> UpdateCourse(string courseId, CoursePatching parameters)
+        public async Task<CourseInfoModel> UpdateCourse(string courseId, CoursePatching parameters, string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService();
+            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             Course course = classroomService.Courses.Get(courseId).Execute();
             if (parameters.Name != null) course.Name = parameters.Name;
             if (parameters.OwnerId != null) course.OwnerId = parameters.OwnerId;
@@ -371,12 +372,12 @@ namespace HITs_classroom.Services
             return courseInfoModel;
         }
 
-        public async Task<CourseInfoModel> AddCourseIfNotExistsInDb(string courseId)
+        public async Task<CourseInfoModel> AddCourseIfNotExistsInDb(string courseId, string relatedUser)
         {
             CourseDbModel? courseDb = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
             if (courseDb == null)
             {
-                Course course = GetCourseFromGoogleClassroom(courseId);
+                Course course = GetCourseFromGoogleClassroom(courseId, relatedUser);
                 courseDb = new CourseDbModel
                 {
                     Id = course.Id,
@@ -386,7 +387,8 @@ namespace HITs_classroom.Services
                     DescriptionHeading = course.DescriptionHeading,
                     Room = course.Room,
                     CourseState = (int)Enum.Parse<CourseStatesEnum>(course.CourseState),
-                    HasAllTeachers = true
+                    HasAllTeachers = true,
+                    RelatedUser = relatedUser
                 };
                 await _context.Courses.AddAsync(courseDb);
                 await _context.SaveChangesAsync();
@@ -395,14 +397,14 @@ namespace HITs_classroom.Services
             return CreateCourseInfoModelFromCourseDbModel(courseDb);
         }
 
-        public async Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom()
+        public async Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom(string relatedUser)
         {
             CourseSearch courseSearch = new CourseSearch();
-            List<CourseInfoModel> courses = await GetCoursesListFromGoogleClassroom(courseSearch);
+            List<CourseInfoModel> courses = await GetCoursesListFromGoogleClassroom(courseSearch, relatedUser);
             List<CourseInfoModel> response = new List<CourseInfoModel>();
             foreach (var course in courses)
             {
-                response.Add(await AddCourseIfNotExistsInDb(course.CourseId));
+                response.Add(await AddCourseIfNotExistsInDb(course.CourseId, relatedUser));
             }
 
             return response;

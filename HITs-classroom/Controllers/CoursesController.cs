@@ -11,6 +11,9 @@ using HITs_classroom.Models.Course;
 using System.Text.Json;
 using System.Net;
 using System.Xml.Linq;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace HITs_classroom.Controllers
 {
@@ -36,12 +39,14 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpGet("get/{courseId}")]
         public async Task<IActionResult> GetCourse(string courseId)
         {
             try 
             {
-                CourseInfoModel course = await _coursesService.GetCourseFromDb(courseId);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                CourseInfoModel course = await _coursesService.GetCourseFromDb(courseId, relatedUser);
                 return new JsonResult(course);
             }
             catch (Exception e)
@@ -81,6 +86,7 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Invalid input data.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpGet("list")]
         public async Task<IActionResult> GetCoursesList([FromQuery] string? studentId, [FromQuery] string? teacherId, [FromQuery] string? courseState)
         {
@@ -94,7 +100,8 @@ namespace HITs_classroom.Controllers
                 searchParameters.StudentId = studentId;
                 searchParameters.TeacherId = teacherId;
                 searchParameters.CourseState = courseState;
-                var response = await _coursesService.GetCoursesListFromGoogleClassroom(searchParameters);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                var response = await _coursesService.GetCoursesListFromGoogleClassroom(searchParameters, relatedUser);
                 return new JsonResult(response);
             }
             catch (Exception e)
@@ -210,7 +217,8 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                var result = _coursesService.CreateCourse(course);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                var result = _coursesService.CreateCourse(course, relatedUser);
                 return new JsonResult(result);
             }
             catch (Exception e)
@@ -282,7 +290,8 @@ namespace HITs_classroom.Controllers
             {
                 CoursePatching course = new CoursePatching();
                 course.CourseState = "ARCHIVED";
-                var response = _coursesService.PatchCourse(courseId, course);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                var response = _coursesService.PatchCourse(courseId, course, relatedUser);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -337,7 +346,8 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                var response = _coursesService.PatchCourse(courseId, course);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                var response = _coursesService.PatchCourse(courseId, course, relatedUser);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -392,7 +402,8 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                var response = _coursesService.UpdateCourse(courseId, course);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                var response = _coursesService.UpdateCourse(courseId, course, relatedUser);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -443,7 +454,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                var result = _coursesService.DeleteCourse(courseId);
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                var result = _coursesService.DeleteCourse(courseId, relatedUser);
                 return new JsonResult("Course was deleted successfully.");
             }
             catch (GoogleApiException e)
@@ -483,7 +495,8 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                var response = await _coursesService.SynchronizeCoursesListsInDbAndGoogleClassroom();
+                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+                var response = await _coursesService.SynchronizeCoursesListsInDbAndGoogleClassroom(relatedUser);
                 return new JsonResult(response);
             }
             catch (Exception e)

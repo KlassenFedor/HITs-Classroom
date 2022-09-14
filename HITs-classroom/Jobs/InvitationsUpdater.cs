@@ -27,7 +27,7 @@ namespace HITs_classroom.Jobs
                 .BuildServiceProvider();
 
             var invitationsService = serviceProvider.GetRequiredService<IInvitationsService>();
-            await invitationsService.UpdateAllInvitations();
+            //await invitationsService.UpdateAllInvitations();
         }
     }
 }

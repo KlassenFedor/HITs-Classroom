@@ -13,9 +13,9 @@ namespace HITs_classroom.Services
             ClassroomService.Scope.ClassroomProfileEmails
         };
 
-        public ClassroomService GetClassroomService()
+        public ClassroomService GetClassroomService(string relatedUser)
         {
-            UserCredential credential = MakeCredential();
+            UserCredential credential = MakeCredential(relatedUser);
             ClassroomService classroomService = new ClassroomService(new BaseClientService.Initializer
             {
                 HttpClientInitializer = credential,
@@ -25,7 +25,7 @@ namespace HITs_classroom.Services
             return classroomService;
         }
 
-        private UserCredential MakeCredential()
+        private UserCredential MakeCredential(string relatedUser)
         {
             UserCredential credential;
             using (var stream =
@@ -35,7 +35,7 @@ namespace HITs_classroom.Services
                 credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.FromStream(stream).Secrets,
                     Scopes,
-                    "user-test",
+                    relatedUser,
                     CancellationToken.None,
                     new FileDataStore(credPath, true)).Result;
             }
