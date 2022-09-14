@@ -8,7 +8,7 @@
         public string? DescriptionHeading { get; set; }
         public string? Description { get; set; }
         public string? Room { get; set; }
-        public bool HasAllTeachers { get; set; }
+        public bool? HasAllTeachers { get; set; }
         public string? CourseState { get; set; }
     }
 }

@@ -12,6 +12,9 @@ window.addEventListener('load', function () {
         searchByIdBtn.addEventListener("click", findCourseById);
     }
 
+    const updateCourseBtn = this.document.querySelector('#courses-teachers-button');
+    updateCourseBtn.addEventListener('click', updateCoursesStatuses);
+
     findActiveCourses();
 });
 
@@ -207,6 +210,15 @@ function findCourseById() {
         path + 'api/Courses/get/' + Id.toString()
     )
         .then(response => addCoursesToPage([prepareCourseFromJson(response)]))
+        .catch(error => { console.error(error), alert('Failed to find course') });
+}
+
+function updateCoursesStatuses() {
+    console.log('updateCoursesStatuses');
+    postRequest(
+        path + 'api/Invitations/updateAll'
+    )
+        .then(response => console.log(response))
         .catch(error => { console.error(error), alert('Failed to find course') });
 }
 

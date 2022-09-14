@@ -87,14 +87,20 @@ namespace HITs_classroom.Services
                 pageToken = response.NextPageToken;
             } while (pageToken != null);
 
+            //List<CourseInfoModel> courseInfoModels = new List<CourseInfoModel>();
+            //foreach (var course in courses)
+            //{
+            //    CourseDbModel? courseDb = await _context.Courses.FirstOrDefaultAsync(c => c.Id == course.Id);
+            //    if (courseDb != null)
+            //    {
+            //        courseInfoModels.Add(CreateCourseInfoModelFromCourseDbModel(courseDb));
+            //    }
+            //}
+
             List<CourseInfoModel> courseInfoModels = new List<CourseInfoModel>();
             foreach (var course in courses)
             {
-                CourseDbModel? courseDb = await _context.Courses.FirstOrDefaultAsync(c => c.Id == course.Id);
-                if (courseDb != null)
-                {
-                    courseInfoModels.Add(CreateCourseInfoModelFromCourseDbModel(courseDb));
-                }
+                courseInfoModels.Add(CreateCourseInfoModelFromGoogleCourseModel(course));
             }
 
             return courseInfoModels;
@@ -368,6 +374,20 @@ namespace HITs_classroom.Services
             courseInfoModel.Section = courseDb.Section;
             courseInfoModel.CourseState = ((CourseStatesEnum)courseDb.CourseState).ToString();
             courseInfoModel.HasAllTeachers = courseDb.HasAllTeachers;
+
+            return courseInfoModel;
+        }
+
+        private CourseInfoModel CreateCourseInfoModelFromGoogleCourseModel(Course course)
+        {
+            CourseInfoModel courseInfoModel = new CourseInfoModel();
+            courseInfoModel.CourseId = course.Id;
+            courseInfoModel.Name = course.Name;
+            courseInfoModel.Room = course.Room;
+            courseInfoModel.Description = course.Description;
+            courseInfoModel.DescriptionHeading = course.DescriptionHeading;
+            courseInfoModel.Section = course.Section;
+            courseInfoModel.CourseState = course.CourseState;
 
             return courseInfoModel;
         }

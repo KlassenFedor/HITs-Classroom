@@ -46,7 +46,7 @@ namespace HITs_classroom.Controllers
             try 
             {
                 string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
-                CourseInfoModel course = await _coursesService.GetCourseFromDb(courseId, relatedUser);
+                Course course = _coursesService.GetCourseFromGoogleClassroom(courseId, relatedUser);
                 return new JsonResult(course);
             }
             catch (Exception e)
@@ -208,6 +208,7 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Invalid input data.</response>
         /// <response code="404">OwnerId not specified.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpPost("create")]
         public IActionResult CreateCourse([FromBody] CourseShortModel course)
         {
@@ -490,6 +491,7 @@ namespace HITs_classroom.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("synchronize")]
         public async Task<IActionResult> SynchronizeCourses()
         {

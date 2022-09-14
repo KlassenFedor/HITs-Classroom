@@ -5,6 +5,8 @@ window.addEventListener('load', function () {
     if (createBtn) {
         createBtn.addEventListener("click", createCourse);
     }
+    const syncButton = this.document.querySelector('#sync-courses-button');
+    syncButton.addEventListener('click', syncCourses)
 });
 
 function createCourse() {
@@ -18,6 +20,14 @@ function createCourse() {
     post(
         path + 'api/Courses/create',
         data
+    )
+        .then(response => console.log(response))
+        .catch(error => console.error(error))
+}
+
+function syncCourses() {
+    post(
+        path + 'api/Courses/synchronize'
     )
         .then(response => console.log(response))
         .catch(error => console.error(error))
