@@ -1,4 +1,4 @@
-﻿using HITs_classroom.Models.ClassroomAdmin;
+﻿using HITs_classroom.Models.User;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using System.IdentityModel.Tokens.Jwt;
@@ -23,7 +23,6 @@ namespace HITs_classroom.Services
             _userManager = userManager;
             _signInManager = signInManager;
         }
-
 
         public async Task Login(string token)
         {

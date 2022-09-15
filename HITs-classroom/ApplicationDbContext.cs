@@ -1,4 +1,4 @@
-﻿using HITs_classroom.Models.ClassroomAdmin;
+﻿using HITs_classroom.Models.User;
 using HITs_classroom.Models.Course;
 using HITs_classroom.Models.Invitation;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -20,6 +20,7 @@ namespace HITs_classroom
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<ClassroomAdmin>()
                 .HasIndex(ca => ca.Email)
                 .IsUnique();
@@ -29,6 +30,7 @@ namespace HITs_classroom
             modelBuilder.Entity<ClassroomAdmin>()
                 .Property(ca => ca.NormalizedUserName)
                 .IsRequired();
+
             modelBuilder.Entity<InvitationDbModel>()
                 .HasOne(i => i.Course)
                 .WithMany(c => c.Invitations)
@@ -36,8 +38,13 @@ namespace HITs_classroom
                 .HasPrincipalKey(c => c.Id);
             modelBuilder.Entity<InvitationDbModel>()
                 .HasKey(i => i.Id);
+
             modelBuilder.Entity<CourseDbModel>()
                 .HasKey(x => x.Id);
+            modelBuilder.Entity<CourseDbModel>()
+                .HasOne(c => c.RelatedUser)
+                .WithMany(ru => ru.Courses)
+                .HasForeignKey(c => c.RelatedUserId);
         }
     }
 

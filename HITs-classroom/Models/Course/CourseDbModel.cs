@@ -1,5 +1,5 @@
 ﻿using HITs_classroom.Models.Invitation;
-using System.Security.Policy;
+using HITs_classroom.Models.User;
 
 namespace HITs_classroom.Models.Course
 {
@@ -13,7 +13,8 @@ namespace HITs_classroom.Models.Course
         public string? Room { get; set; }
         public int CourseState { get; set; }
         public bool HasAllTeachers { get; set; }
-        public string RelatedUser { get; set; }
+        public string RelatedUserId { get; set; }
+        public ClassroomAdmin RelatedUser { get; set; }
         public List<InvitationDbModel> Invitations { get; set; }
     }
 }

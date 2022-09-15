@@ -1,6 +1,6 @@
 using HITs_classroom;
 using HITs_classroom.Jobs;
-using HITs_classroom.Models.ClassroomAdmin;
+using HITs_classroom.Models.User;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
