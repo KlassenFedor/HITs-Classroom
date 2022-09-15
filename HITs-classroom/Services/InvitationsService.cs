@@ -1,14 +1,12 @@
-﻿using Azure;
-using Google;
+﻿using Google;
 using Google.Apis.Classroom.v1;
 using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Enums;
 using HITs_classroom.Models.Course;
 using HITs_classroom.Models.Invitation;
+using HITs_classroom.Models.User;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration.UserSecrets;
-using System.Diagnostics;
-using System.Text.Json;
+
 
 namespace HITs_classroom.Services
 {
@@ -16,13 +14,13 @@ namespace HITs_classroom.Services
     {
         Task<Invitation> CreateInvitation(InvitationCreatingModel parameters, string relatedUser);
         Task DeleteInvitation(string id, string relatedUser);
-        Task<InvitationInfoModel> GetInvitation(string id);
-        Task<string> CheckInvitationStatus(string id);
+        Task<InvitationInfoModel> GetInvitation(string id, string relatedUser);
+        Task<string> CheckInvitationStatus(string id, string relatedUser);
         Task UpdateCourseInvitations(string? courseId, string relatedUser);
         Task UpdateAllInvitations(string relatedUser);
         Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId, string relatedUser);
         Task ResendInvitation(string invitationId, string relatedUser);
-        Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId);
+        Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId, string relatedUser);
     }
 
     public class InvitationsService: IInvitationsService
@@ -61,6 +59,15 @@ namespace HITs_classroom.Services
 
         public async Task DeleteInvitation(string id, string relatedUser)
         {
+            var invitation = await _context.Invitations.Where(i => i.Id == id).FirstOrDefaultAsync();
+            if (invitation == null)
+            {
+                throw new NullReferenceException();
+            }
+            if (!await CheckIfUserRelatedToCourse(invitation.CourseId, relatedUser))
+            {
+                throw new ArgumentException();
+            }
             InvitationDbModel? invitationDbModel = await _context.Invitations.FirstOrDefaultAsync(i => i.Id == id);
             if (invitationDbModel != null)
             {
@@ -88,12 +95,16 @@ namespace HITs_classroom.Services
             }
         }
 
-        public async Task<InvitationInfoModel> GetInvitation(string id)
+        public async Task<InvitationInfoModel> GetInvitation(string id, string relatedUser)
         {
             var invitation = await _context.Invitations.FirstOrDefaultAsync(i => i.Id == id);
-            InvitationInfoModel response = new InvitationInfoModel();
-            if (invitation != null)
+            if (invitation == null)
             {
+                throw new NullReferenceException();
+            }
+            if (await CheckIfUserRelatedToCourse(invitation.CourseId, relatedUser))
+            {
+                InvitationInfoModel response = new InvitationInfoModel();
                 response.Id = invitation.Id;
                 response.Email = invitation.Email;
                 response.CourseId = invitation.CourseId;
@@ -102,15 +113,21 @@ namespace HITs_classroom.Services
                 response.UpdateTime = response.UpdateTime;
                 return response;
             }
-
-            return null;
+            else
+            {
+                throw new ArgumentException();
+            }
         }
 
-        public async Task<string> CheckInvitationStatus(string id)
+        public async Task<string> CheckInvitationStatus(string id, string relatedUser)
         {
             var invitation = await _context.Invitations.Where(i => i.Id == id).FirstOrDefaultAsync();
             if (invitation != null)
             {
+                if (!await CheckIfUserRelatedToCourse(invitation.CourseId, relatedUser))
+                {
+                    throw new ArgumentException();
+                }
                 if (invitation.IsAccepted)
                 {
                     return InvitationStatusEnum.ACCEPTED.ToString();
@@ -126,21 +143,13 @@ namespace HITs_classroom.Services
 
         public async Task UpdateAllInvitations(string relatedUser)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
-            List<string> courses = new List<string>();
-            string pageToken = null;
-            do
+            ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == relatedUser);
+            if (classroomAdmin == null)
             {
-                var request = classroomService.Courses.List();
-                request.PageSize = 100;
-                request.PageToken = pageToken;
-                var response = request.Execute();
-                if (response.Courses != null)
-                {
-                    courses.AddRange(response.Courses.Select(c => c.Id));
-                }
-                pageToken = response.NextPageToken;
-            } while (pageToken != null);
+                throw new ArgumentException();
+            }
+            List<string> courses = new List<string>();
+            courses.AddRange(await _context.Courses.Where(c => c.RelatedUser == classroomAdmin).Select(c => c.Id).ToListAsync());
 
             foreach (var course in courses)
             {
@@ -151,6 +160,10 @@ namespace HITs_classroom.Services
         public async Task UpdateCourseInvitations(string courseId, string relatedUser)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
+            if (!await CheckIfUserRelatedToCourse(courseId, relatedUser))
+            {
+                throw new ArgumentException();
+            }
 
             var invitations = await _context.Invitations.Where(i => i.CourseId == courseId && !i.IsAccepted).ToListAsync();
             List<string> users = new List<string>();
@@ -182,8 +195,12 @@ namespace HITs_classroom.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId) 
-        { 
+        public async Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId, string relatedUser) 
+        {
+            if (!await CheckIfUserRelatedToCourse(courseId, relatedUser))
+            {
+                throw new ArgumentException();
+            }
             InvitationDbModel? invitation = await _context.Invitations.Where(i => i.CourseId == courseId &&
                 i.Role == (int)CourseRolesEnum.TEACHER && !i.IsAccepted).FirstOrDefaultAsync();
             if (invitation == null)
@@ -206,6 +223,10 @@ namespace HITs_classroom.Services
 
         public async Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId, string relatedUser)
         {
+            if (!await CheckIfUserRelatedToCourse(courseId, relatedUser))
+            {
+                throw new ArgumentException();
+            }
             ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             List<InvitationDbModel> invitations = await _context.Invitations.Where(i => i.CourseId == courseId).ToListAsync();
             List<InvitationInfoModel> invitationInfoModels = invitations.Select(i => new InvitationInfoModel
@@ -223,6 +244,15 @@ namespace HITs_classroom.Services
 
         public async Task ResendInvitation(string invitationId, string relatedUser)
         {
+            var invitation = await _context.Invitations.Where(i => i.Id == invitationId).FirstOrDefaultAsync();
+            if (invitation == null)
+            {
+                throw new NullReferenceException();
+            }
+            if (!await CheckIfUserRelatedToCourse(invitation.CourseId, relatedUser))
+            {
+                throw new ArgumentException();
+            }
             await DeleteInvitation(invitationId, relatedUser);
             InvitationDbModel? oldInvitation = await _context.Invitations.FindAsync(invitationId);
             if (!(oldInvitation == null))
@@ -237,6 +267,18 @@ namespace HITs_classroom.Services
             {
                 throw new NullReferenceException();
             }
+        }
+
+        private async Task<bool> CheckIfUserRelatedToCourse(string courseId, string user)
+        {
+            ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == user);
+            List<CourseDbModel> courses = await _context.Courses
+                .Where(c => c.RelatedUser == classroomAdmin && c.Id == courseId).ToListAsync();
+            if (courses != null && courses.Count > 0)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

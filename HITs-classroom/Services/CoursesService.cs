@@ -366,7 +366,7 @@ namespace HITs_classroom.Services
         public async Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom(string relatedUser)
         {
             CourseSearch courseSearch = new CourseSearch();
-            List<CourseInfoModel> courses = await GetCoursesListFromGoogleClassroom(courseSearch, relatedUser);
+            List<CourseInfoModel> courses = GetCoursesListFromGoogleClassroom(courseSearch, relatedUser);
             List<CourseInfoModel> response = new List<CourseInfoModel>();
             foreach (var course in courses)
             {

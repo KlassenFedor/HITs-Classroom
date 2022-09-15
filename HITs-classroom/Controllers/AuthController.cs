@@ -1,6 +1,6 @@
 ﻿using HITs_classroom.Models.Token;
 using HITs_classroom.Services;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HITs_classroom.Controllers
@@ -37,6 +37,7 @@ namespace HITs_classroom.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("logout")]
         public async Task Logout()
         {

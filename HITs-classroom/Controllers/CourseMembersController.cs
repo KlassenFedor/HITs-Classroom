@@ -1,6 +1,7 @@
 ﻿using Google;
 using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -25,16 +26,24 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// courseId - course Identifier.
         /// </remarks>
+        /// <response code="401">Could not access the user's email.</response>
         /// <response code="403">You are not allowed to get students.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpGet("students/list/{courseId}")]
         public IActionResult GetStudentsList(string courseId)
         {
             try
             {
-                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
-                var result = _courseMembersService.GetStudentsList(courseId, relatedUser);
+                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                if (relatedUser == null)
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'students/list/{{courseId}}'. {error}", "Email not found.");
+                    return StatusCode(401, "Unable to access your courses.");
+                }
+                var result = _courseMembersService.GetStudentsList(courseId, relatedUser.Value);
                 return new JsonResult(result);
             }
             catch (GoogleApiException e)
@@ -75,16 +84,24 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// courseId - course Identifier.
         /// </remarks>
+        /// <response code="401">Could not access the user's email.</response>
         /// <response code="403">You are not allowed to get teachers.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpGet("teachers/list/{courseId}")]
         public IActionResult GetTeachersList(string courseId)
         {
             try
             {
-                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
-                var result = _courseMembersService.GetTeachersList(courseId, relatedUser);
+                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                if (relatedUser == null)
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'teachers/list/{{courseId}}'. {error}", "Email not found.");
+                    return StatusCode(401, "Unable to access your courses.");
+                }
+                var result = _courseMembersService.GetTeachersList(courseId, relatedUser.Value);
                 if (result.Count == 0)
                 {
                     return new JsonResult(new Object());
@@ -131,16 +148,24 @@ namespace HITs_classroom.Controllers
         /// 
         /// studentId - course student Identifier.
         /// </remarks>
+        /// <response code="401">Could not access the user's email.</response>
         /// <response code="403">You are not allowed to delete this student.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpDelete("delete/courses/{courseId}/students/{studentId}")]
         public IActionResult DeleteStudent(string courseId, string studentId)
         {
             try
             {
-                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
-                _courseMembersService.DeleteStudent(courseId, studentId, relatedUser);
+                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                if (relatedUser == null)
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'delete/courses/{{courseId}}/students/{{studentId}}'. {error}", "Email not found.");
+                    return StatusCode(401, "Unable to access your courses.");
+                }
+                _courseMembersService.DeleteStudent(courseId, studentId, relatedUser.Value);
                 return Ok();
             }
             catch (GoogleApiException e)
@@ -183,16 +208,24 @@ namespace HITs_classroom.Controllers
         /// 
         /// teacherId - course teacher Identifier.
         /// </remarks>
+        /// <response code="401">Could not access the user's email.</response>
         /// <response code="403">You are not allowed to delete this teacher.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpDelete("delete/courses/{courseId}/teachers/{teacherId}")]
         public IActionResult DeleteTeacher(string courseId, string teacherId)
         {
             try
             {
-                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
-                _courseMembersService.DeleteTeacher(courseId, teacherId, relatedUser);
+                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                if (relatedUser == null)
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'delete/courses/{{courseId}}/teachers/{{teacherId}}'. {error}", "Email not found.");
+                    return StatusCode(401, "Unable to access your courses.");
+                }
+                _courseMembersService.DeleteTeacher(courseId, teacherId, relatedUser.Value);
                 return Ok();
             }
             catch (GoogleApiException e)

@@ -52,7 +52,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'get/{{courseId}}'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
-                else if (e is GoogleApiException)
+                else if (e is NullReferenceException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'get/{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course does not exist.");
@@ -135,6 +135,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Could not access the user's email.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpGet("active")]
         public IActionResult GetActiveCoursesList()
         {
@@ -156,11 +157,6 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'active'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
-                else if (e is GoogleApiException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'active'. {error}", e.Message);
-                    return StatusCode(404, "No courses found.");
-                }
                 else
                 {
                     _logger.LogInformation("An error was found when executing the request 'active'. {error}", e.Message);
@@ -178,6 +174,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Could not access the user's email.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpGet("archived")]
         public IActionResult GetArchivedCoursesList()
         {
@@ -198,11 +195,6 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request 'archived'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
-                }
-                else if (e is GoogleApiException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'archived'. {error}", e.Message);
-                    return StatusCode(404, "No courses found.");
                 }
                 else
                 {
@@ -274,6 +266,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Could not access the user's email.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpPatch("archive/{courseId}")]
         public IActionResult ArchiveCourse(string courseId)
         {
@@ -339,6 +332,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Could not access the user's email.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpPatch("patch/{courseId}")]
         public IActionResult PatchCourse(string courseId, [FromBody] CoursePatching course)
         {
@@ -406,6 +400,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Could not access the user's email.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpPut("update/{courseId}")]
         public IActionResult UpdateCourse(string courseId, [FromBody] CoursePatching course)
         {
@@ -471,6 +466,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Could not access the user's email.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpDelete("delete/{courseId}")]
         public IActionResult DeleteCourse(string courseId)
         {

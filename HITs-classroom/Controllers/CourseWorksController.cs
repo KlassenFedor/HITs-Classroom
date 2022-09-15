@@ -1,6 +1,7 @@
 ﻿using Google;
 using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -20,13 +21,20 @@ namespace HITs_classroom.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         [HttpPost("acces/course/{courseId}/courseWork/{courseWorkId}")]
         public IActionResult SetAdmittedStudentsToCourseWork(string courseId, string courseWorkId, [FromBody] List<string>? users)
         {
             try
             {
-                string? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
-                _courseWorksService.SetAdmittedStudentsForCourseWork(courseId, courseWorkId, users, relatedUser);
+                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                if (relatedUser == null)
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", "Email not found.");
+                    return StatusCode(401, "Unable to access your courses.");
+                }
+                _courseWorksService.SetAdmittedStudentsForCourseWork(courseId, courseWorkId, users, relatedUser.Value);
                 return Ok();
             }
             catch (GoogleApiException e)
