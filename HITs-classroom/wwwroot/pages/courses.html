@@ -27,10 +27,10 @@
                 <div class="col-2 p-2 bg-light">
                     <ul>
                         <li>
-                            <a href="../index.html">Create course</a>
+                            <a href="../index.html">Login/logout</a>
                         </li>
                         <li>
-                            <a href="./courses.html">Active courses</a>
+                            <a href="./courses.html">Courses management</a>
                         </li>
                     </ul>
                 </div>
@@ -39,13 +39,62 @@
 
                     <div class="m-2">
                         <div class="d-grid gap-2 mx-auto col-3">
-                            <button class="btn btn-primary" type="button" id="courses-teachers-button">
+                            <!--<button class="btn btn-primary" type="button" id="courses-teachers-button">
                                 Update courses statuses
+                            </button>-->
+                            <button class="btn btn-primary" id="sync-courses-button">
+                                Synchronize courses
                             </button>
                         </div>
                     </div>
 
                     <div class="m-2">
+
+                        <div class="m-2">
+                            <div class="d-grid gap-2 mx-auto col-3">
+                                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#newCourse" aria-expanded="false" aria-controls="newCourse">
+                                    Add new course
+                                </button>
+                            </div>
+                            <div class="collapse m-2" id="newCourse">
+                                <div class="card card-body">
+                                    <form action="https://localhost:7284/api/Courses/CreateCourse" method="post" id="createCourseForm">
+                                        <div class="row">
+                                            <div class="mb-3 col">
+                                                <label for="courseName_Creating" class="form-label">Course name</label>
+                                                <input type="text" class="form-control" id="courseName_Creating" name="name">
+                                            </div>
+                                            <div class="mb-3 col">
+                                                <label for="ownerId_Creating" class="form-label">OwnerId</label>
+                                                <input type="text" class="form-control" id="ownerId_Creating" name="ownerId" placeholder="me, email or id">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col">
+                                                <label for="courseRoom_Creating" class="form-label">Room</label>
+                                                <input type="text" class="form-control" id="courseRoom_Creating" name="room">
+                                            </div>
+                                            <div class="mb-3 col">
+                                                <label for="courseSection_Creating" class="form-label">Section</label>
+                                                <input type="text" class="form-control" id="courseSection_Creating" name="section">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col">
+                                                <label for="courseDescription_Creating" class="form-label">Description</label>
+                                                <input type="text" class="form-control" id="courseDescription_Creating" name="description">
+                                            </div>
+                                            <div class="mb-3 col">
+                                                <label for="courseDescriptionHeading_Creating" class="form-label">Description heading</label>
+                                                <input type="text" class="form-control" id="courseDescriptionHeading_Creating" name="descriptionHeading">
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-primary" id="createCourseSubmitButton">Submit</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="d-grid gap-2 mx-auto col-3">
                             <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#findCourse" aria-expanded="false" aria-controls="findCourse">
                                 Find courses
@@ -54,7 +103,7 @@
                         <div class="collapse m-2" id="findCourse">
                             <div class="card card-body">
                                 <form id="searchCoursesForm">
-                                    <div class="row">
+                                    <!--<div class="row">
                                         <div class="mb-3 col">
                                             <label for="studentId_Search" class="form-label">Student id</label>
                                             <input type="text" class="form-control" id="studentId_Search" name="studentId">
@@ -63,7 +112,7 @@
                                             <label for="teacherId_Serach" class="form-label">Teacher id</label>
                                             <input type="text" class="form-control" id="teacherId_Serach" name="teacherId">
                                         </div>
-                                    </div>
+                                    </div>-->
                                     <div class="mb-3">
                                         <label for="courseState_Search" class="form-label">Course state</label>
                                         <select class="form-select" id="courseState_Search" name="courseState">
@@ -105,7 +154,7 @@
                         <div class="col-2 text-center">Loading...</div>
                     </div>
 
-                    <div class="card col-3 p-0 course-card d-none">
+                    <div class="card col-3 p-0 course-card d-none" id="course-card-example">
                         <div class="card-header">
                             <a href="./course_details.html?id=" class="course-card-link"><h3 class="course-name">Name</h3></a>
                             <h6 class="course-section">Section</h6>
@@ -140,10 +189,6 @@
                                             <div class="mb-3 col">
                                                 <label for="courseName_Editing" class="form-label">Course name</label>
                                                 <input type="text" class="form-control" id="courseName_Editing" name="name" required>
-                                            </div>
-                                            <div class="mb-3 col">
-                                                <label for="ownerId_Editing" class="form-label">OwnerId</label>
-                                                <input type="text" class="form-control" id="ownerId_Editing" name="ownerId" placeholder="me, email or id" required>
                                             </div>
                                         </div>
                                         <div class="row">

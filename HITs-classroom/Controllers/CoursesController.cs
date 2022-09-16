@@ -84,8 +84,12 @@ namespace HITs_classroom.Controllers
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
-        [HttpGet("list")]
-        public IActionResult GetCoursesList([FromQuery] string? studentId, [FromQuery] string? teacherId, [FromQuery] string? courseState)
+        [HttpGet("listFromGC")]
+        public IActionResult GetCoursesListFromGoogleClassroom(
+            [FromQuery] string? studentId,
+            [FromQuery] string? teacherId,
+            [FromQuery] string? courseState
+            )
         {
             if (!ModelState.IsValid)
             {
@@ -127,6 +131,53 @@ namespace HITs_classroom.Controllers
         }
 
         /// <summary>
+        /// Returns a list of courses from database corresponding to the specified parameters.
+        /// </summary>
+        /// <remarks>
+        /// Query parameters:
+        /// 
+        /// courseState - restricts returned courses to those in one of the specified states.
+        /// The default value is ACTIVE, ARCHIVED, PROVISIONED, DECLINED.
+        /// </remarks>
+        /// <response code="400">Invalid input data.</response>
+        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="404">No courses found.</response>
+        /// <response code="500">Credential Not found.</response>
+        [Authorize]
+        [HttpGet("listFromDb")]
+        public async Task<IActionResult> GetCoursesListFromDb([FromQuery] string? courseState)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
+            try
+            {
+                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                if (relatedUser == null)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", "Email not found.");
+                    return StatusCode(401, "Unable to access your courses.");
+                }
+                var response = await _coursesService.GetCoursesListFromDb(courseState, relatedUser.Value);
+                return new JsonResult(response);
+            }
+            catch (Exception e)
+            {
+                if (e is ArgumentNullException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", e.Message);
+                    return StatusCode(404, "No courses found.");
+                }
+                else
+                {
+                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", e.Message);
+                    return StatusCode(520, "Unknown error.");
+                }
+            }
+        }
+
+        /// <summary>
         /// Returns a list of active courses.
         /// </summary>
         /// <remarks>
@@ -137,7 +188,7 @@ namespace HITs_classroom.Controllers
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpGet("active")]
-        public IActionResult GetActiveCoursesList()
+        public async Task<IActionResult> GetActiveCoursesList()
         {
             try 
             {
@@ -147,7 +198,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'active'. {error}", "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                var response = _coursesService.GetActiveCoursesListFromDb(relatedUser.Value);
+                var response = await _coursesService.GetActiveCoursesListFromDb(relatedUser.Value);
                 return new JsonResult(response);
             }
             catch (Exception e)
@@ -217,7 +268,7 @@ namespace HITs_classroom.Controllers
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpPost("create")]
-        public IActionResult CreateCourse([FromBody] CourseShortModel course)
+        public async Task<IActionResult> CreateCourse([FromBody] CourseShortModel course)
         {
             if (!ModelState.IsValid)
             {
@@ -231,7 +282,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'create'. {error}", "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                var result = _coursesService.CreateCourse(course, relatedUser.Value);
+                var result = await _coursesService.CreateCourse(course, relatedUser.Value);
                 return new JsonResult(result);
             }
             catch (Exception e)
@@ -268,7 +319,7 @@ namespace HITs_classroom.Controllers
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpPatch("archive/{courseId}")]
-        public IActionResult ArchiveCourse(string courseId)
+        public async Task<IActionResult> ArchiveCourse(string courseId)
         {
             try
             {
@@ -280,7 +331,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                var response = _coursesService.PatchCourse(courseId, course, relatedUser.Value);
+                var response = await _coursesService.PatchCourse(courseId, course, relatedUser.Value);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -334,7 +385,7 @@ namespace HITs_classroom.Controllers
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpPatch("patch/{courseId}")]
-        public IActionResult PatchCourse(string courseId, [FromBody] CoursePatching course)
+        public async Task<IActionResult> PatchCourse(string courseId, [FromBody] CoursePatching course)
         {
             if (!ModelState.IsValid)
             {
@@ -348,7 +399,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                var response = _coursesService.PatchCourse(courseId, course, relatedUser.Value);
+                var response = await _coursesService.PatchCourse(courseId, course, relatedUser.Value);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -402,7 +453,7 @@ namespace HITs_classroom.Controllers
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpPut("update/{courseId}")]
-        public IActionResult UpdateCourse(string courseId, [FromBody] CoursePatching course)
+        public async Task<IActionResult> UpdateCourse(string courseId, [FromBody] CoursePatching course)
         {
             if (!ModelState.IsValid)
             {
@@ -416,7 +467,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                var response = _coursesService.UpdateCourse(courseId, course, relatedUser.Value);
+                var response = await _coursesService.UpdateCourse(courseId, course, relatedUser.Value);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -468,7 +519,7 @@ namespace HITs_classroom.Controllers
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpDelete("delete/{courseId}")]
-        public IActionResult DeleteCourse(string courseId)
+        public async Task<IActionResult> DeleteCourse(string courseId)
         {
             try
             {
@@ -478,7 +529,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                var result = _coursesService.DeleteCourse(courseId, relatedUser.Value);
+                await _coursesService.DeleteCourse(courseId, relatedUser.Value);
                 return new JsonResult("Course was deleted successfully.");
             }
             catch (GoogleApiException e)

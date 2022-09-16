@@ -27,10 +27,10 @@
                 <div class="col-2 p-2 bg-light">
                     <ul>
                         <li>
-                            <a href="../index.html">Create course</a>
+                            <a href="../index.html">Login/logout</a>
                         </li>
                         <li>
-                            <a href="./courses.html">Active courses</a>
+                            <a href="./courses.html">Courses management</a>
                         </li>
                     </ul>
                 </div>
@@ -43,14 +43,34 @@
                                     <div class="col">
                                         <div class="row">
                                             <div class="col">
-                                                Course info
+                                                <h2>
+                                                    Course info
+                                                </h2>
                                             </div>
                                             <div class="col d-flex justify-content-end">
-                                                <button type="button" class="btn btn-primary" id="course-update-teachers-button">Update course teachers</button>
+                                                <button type="button" class="btn btn-primary" id="course-update-teachers-button">
+                                                    Check if all teachers have accepted the invitations
+                                                </button>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col">IsAllTeachersAcceptedInvitations:</div>
+                                            <div class="col">
+                                                <ul class="list-inline">
+                                                    <li class="list-inline-item fw-bold">Course name:</li>
+                                                    <li class="list-inline-item" id="course-info-name"></li>
+                                                </ul>
+                                                <ul class="list-inline">
+                                                    <li class="list-inline-item fw-bold">Course id:</li>
+                                                    <li class="list-inline-item" id="course-info-id"></li>
+                                                </ul>
+                                                <ul class="list-inline">
+                                                    <li class="list-inline-item fw-bold">Course state:</li>
+                                                    <li class="list-inline-item" id="course-info-state"></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col fw-bold">IsAllTeachersAcceptedInvitations:</div>
                                             <div class="col" id="course-has-all-teachers"></div>
                                         </div>
                                     </div>

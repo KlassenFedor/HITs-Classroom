@@ -12,7 +12,8 @@ namespace HITs_classroom.Services
         Course GetCourseFromGoogleClassroom(string courseId, string relatedUser);
         Task<CourseInfoModel> GetCourseFromDb(string courseId, string user);
         List<CourseInfoModel> GetCoursesListFromGoogleClassroom(CourseSearch parameters, string relatedUser);
-        List<Course> GetActiveCoursesListFromGoogleClassroom(string relatedUser);
+        Task<List<CourseInfoModel>> GetCoursesListFromDb(string? courseState, string relatedUser);
+        List<Course> GetActiveCoursesListFromGoogleClassroom(string? relatedUser);
         Task<List<CourseInfoModel>> GetActiveCoursesListFromDb(string relatedUser);
         List<Course> GetArchivedCoursesListFromGoogleClassroom(string relatedUser);
         Task<List<CourseInfoModel>> GetArchivedCoursesListFromDb(string relatedUser);
@@ -87,6 +88,26 @@ namespace HITs_classroom.Services
             }
 
             return courseInfoModels;
+        }
+
+        public async Task<List<CourseInfoModel>> GetCoursesListFromDb(string? courseState, string relatedUser)
+        {
+            ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == relatedUser);
+            List<CourseDbModel> courseDbModels;
+            CourseStatesEnum status;
+            if (Enum.TryParse(courseState, out status))
+            {
+                courseDbModels = await _context.Courses
+                    .Where(c => c.CourseState == (int)status && c.RelatedUser == classroomAdmin).ToListAsync();
+            }
+            else
+            {
+                courseDbModels = await _context.Courses
+                    .Where(c => c.RelatedUser == classroomAdmin).ToListAsync();
+            }
+            List<CourseInfoModel> courses = courseDbModels.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
+
+            return courses;
         }
 
         public List<Course> GetActiveCoursesListFromGoogleClassroom(string relatedUser)
@@ -195,6 +216,7 @@ namespace HITs_classroom.Services
             if (course != null)
             {
                 _context.Courses.Remove(course);
+                await _context.SaveChangesAsync();
             }
         }
 
@@ -253,13 +275,12 @@ namespace HITs_classroom.Services
             CourseDbModel? courseDb = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
             if (courseDb != null)
             {
-                course.Name = parameters.Name;
-                course.OwnerId = parameters.OwnerId;
-                course.Section = parameters.Section;
-                course.Room = parameters.Room;
-                course.Description = parameters.Description;
-                course.DescriptionHeading = parameters.DescriptionHeading;
-                course.CourseState = parameters.CourseState;
+                courseDb.Name = course.Name;
+                courseDb.Section = course.Section;
+                courseDb.Room = course.Room;
+                courseDb.Description = course.Description;
+                courseDb.DescriptionHeading = course.DescriptionHeading;
+                courseDb.CourseState = (int)Enum.Parse<CourseStatesEnum>(course.CourseState);
 
                 _context.Entry(courseDb).State = EntityState.Modified;
                 await _context.SaveChangesAsync();

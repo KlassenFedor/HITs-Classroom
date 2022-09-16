@@ -28,6 +28,7 @@ namespace HITs_classroom.Controllers
             try
             {
                 await _authService.Login(token.Token);
+                _logger.LogInformation("Successfully logged in.");
                 return Ok();
             }
             catch (Exception e)
@@ -42,6 +43,7 @@ namespace HITs_classroom.Controllers
         public async Task Logout()
         {
             await _authService.Logout();
+            _logger.LogInformation("Successfully logged out.");
         }
     }
 }

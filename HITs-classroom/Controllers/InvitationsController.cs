@@ -24,7 +24,7 @@ namespace HITs_classroom.Controllers
         /// Search for a invitation by id.
         /// </summary>
         /// <remarks>
-        /// id - invitation Id
+        /// invitationId - invitation Identifier
         /// </remarks>
         /// <response code="401">Could not access the user's email.</response>
         /// <response code="403">You are not permitted to delete invitations for this course.</response>
@@ -128,7 +128,7 @@ namespace HITs_classroom.Controllers
         /// Сhecks the status of the invitation
         /// </summary>
         /// <remarks>
-        /// id - invitation Id
+        /// invitationId - invitation Identifier
         /// 
         /// Possible statuses: ACCEPTED, NOT_ACCEPTED, NOT_EXISTS (if the invitation is not found).
         /// </remarks>
@@ -225,7 +225,7 @@ namespace HITs_classroom.Controllers
         /// Update the statuses of the invitations
         /// </summary>
         /// <remarks>
-        /// id - course identifier.
+        /// courseId - course identifier.
         /// Сheck the invitations and updates the values of the field IsAccepted.
         /// </remarks>
         /// <response code="401">Could not access the user's email.</response>
@@ -282,9 +282,7 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="400">Invalid input data.</response>
         /// <response code="401">Could not access the user's email.</response>
-        /// <response code="403">You are not permitted to create invitations for this course
-        /// or the requested users account is disabled or the user already has this role
-        /// or a role with greater permissions.</response>
+        /// <response code="403">You are not permitted to create invitations for this course.</response>
         /// <response code="404">Course or user does not exist.</response>
         /// <response code="409">Invitation already exists.</response>
         /// <response code="500">Credential Not found.</response>
@@ -348,7 +346,7 @@ namespace HITs_classroom.Controllers
         /// Deletes the invitation
         /// </summary>
         /// <remarks>
-        /// id - invitation Id
+        /// invitationId - invitation Identifier
         /// </remarks>
         /// <response code="401">Could not access the user's email.</response>
         /// <response code="403">You are not permitted to delete invitations for this course.</response>
@@ -408,6 +406,17 @@ namespace HITs_classroom.Controllers
             }
         }
 
+        /// <summary>
+        /// Resends the invitation
+        /// </summary>
+        /// <remarks>
+        /// invitationId - invitation Identifier
+        /// </remarks>
+        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="403">You are not permitted to resend invitations for this course.</response>
+        /// <response code="404">Invitation does not exist.</response>
+        /// <response code="409">Invitation already exists.</response>
+        /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpPost("resend/{invitationId}")]
         public async Task<IActionResult> ResendInvitation(string invitationId)
@@ -434,7 +443,7 @@ namespace HITs_classroom.Controllers
                 else if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     _logger.LogInformation("An error was found when executing the request 'resend/{{invitationId}}'. {error}", e.Message);
-                    return StatusCode(404, "Course or user does not exist.");
+                    return StatusCode(404, "Invitation does not exist.");
                 }
                 else
                 {
@@ -469,6 +478,17 @@ namespace HITs_classroom.Controllers
             }
         }
 
+        /// <summary>
+        /// Checks teachers invitations
+        /// </summary>
+        /// <remarks>
+        /// courseId - course Identifier
+        /// 
+        /// Сhecks if all teachers have accepted the invitations.
+        /// </remarks>
+        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="403">You are not allowed to check teachers for this course.</response>
+        /// <response code="404">Couldn't find a course.</response>
         [Authorize]
         [HttpGet("checkTeachersInvitations/{courseId}")]
         public async Task<IActionResult> CheckTeachersInvitations(string courseId)
@@ -492,7 +512,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'checkTeachersInvitations/{{courseId}}'. {error}", e.Message);
-                    return StatusCode(404, "Couldn't find a course");
+                    return StatusCode(404, "Couldn't find a course.");
                 }
                 else if (e is ArgumentException)
                 {

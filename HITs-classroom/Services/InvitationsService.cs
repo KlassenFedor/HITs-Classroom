@@ -54,6 +54,8 @@ namespace HITs_classroom.Services
             await _context.Invitations.AddAsync(invitationDbModel);
             await _context.SaveChangesAsync();
 
+            await CheckIfAllTeachersAcceptedInvitations(parameters.CourseId, relatedUser);
+
             return response;
         }
 
@@ -83,6 +85,8 @@ namespace HITs_classroom.Services
                     {
                         _context.Invitations.Remove(invitationDbModel);
                         await _context.SaveChangesAsync();
+
+                        await CheckIfAllTeachersAcceptedInvitations(invitationDbModel.CourseId, relatedUser);
                         return;
                     }
                     else
@@ -92,6 +96,8 @@ namespace HITs_classroom.Services
                 }
                 _context.Invitations.Remove(invitationDbModel);
                 await _context.SaveChangesAsync();
+
+                await CheckIfAllTeachersAcceptedInvitations(invitationDbModel.CourseId, relatedUser);
             }
         }
 
@@ -203,22 +209,26 @@ namespace HITs_classroom.Services
             }
             InvitationDbModel? invitation = await _context.Invitations.Where(i => i.CourseId == courseId &&
                 i.Role == (int)CourseRolesEnum.TEACHER && !i.IsAccepted).FirstOrDefaultAsync();
-            if (invitation == null)
+
+            CourseDbModel? course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            if (course != null)
             {
-                CourseDbModel? course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
-                if (course != null)
+                if (invitation == null)
                 {
                     course.HasAllTeachers = true;
-                    _context.Entry(course).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
-                    return true;
                 }
                 else
                 {
-                    throw new NullReferenceException();
+                    course.HasAllTeachers = false;
                 }
+                _context.Entry(course).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return course.HasAllTeachers;
             }
-            return false;
+            else
+            {
+                throw new NullReferenceException();
+            }
         }
 
         public async Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId, string relatedUser)

@@ -1,36 +1,35 @@
 ﻿const path = 'https://localhost:7284/';
 
 window.addEventListener('load', function () {
-    const createBtn = document.querySelector('#createCourseSubmitButton');
-    if (createBtn) {
-        createBtn.addEventListener("click", createCourse);
-    }
-    const syncButton = this.document.querySelector('#sync-courses-button');
-    syncButton.addEventListener('click', syncCourses)
+    const logoutBtn = this.document.querySelector('#logout-button');
+    logoutBtn.addEventListener('click', logout);
 });
 
-function createCourse() {
-    var data = new Object();
-    for (const pair of new FormData(document.querySelector('#createCourseForm'))) {
-        if (pair[1] != null && pair[1] != '') {
-            data[pair[0]] = pair[1];
-        }
-    }
-    data = JSON.stringify(data);
-    post(
-        path + 'api/Courses/create',
-        data
+function logout() {
+    postRequestWithoutResponseBody(
+        path + 'api/Auth/logout'
     )
-        .then(response => console.log(response))
-        .catch(error => console.error(error))
+        .then(response => {
+            if (response.status == 200) {
+                alert('Successfully logged out.');
+            } else {
+                alert('Failed to log out.');
+            }
+        })
+        .catch(error => console.error(error));
 }
 
-function syncCourses() {
-    post(
-        path + 'api/Courses/synchronize'
-    )
-        .then(response => console.log(response))
-        .catch(error => console.error(error))
+function postRequestWithoutResponseBody(url, data) {
+    return fetch(url,
+        {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: data
+        }
+    );
 }
 
 function post(url, data) {
@@ -46,18 +45,23 @@ function post(url, data) {
     ).then(response => response.json());
 }
 
-
 function handleCredentialResponse(response) {
     console.log("Encoded JWT ID token: " + response.credential);
-    console.log(parseJwt(response.credential));
     var data = new Object();
     data['token'] = response.credential;
     data = JSON.stringify(data);
-    post(
+    postRequestWithoutResponseBody(
         path + 'api/Auth/Login',
         data
     )
-        .then(response => console.log(response))
+        .then(response => {
+            if (response.status == 200) {
+                alert('Successfully logged in.');
+            }
+            else {
+                alert('Failed to log in.');
+            }
+        })
         .catch(error => console.error(error));
 }
 
@@ -71,15 +75,3 @@ window.onload = function () {
         { theme: "outline", size: "large" }
     );
 }
-
-function parseJwt(token) {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-
-    return JSON.parse(jsonPayload);
-};
-
-////

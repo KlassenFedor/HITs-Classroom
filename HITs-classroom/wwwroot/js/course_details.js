@@ -10,7 +10,8 @@ window.addEventListener('load', function () {
     const updateCourseTeachersButton = this.document.querySelector('#course-update-teachers-button')
         .addEventListener('click', updateTeachersInvitations);
 
-    getCourseInvitations();
+    //getCourseInvitations();
+    setCourseInfo();
 });
 
 
@@ -194,6 +195,29 @@ function showStudents(json) {
         studentRow.id = json[i]['email'];
         studentsPlace.appendChild(studentRow);
     }
+}
+
+//--------Course info--------
+
+function setCourseInfo() {
+    console.log('setCourseInfo');
+    getRequest(
+        path + 'api/Courses/get/' + 
+        + window.location.href.split('?')[1].split('=')[1]
+    )
+        .then(response => showCourseInfo(response))
+        .catch(error => { console.error(error), alert('Unable to get course info') })
+}
+
+function showCourseInfo(json) {
+    var courseName = document.querySelector('#course-info-name');
+    var courseId = document.querySelector('#course-info-id');
+    var courseState = document.querySelector('#course-info-state');
+    var courseTeachers = document.querySelector('#course-has-all-teachers');
+    courseName.innerHTML = json['name'];
+    courseId.innerHTML = json['courseId'];
+    courseState.innerHTML = json['courseState'];
+    courseTeachers.innerHTML = json['hasAllTeachers'];
 }
 
 //--------Wrappers for HTTP methods--------

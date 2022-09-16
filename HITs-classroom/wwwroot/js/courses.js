@@ -12,8 +12,17 @@ window.addEventListener('load', function () {
         searchByIdBtn.addEventListener("click", findCourseById);
     }
 
-    const updateCourseBtn = this.document.querySelector('#courses-teachers-button');
-    updateCourseBtn.addEventListener('click', updateCoursesStatuses);
+    //const updateCourseBtn = this.document.querySelector('#courses-teachers-button');
+    //updateCourseBtn.addEventListener('click', updateCoursesStatuses);
+
+    const createBtn = document.querySelector('#createCourseSubmitButton');
+    if (createBtn) {
+        createBtn.addEventListener("click", createCourse);
+    }
+
+    const syncBtn = this.document.querySelector('#sync-courses-button');
+    syncBtn.addEventListener('click', syncCourses)
+
 
     findActiveCourses();
 });
@@ -33,7 +42,7 @@ function convertCoursesFromJsonToArray(json) {
 //creating a course card from json
 function prepareCourseFromJson(course) {
     console.log('prepareCourseFromJson');
-    let courseClone = document.querySelector('.course-card').cloneNode(true);
+    let courseClone = document.querySelector('#course-card-example').cloneNode(true);
     courseClone.classList.remove('d-none');
     courseClone.setAttribute('id', course['id']);
     courseClone = prepareCourseCard(course, courseClone);
@@ -45,8 +54,9 @@ function prepareCourseFromJson(course) {
 function prepareCourseCard(course, courseClone) {
 
     //course fields filling
+    courseClone.id = course['courseId'];
     let courseCardLink = courseClone.querySelector('.course-card-link');
-    courseCardLink.setAttribute('href', courseCardLink.getAttribute('href') + course['courseId']);
+    courseCardLink.setAttribute('href', courseCardLink.getAttribute('href').split('=')[0] + '=' + course['courseId']);
     let courseName = courseClone.querySelector('.course-name');
     courseName.innerText = course['name'];
     let courseSection = courseClone.querySelector('.course-section');
@@ -109,7 +119,7 @@ function addCoursesToPage(courses) {
 }
 
 function editCourseCard(course) {
-    let courseCard = document.querySelector("[id='" + course['id'] + "']");
+    let courseCard = document.querySelector("[id='" + course['courseId'] + "']");
     courseCard = prepareCourseCard(course, courseCard);
 }
 
@@ -124,7 +134,6 @@ function fillModalForEditing(event) {
     let editCourseForm = editingModal.querySelector('#editCourseForm');
     editingModal.querySelector('#courseIdForModalHeader').innerHTML = event.currentTarget.currentId;
     editCourseForm.querySelector('#courseName_Editing').value = event.currentTarget.currentName;
-    editCourseForm.querySelector('#ownerId_Editing').value = event.currentTarget.currentOwnerId;
     editCourseForm.querySelector('#courseRoom_Editing').value = event.currentTarget.currentRoom;
     editCourseForm.querySelector('#courseSection_Editing').value = event.currentTarget.currentSection;
     editCourseForm.querySelector('#courseDescription_Editing').value = event.currentTarget.currentDescription;
@@ -154,13 +163,14 @@ function editCourse() {
             data[pair[0]] = pair[1];
         }
     }
+    data['ownerId'] = 'me';
     if (data['name'] == null || data['ownerId'] == null) {
         alert('Fields "name" and "ownerId" must be filled');
     }
     else {
         data = JSON.stringify(data);
         putRequest(
-            path = 'api/Courses/update/' + document.querySelector('#courseIdForModalHeader').innerHTML,
+            path + 'api/Courses/update/' + document.querySelector('#courseIdForModalHeader').innerHTML,
             data
         )
             .then(response => editCourseCard(response))
@@ -180,7 +190,7 @@ function deleteCourse(event) {
 function findActiveCourses() {
     console.log('findActiveCourses');
     getRequest(
-        path + 'api/Courses/list?courseState=ACTIVE'
+        path + 'api/Courses/active'
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
         .catch(error => {console.error(error), alert('Courses are currently unavailable') })
@@ -197,7 +207,7 @@ function findCourses() {
     queryParameters = queryParameters.slice(1);
     console.log(queryParameters);
     getRequest(
-        path + 'api/Courses/list?' + queryParameters
+        path + 'api/Courses/listFromDb?' + queryParameters
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
         .catch(error => { console.error(error), alert('Failed to find courses') })
@@ -210,16 +220,52 @@ function findCourseById() {
         path + 'api/Courses/get/' + Id.toString()
     )
         .then(response => addCoursesToPage([prepareCourseFromJson(response)]))
-        .catch(error => { console.error(error), alert('Failed to find course') });
+        .catch(error => { console.error(error), alert('Failed to find course.') });
 }
 
 function updateCoursesStatuses() {
     console.log('updateCoursesStatuses');
-    postRequest(
+    postRequestWithoutResponseBody(
         path + 'api/Invitations/updateAll'
     )
-        .then(response => console.log(response))
-        .catch(error => { console.error(error), alert('Failed to find course') });
+        .catch(error => { console.error(error), alert('Failed to update courses.') });
+}
+
+function syncCourses() {
+    postRequest(
+        path + 'api/Courses/synchronize'
+    )
+        .then(response => {
+            if (response.ok) {
+                alert('Successfully synchronized');
+            } else {
+                alert('Failed to synchronize.');
+            }
+        })
+        .catch(error => console.error(error));
+}
+
+function createCourse() {
+    var data = new Object();
+    for (const pair of new FormData(document.querySelector('#createCourseForm'))) {
+        if (pair[1] != null && pair[1] != '') {
+            data[pair[0]] = pair[1];
+        }
+    }
+    data = JSON.stringify(data);
+    postRequest(
+        path + 'api/Courses/create',
+        data
+    )
+        .then(response => {
+            console.log(response.ok);
+            if (response.ok) {
+                alert('Created successfully.');
+            } else {
+                alert('Failed to create.');
+            }
+        })
+        .catch(error => console.error(error));
 }
 
 //--------Implementing HTTP methods--------
@@ -234,7 +280,7 @@ function postRequest(url, data) {
             },
             body: data
         }
-    ).then(response => response.json());
+    ).then(response => response);
 }
 
 function getRequest(url) {
@@ -251,7 +297,15 @@ function patchRequest(url, data) {
             method: "PATCH",
             body: data
         }
-    ).then(response => response.json());
+    ).then(response => {
+        if (response.ok) {
+            alert('Successfully patched.')
+        }
+        else {
+            alert('Failed to patch course.')
+        }
+        response.json()
+    });
 }
 
 function putRequest(url, data) {
@@ -273,4 +327,17 @@ function deleteRequest(url) {
             method: "DELETE"
         }
     ).then(response => response.json());
+}
+
+function postRequestWithoutResponseBody(url, data) {
+    return fetch(url,
+        {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: data
+        }
+    );
 }
