@@ -219,8 +219,10 @@ namespace HITs_classroom.Services
                 CourseState = (int)Enum.Parse<CourseStatesEnum>(newCourse.CourseState),
                 HasAllTeachers = true
             };
-            courseDb.RelatedUsers.Add(classroomAdmin);
+            
             await _context.Courses.AddAsync(courseDb);
+            courseDb.RelatedUsers = new List<ClassroomAdmin>();
+            courseDb.RelatedUsers.Add(classroomAdmin);
             await _context.SaveChangesAsync();
 
             return CreateCourseInfoModelFromCourseDbModel(courseDb);
@@ -390,7 +392,7 @@ namespace HITs_classroom.Services
                 throw new ArgumentException();
             }
             CourseDbModel? courseDb = await _context.Courses
-                .FirstOrDefaultAsync(c => c.Id == courseId && c.RelatedUsers.Contains(classroomAdmin));
+                .FirstOrDefaultAsync(c => c.Id == courseId);
             if (courseDb == null)
             {
                 Course course = GetCourseFromGoogleClassroom(courseId, relatedUser);
@@ -405,9 +407,20 @@ namespace HITs_classroom.Services
                     CourseState = (int)Enum.Parse<CourseStatesEnum>(course.CourseState),
                     HasAllTeachers = true
                 };
-                courseDb.RelatedUsers.Add(classroomAdmin);
+                
                 await _context.Courses.AddAsync(courseDb);
+                courseDb.RelatedUsers = new List<ClassroomAdmin>();
+                courseDb.RelatedUsers.Add(classroomAdmin);
                 await _context.SaveChangesAsync();
+            }
+            else
+            {
+                courseDb.RelatedUsers = new List<ClassroomAdmin>();
+                if (!courseDb.RelatedUsers.Contains(classroomAdmin))
+                {
+                    courseDb.RelatedUsers.Add(classroomAdmin);
+                    await _context.SaveChangesAsync();
+                }
             }
 
             return CreateCourseInfoModelFromCourseDbModel(courseDb);
