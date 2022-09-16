@@ -155,7 +155,7 @@ namespace HITs_classroom.Services
                 throw new ArgumentException();
             }
             List<string> courses = new List<string>();
-            courses.AddRange(await _context.Courses.Where(c => c.RelatedUser == classroomAdmin).Select(c => c.Id).ToListAsync());
+            courses.AddRange(await _context.Courses.Where(c => c.RelatedUsers.Contains(classroomAdmin)).Select(c => c.Id).ToListAsync());
 
             foreach (var course in courses)
             {
@@ -283,10 +283,13 @@ namespace HITs_classroom.Services
         {
             ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == user);
             List<CourseDbModel> courses = await _context.Courses
-                .Where(c => c.RelatedUser == classroomAdmin && c.Id == courseId).ToListAsync();
-            if (courses != null && courses.Count > 0)
+                .Where(c => c.Id == courseId).ToListAsync();
+            foreach (var course in courses)
             {
-                return true;
+                if (course.RelatedUsers.FirstOrDefault(ru => ru == classroomAdmin) != null)
+                {
+                    return true;
+                }
             }
             return false;
         }

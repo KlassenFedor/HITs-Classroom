@@ -3,6 +3,7 @@ using HITs_classroom.Models.Course;
 using HITs_classroom.Models.Invitation;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using HITs_classroom.Models.Grade;
 
 namespace HITs_classroom
 {
@@ -42,10 +43,9 @@ namespace HITs_classroom
             modelBuilder.Entity<CourseDbModel>()
                 .HasKey(x => x.Id);
             modelBuilder.Entity<CourseDbModel>()
-                .HasOne(c => c.RelatedUser)
-                .WithMany(ru => ru.Courses)
-                .HasForeignKey(c => c.RelatedUserId);
+                .HasMany(c => c.RelatedUsers)
+                .WithMany(ru => ru.Courses);
+
         }
     }
-
 }

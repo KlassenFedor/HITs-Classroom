@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HITs_classroom.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220914152812_NewCourseModelMigration")]
-    partial class NewCourseModelMigration
+    [Migration("20220916175943_FirstMigration")]
+    partial class FirstMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,86 @@ namespace HITs_classroom.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("HITs_classroom.Models.ClassroomAdmin.ClassroomAdmin", b =>
+            modelBuilder.Entity("ClassroomAdminCourseDbModel", b =>
+                {
+                    b.Property<string>("CoursesId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RelatedUsersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("CoursesId", "RelatedUsersId");
+
+                    b.HasIndex("RelatedUsersId");
+
+                    b.ToTable("ClassroomAdminCourseDbModel");
+                });
+
+            modelBuilder.Entity("HITs_classroom.Models.Course.CourseDbModel", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("CourseState")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DescriptionHeading")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("HasAllTeachers")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Room")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Section")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Courses");
+                });
+
+            modelBuilder.Entity("HITs_classroom.Models.Invitation.InvitationDbModel", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CourseId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAccepted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdateTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("Invitations");
+                });
+
+            modelBuilder.Entity("HITs_classroom.Models.User.ClassroomAdmin", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -93,74 +172,6 @@ namespace HITs_classroom.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("HITs_classroom.Models.Course.CourseDbModel", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CourseState")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DescriptionHeading")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("HasAllTeachers")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RelatedUser")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Room")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Section")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Courses");
-                });
-
-            modelBuilder.Entity("HITs_classroom.Models.Invitation.InvitationDbModel", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAccepted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.ToTable("Invitations");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -296,6 +307,21 @@ namespace HITs_classroom.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ClassroomAdminCourseDbModel", b =>
+                {
+                    b.HasOne("HITs_classroom.Models.Course.CourseDbModel", null)
+                        .WithMany()
+                        .HasForeignKey("CoursesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HITs_classroom.Models.User.ClassroomAdmin", null)
+                        .WithMany()
+                        .HasForeignKey("RelatedUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("HITs_classroom.Models.Invitation.InvitationDbModel", b =>
                 {
                     b.HasOne("HITs_classroom.Models.Course.CourseDbModel", "Course")
@@ -318,7 +344,7 @@ namespace HITs_classroom.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("HITs_classroom.Models.ClassroomAdmin.ClassroomAdmin", null)
+                    b.HasOne("HITs_classroom.Models.User.ClassroomAdmin", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -327,7 +353,7 @@ namespace HITs_classroom.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("HITs_classroom.Models.ClassroomAdmin.ClassroomAdmin", null)
+                    b.HasOne("HITs_classroom.Models.User.ClassroomAdmin", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -342,7 +368,7 @@ namespace HITs_classroom.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HITs_classroom.Models.ClassroomAdmin.ClassroomAdmin", null)
+                    b.HasOne("HITs_classroom.Models.User.ClassroomAdmin", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -351,7 +377,7 @@ namespace HITs_classroom.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("HITs_classroom.Models.ClassroomAdmin.ClassroomAdmin", null)
+                    b.HasOne("HITs_classroom.Models.User.ClassroomAdmin", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

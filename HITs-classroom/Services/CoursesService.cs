@@ -44,10 +44,14 @@ namespace HITs_classroom.Services
         public async Task<CourseInfoModel> GetCourseFromDb(string courseId, string user)
         {
             ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == user);
-            CourseDbModel? course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId && c.RelatedUser == classroomAdmin);
-            if (course != null)
+            if (classroomAdmin != null)
             {
-                return CreateCourseInfoModelFromCourseDbModel(course);
+                CourseDbModel? course = await _context.Courses
+                    .FirstOrDefaultAsync(c => c.Id == courseId && c.RelatedUsers.Contains(classroomAdmin));
+                if (course != null)
+                {
+                    return CreateCourseInfoModelFromCourseDbModel(course);
+                }
             }
             throw new NullReferenceException();
         }
@@ -93,17 +97,20 @@ namespace HITs_classroom.Services
         public async Task<List<CourseInfoModel>> GetCoursesListFromDb(string? courseState, string relatedUser)
         {
             ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == relatedUser);
+            if (classroomAdmin == null)
+            {
+                throw new ArgumentException();
+            }
             List<CourseDbModel> courseDbModels;
             CourseStatesEnum status;
             if (Enum.TryParse(courseState, out status))
             {
                 courseDbModels = await _context.Courses
-                    .Where(c => c.CourseState == (int)status && c.RelatedUser == classroomAdmin).ToListAsync();
+                    .Where(c => c.CourseState == (int)status && c.RelatedUsers.Contains(classroomAdmin)).ToListAsync();
             }
             else
             {
-                courseDbModels = await _context.Courses
-                    .Where(c => c.RelatedUser == classroomAdmin).ToListAsync();
+                courseDbModels = await _context.Courses.Where(c => c.RelatedUsers.Contains(classroomAdmin)).ToListAsync();
             }
             List<CourseInfoModel> courses = courseDbModels.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
 
@@ -135,9 +142,13 @@ namespace HITs_classroom.Services
         public async Task<List<CourseInfoModel>> GetActiveCoursesListFromDb(string relatedUser)
         {
             ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == relatedUser);
+            if (classroomAdmin == null)
+            {
+                throw new ArgumentException();
+            }
             List<CourseDbModel> courses = new List<CourseDbModel>();
             courses = await _context.Courses
-                .Where(c => c.CourseState == (int)CourseStatesEnum.ACTIVE && c.RelatedUser == classroomAdmin).ToListAsync();
+                .Where(c => c.CourseState == (int)CourseStatesEnum.ACTIVE && c.RelatedUsers.Contains(classroomAdmin)).ToListAsync();
             return courses.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
         }
 
@@ -167,14 +178,23 @@ namespace HITs_classroom.Services
         public async Task<List<CourseInfoModel>> GetArchivedCoursesListFromDb(string relatedUser)
         {
             ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == relatedUser);
+            if (classroomAdmin == null)
+            {
+                throw new ArgumentException();
+            }
             List<CourseDbModel> courses = new List<CourseDbModel>();
             courses = await _context.Courses
-                .Where(c => c.CourseState == (int)CourseStatesEnum.ARCHIVED && c.RelatedUser == classroomAdmin).ToListAsync();
+                .Where(c => c.CourseState == (int)CourseStatesEnum.ARCHIVED && c.RelatedUsers.Contains(classroomAdmin)).ToListAsync();
             return courses.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
         }
 
         public async Task<CourseInfoModel> CreateCourse(CourseShortModel parameters, string relatedUser)
         {
+            ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == relatedUser);
+            if (classroomAdmin == null)
+            {
+                throw new ArgumentException();
+            }
             ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             var newCourse = new Course
             {
@@ -188,7 +208,6 @@ namespace HITs_classroom.Services
             };
 
             newCourse = classroomService.Courses.Create(newCourse).Execute();
-            ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == relatedUser);
             CourseDbModel courseDb = new CourseDbModel
             {
                 Id = newCourse.Id,
@@ -198,9 +217,9 @@ namespace HITs_classroom.Services
                 DescriptionHeading = newCourse.DescriptionHeading,
                 Room = newCourse.Room,
                 CourseState = (int)Enum.Parse<CourseStatesEnum>(newCourse.CourseState),
-                HasAllTeachers = true,
-                RelatedUser = classroomAdmin
+                HasAllTeachers = true
             };
+            courseDb.RelatedUsers.Add(classroomAdmin);
             await _context.Courses.AddAsync(courseDb);
             await _context.SaveChangesAsync();
 
@@ -210,9 +229,14 @@ namespace HITs_classroom.Services
         public async Task DeleteCourse(string courseId, string relatedUser)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
-
+            ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == relatedUser);
+            if (classroomAdmin == null)
+            {
+                throw new ArgumentException();
+            }
             var response = classroomService.Courses.Delete(courseId).Execute();
-            CourseDbModel? course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            CourseDbModel? course = await _context.Courses
+                .FirstOrDefaultAsync(c => c.Id == courseId && c.RelatedUsers.Contains(classroomAdmin));
             if (course != null)
             {
                 _context.Courses.Remove(course);
@@ -361,7 +385,12 @@ namespace HITs_classroom.Services
         public async Task<CourseInfoModel> AddCourseIfNotExistsInDb(string courseId, string relatedUser)
         {
             ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == relatedUser);
-            CourseDbModel? courseDb = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            if (classroomAdmin == null)
+            {
+                throw new ArgumentException();
+            }
+            CourseDbModel? courseDb = await _context.Courses
+                .FirstOrDefaultAsync(c => c.Id == courseId && c.RelatedUsers.Contains(classroomAdmin));
             if (courseDb == null)
             {
                 Course course = GetCourseFromGoogleClassroom(courseId, relatedUser);
@@ -374,9 +403,9 @@ namespace HITs_classroom.Services
                     DescriptionHeading = course.DescriptionHeading,
                     Room = course.Room,
                     CourseState = (int)Enum.Parse<CourseStatesEnum>(course.CourseState),
-                    HasAllTeachers = true,
-                    RelatedUser = classroomAdmin
+                    HasAllTeachers = true
                 };
+                courseDb.RelatedUsers.Add(classroomAdmin);
                 await _context.Courses.AddAsync(courseDb);
                 await _context.SaveChangesAsync();
             }
@@ -396,5 +425,20 @@ namespace HITs_classroom.Services
 
             return response;
         }
+
+        //private async Task<bool> CheckIfUserRelatedToCourse(string courseId, string user)
+        //{
+        //    ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == user);
+        //    List<CourseDbModel> courses = await _context.Courses
+        //        .Where(c => c.Id == courseId).ToListAsync();
+        //    foreach (var course in courses)
+        //    {
+        //        if (course.RelatedUsers.FirstOrDefault(ru => ru == classroomAdmin) != null)
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //}
     }
 }

@@ -22,6 +22,21 @@ namespace HITs_classroom.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("ClassroomAdminCourseDbModel", b =>
+                {
+                    b.Property<string>("CoursesId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RelatedUsersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("CoursesId", "RelatedUsersId");
+
+                    b.HasIndex("RelatedUsersId");
+
+                    b.ToTable("ClassroomAdminCourseDbModel");
+                });
+
             modelBuilder.Entity("HITs_classroom.Models.Course.CourseDbModel", b =>
                 {
                     b.Property<string>("Id")
@@ -43,10 +58,6 @@ namespace HITs_classroom.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RelatedUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Room")
                         .HasColumnType("nvarchar(max)");
 
@@ -54,8 +65,6 @@ namespace HITs_classroom.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RelatedUserId");
 
                     b.ToTable("Courses");
                 });
@@ -295,15 +304,19 @@ namespace HITs_classroom.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("HITs_classroom.Models.Course.CourseDbModel", b =>
+            modelBuilder.Entity("ClassroomAdminCourseDbModel", b =>
                 {
-                    b.HasOne("HITs_classroom.Models.User.ClassroomAdmin", "RelatedUser")
-                        .WithMany("Courses")
-                        .HasForeignKey("RelatedUserId")
+                    b.HasOne("HITs_classroom.Models.Course.CourseDbModel", null)
+                        .WithMany()
+                        .HasForeignKey("CoursesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("RelatedUser");
+                    b.HasOne("HITs_classroom.Models.User.ClassroomAdmin", null)
+                        .WithMany()
+                        .HasForeignKey("RelatedUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HITs_classroom.Models.Invitation.InvitationDbModel", b =>
@@ -371,11 +384,6 @@ namespace HITs_classroom.Migrations
             modelBuilder.Entity("HITs_classroom.Models.Course.CourseDbModel", b =>
                 {
                     b.Navigation("Invitations");
-                });
-
-            modelBuilder.Entity("HITs_classroom.Models.User.ClassroomAdmin", b =>
-                {
-                    b.Navigation("Courses");
                 });
 #pragma warning restore 612, 618
         }
