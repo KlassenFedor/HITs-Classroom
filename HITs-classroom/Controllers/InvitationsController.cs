@@ -323,7 +323,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
                     return StatusCode(403, "You are not permitted to create invitations for this course" +
                         " or the requested users account is disabled or" +
-                        " the user already has this role or a role with greater permissions." + e.Message);
+                        " the user already has this role or a role with greater permissions.");
                 }
             }
             catch (Exception e)

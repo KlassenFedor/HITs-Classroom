@@ -3,6 +3,7 @@ using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Models.Course;
 using HITs_classroom.Models.User;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using static Google.Apis.Classroom.v1.CoursesResource.ListRequest;
 
 namespace HITs_classroom.Services
@@ -415,7 +416,10 @@ namespace HITs_classroom.Services
             }
             else
             {
-                courseDb.RelatedUsers = new List<ClassroomAdmin>();
+                var users = _context.Courses
+                    .Where(c => c.Id == courseDb.Id)
+                    .Select(c => c.RelatedUsers).ToList()[0];
+                courseDb.RelatedUsers = users;
                 if (!courseDb.RelatedUsers.Contains(classroomAdmin))
                 {
                     courseDb.RelatedUsers.Add(classroomAdmin);

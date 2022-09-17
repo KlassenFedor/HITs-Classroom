@@ -6,7 +6,7 @@ using HITs_classroom.Models.Course;
 using HITs_classroom.Models.Invitation;
 using HITs_classroom.Models.User;
 using Microsoft.EntityFrameworkCore;
-
+using System.Runtime.CompilerServices;
 
 namespace HITs_classroom.Services
 {
@@ -176,14 +176,14 @@ namespace HITs_classroom.Services
             string pageToken = null;
             do
             {
-                var request = classroomService.Courses.Students.List(courseId);
+                var request = classroomService.Courses.Teachers.List(courseId);
                 request.PageSize = 100;
                 request.PageToken = pageToken;
                 var response = request.Execute();
                 
-                if (response.Students != null)
+                if (response.Teachers != null)
                 {
-                    users.AddRange(response.Students.Select(s => s.Profile.EmailAddress));
+                    users.AddRange(response.Teachers.Select(s => s.Profile.EmailAddress));
                 }
                 pageToken = response.NextPageToken;
             } while (pageToken != null);
@@ -263,8 +263,8 @@ namespace HITs_classroom.Services
             {
                 throw new ArgumentException();
             }
-            await DeleteInvitation(invitationId, relatedUser);
             InvitationDbModel? oldInvitation = await _context.Invitations.FindAsync(invitationId);
+            await DeleteInvitation(invitationId, relatedUser);
             if (!(oldInvitation == null))
             {
                 InvitationCreatingModel newInvitation = new InvitationCreatingModel();
@@ -282,16 +282,20 @@ namespace HITs_classroom.Services
         private async Task<bool> CheckIfUserRelatedToCourse(string courseId, string user)
         {
             ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == user);
-            List<CourseDbModel> courses = await _context.Courses
-                .Where(c => c.Id == courseId).ToListAsync();
-            foreach (var course in courses)
+            var course = await _context.Courses
+                .FirstOrDefaultAsync(c => c.Id == courseId);
+            
+            if (course == null || classroomAdmin == null)
             {
-                if (course.RelatedUsers.FirstOrDefault(ru => ru == classroomAdmin) != null)
-                {
-                    return true;
-                }
+                return false;
             }
-            return false;
+            else
+            {
+                var users = _context.Courses
+                    .Where(c => c.Id == course.Id)
+                    .Select(c => c.RelatedUsers).ToList()[0];
+                return users.Contains(classroomAdmin);
+            }
         }
     }
 }

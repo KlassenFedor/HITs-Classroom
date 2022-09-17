@@ -64,7 +64,13 @@ function createInvitation() {
         path + 'api/Invitations/create',
         data
     )
-        .then(response => alert('Created successfully'))
+        .then(response => {
+            if (response.ok) {
+                alert('Created successfully.');
+            } else {
+                alert('Failed to create invitation.');
+            }
+        })
         .catch(error => { console.error(error), alert('Failed to create invitation') })
 }
 
@@ -87,6 +93,9 @@ function showInvitationsList(json) {
         var deleteButton = invitationRow.querySelector('.invitation-delete');
         deleteButton.addEventListener('click', deleteInvitation);
         deleteButton.invitationId = json[i]['id'];
+        var resendButton = invitationRow.querySelector('.invitation-resend');
+        resendButton.addEventListener('click', resendInvitation);
+        resendButton.invitationId = json[i]['id'];
         invitationRow.classList.remove('d-none');
         invitationRow.id = json[i]['id'];
         invitationsPlace.appendChild(invitationRow);
@@ -253,7 +262,7 @@ function postRequest(url, data) {
             },
             body: data
         }
-    ).then(response => response.json());
+    ).then(response => response);
 }
 
 function deleteRequest(url) {
