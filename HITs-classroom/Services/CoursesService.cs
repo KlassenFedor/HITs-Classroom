@@ -396,6 +396,7 @@ namespace HITs_classroom.Services
                 .FirstOrDefaultAsync(c => c.Id == courseId);
             if (courseDb == null)
             {
+                Debug.WriteLine(classroomAdmin.Email + "_1");
                 Course course = GetCourseFromGoogleClassroom(courseId, relatedUser);
                 courseDb = new CourseDbModel
                 {
@@ -419,8 +420,8 @@ namespace HITs_classroom.Services
                 var users = _context.Courses
                     .Where(c => c.Id == courseDb.Id)
                     .Select(c => c.RelatedUsers).ToList()[0];
-                courseDb.RelatedUsers = users;
-                if (!courseDb.RelatedUsers.Contains(classroomAdmin))
+                courseDb.RelatedUsers = new List<ClassroomAdmin>();
+                if (!users.Contains(classroomAdmin))
                 {
                     courseDb.RelatedUsers.Add(classroomAdmin);
                     await _context.SaveChangesAsync();

@@ -39,18 +39,12 @@ builder.Services.AddCors();
 var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection));
 
-//builder.Services.AddAuthentication().AddGoogle(googleOptions =>
-//{
-//    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-//    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-//});
-
 builder.Services.AddIdentity<ClassroomAdmin, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager<SignInManager<ClassroomAdmin>>()
     .AddUserManager<UserManager<ClassroomAdmin>>();
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
 var app = builder.Build();
 

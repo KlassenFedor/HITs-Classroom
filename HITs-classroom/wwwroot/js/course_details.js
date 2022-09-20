@@ -115,10 +115,12 @@ function showCourseStatus(response) {
     const statusPlace = document.querySelector('#course-has-all-teachers');
     if (response) {
         statusPlace.innerHTML = 'All teachers accepted invitations';
+        studentsPlace.classList.remove('text-danger');
         statusPlace.classList.add('text-success');
     }
     else {
         statusPlace.innerHTML = 'Not all teachers accepted invitations';
+        studentsPlace.classList.remove('text-success');
         statusPlace.classList.add('text-danger');
     }
 }
@@ -155,7 +157,7 @@ function deleteStudent(event) {
     deleteRequest(
         path + 'api/CourseMembers/delete/courses/'
             + window.location.href.split('?')[1].split('=')[1]
-            + '/students' + event.currentTarget.studentId
+            + '/students/' + event.currentTarget.studentId
     )
         .then(response => () => { document.querySelector("[id='" + event.currentTarget.studentId + "']").remove() })
         .catch(error => { console.error(error), alert('Unable to delete student') })
@@ -166,7 +168,7 @@ function deleteTeacher(event) {
     deleteRequest(
         path + 'api/CourseMembers/delete/courses/'
         + window.location.href.split('?')[1].split('=')[1]
-        + '/teachers' + event.currentTarget.teacherId
+        + '/teachers/' + event.currentTarget.teacherId
     )
         .then(response => () => { document.querySelector("[id='" + event.currentTarget.teacherId + "']").remove() })
         .catch(error => { console.error(error), alert('Unable to delete teacher') })
@@ -175,15 +177,15 @@ function deleteTeacher(event) {
 function showTeachers(json) {
     const teachersPlace = document.querySelector('#teachersPlace');
     teachersPlace.innerHTML = '';
-    var teacherRow = document.querySelector('.teacherRow').cloneNode(true);
     for (let i = 0; i < json.length; i++) {
+        var teacherRow = document.querySelector('.teacherRow').cloneNode(true);
         teacherRow.querySelector('.teacher-number').innerHTML = i + 1;
         teacherRow.querySelector('.teacher-email').innerHTML = json[i]['email'];
         teacherRow.querySelector('.teacher-name').innerHTML = json[i]['name'];
         teacherRow.classList.remove('d-none');
         var deleteButton = teacherRow.querySelector('.teacher-delete');
         deleteButton.addEventListener('click', deleteTeacher);
-        deleteButton.teacherId = json[i]['id'];
+        deleteButton.teacherId = json[i]['email'];
         teacherRow.id = json[i]['email'];
         teachersPlace.appendChild(teacherRow);
     }
@@ -192,14 +194,14 @@ function showTeachers(json) {
 function showStudents(json) {
     const studentsPlace = document.querySelector('#studentsPlace');
     studentsPlace.innerHTML = '';
-    var studentRow = document.querySelector('.studentRow').cloneNode(true);
     for (let i = 0; i < json.length; i++) {
+        var studentRow = document.querySelector('.studentRow').cloneNode(true);
         studentRow.querySelector('.student-number').innerHTML = i + 1;
         studentRow.querySelector('.student-email').innerHTML = json[i]['email'];
         studentRow.querySelector('.student-name').innerHTML = json[i]['name'];
         var deleteButton = studentRow.querySelector('.student-delete');
         deleteButton.addEventListener('click', deleteStudent);
-        deleteButton.studentId = json[i]['id'];
+        deleteButton.studentId = json[i]['email'];
         studentRow.classList.remove('d-none');
         studentRow.id = json[i]['email'];
         studentsPlace.appendChild(studentRow);
@@ -270,5 +272,5 @@ function deleteRequest(url) {
         {
             method: "DELETE"
         }
-    ).then(response => response.json());
+    ).then(response => response);
 }

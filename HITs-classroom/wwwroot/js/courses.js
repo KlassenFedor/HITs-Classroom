@@ -119,6 +119,7 @@ function addCoursesToPage(courses) {
 }
 
 function editCourseCard(course) {
+    console.log(course);
     let courseCard = document.querySelector("[id='" + course['courseId'] + "']");
     courseCard = prepareCourseCard(course, courseCard);
 }
@@ -297,15 +298,7 @@ function patchRequest(url, data) {
             method: "PATCH",
             body: data
         }
-    ).then(response => {
-        if (response.ok) {
-            alert('Successfully patched.')
-        }
-        else {
-            alert('Failed to patch course.')
-        }
-        response.json()
-    });
+    ).then(response => response.json());
 }
 
 function putRequest(url, data) {

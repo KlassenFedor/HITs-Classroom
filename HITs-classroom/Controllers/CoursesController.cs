@@ -6,6 +6,9 @@ using HITs_classroom.Models.Course;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Quartz;
+using Quartz.Impl;
+using HITs_classroom.Jobs;
 
 namespace HITs_classroom.Controllers
 {
@@ -617,6 +620,20 @@ namespace HITs_classroom.Controllers
                     return StatusCode(520, "Unknown error.");
                 }
             }
+        }
+
+        [Authorize]
+        [HttpPost("createList")]
+        public IActionResult CreateCoursesList()
+        {
+            Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+            if (relatedUser == null)
+            {
+                _logger.LogInformation("An error was found when executing the request 'createList'. {error}", "Email not found.");
+                return StatusCode(401, "Unable to access your courses.");
+            }
+            CoursesScheduler.Start(relatedUser.Value);
+            return Ok();
         }
     }
 }
