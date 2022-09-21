@@ -32,7 +32,7 @@ namespace HITs_classroom.Controllers
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpGet("students/list/{courseId}")]
-        public IActionResult GetStudentsList(string courseId)
+        public async Task<IActionResult> GetStudentsList(string courseId)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace HITs_classroom.Controllers
                         " 'students/list/{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                var result = _courseMembersService.GetStudentsList(courseId, relatedUser.Value);
+                var result = await _courseMembersService.GetStudentsList(courseId, relatedUser.Value);
                 return new JsonResult(result);
             }
             catch (GoogleApiException e)
@@ -90,7 +90,7 @@ namespace HITs_classroom.Controllers
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpGet("teachers/list/{courseId}")]
-        public IActionResult GetTeachersList(string courseId)
+        public async Task<IActionResult> GetTeachersList(string courseId)
         {
             try
             {
@@ -101,7 +101,7 @@ namespace HITs_classroom.Controllers
                         " 'teachers/list/{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                var result = _courseMembersService.GetTeachersList(courseId, relatedUser.Value);
+                var result = await _courseMembersService.GetTeachersList(courseId, relatedUser.Value);
                 if (result.Count == 0)
                 {
                     return new JsonResult(new Object());
@@ -154,7 +154,7 @@ namespace HITs_classroom.Controllers
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpDelete("delete/courses/{courseId}/students/{studentId}")]
-        public IActionResult DeleteStudent(string courseId, string studentId)
+        public async Task<IActionResult> DeleteStudent(string courseId, string studentId)
         {
             try
             {
@@ -165,7 +165,7 @@ namespace HITs_classroom.Controllers
                         " 'delete/courses/{{courseId}}/students/{{studentId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                _courseMembersService.DeleteStudent(courseId, studentId, relatedUser.Value);
+                await _courseMembersService.DeleteStudent(courseId, studentId, relatedUser.Value);
                 return Ok();
             }
             catch (GoogleApiException e)
@@ -214,7 +214,7 @@ namespace HITs_classroom.Controllers
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpDelete("delete/courses/{courseId}/teachers/{teacherId}")]
-        public IActionResult DeleteTeacher(string courseId, string teacherId)
+        public async Task<IActionResult> DeleteTeacher(string courseId, string teacherId)
         {
             try
             {
@@ -225,7 +225,7 @@ namespace HITs_classroom.Controllers
                         " 'delete/courses/{{courseId}}/teachers/{{teacherId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                _courseMembersService.DeleteTeacher(courseId, teacherId, relatedUser.Value);
+                await _courseMembersService.DeleteTeacher(courseId, teacherId, relatedUser.Value);
                 return Ok();
             }
             catch (GoogleApiException e)

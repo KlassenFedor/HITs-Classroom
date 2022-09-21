@@ -1,13 +1,10 @@
-﻿using Google.Apis.Classroom.v1.Data;
-using Google;
+﻿using Google;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Mvc;
 using HITs_classroom.Models.Course;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Quartz;
-using Quartz.Impl;
 using HITs_classroom.Jobs;
 
 namespace HITs_classroom.Controllers
@@ -88,7 +85,7 @@ namespace HITs_classroom.Controllers
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpGet("listFromGC")]
-        public IActionResult GetCoursesListFromGoogleClassroom(
+        public async Task<IActionResult> GetCoursesListFromGoogleClassroom(
             [FromQuery] string? studentId,
             [FromQuery] string? teacherId,
             [FromQuery] string? courseState
@@ -110,7 +107,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'list'. {error}", "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                var response = _coursesService.GetCoursesListFromGoogleClassroom(searchParameters, relatedUser.Value);
+                var response = await _coursesService.GetCoursesListFromGoogleClassroom(searchParameters, relatedUser.Value);
                 return new JsonResult(response);
             }
             catch (Exception e)

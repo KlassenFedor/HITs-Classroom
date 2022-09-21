@@ -6,10 +6,10 @@ namespace HITs_classroom.Services
 {
     public interface ICourseMembersService
     {
-        List<UserInfoModel> GetStudentsList(string courseId, string relatedUser);
-        public List<UserInfoModel> GetTeachersList(string courseId, string relatedUser);
-        public void DeleteStudent(string courseId, string studentId, string relatedUser);
-        public void DeleteTeacher(string courseId, string teacherId, string relatedUser);
+        Task<List<UserInfoModel>> GetStudentsList(string courseId, string relatedUser);
+        Task<List<UserInfoModel>> GetTeachersList(string courseId, string relatedUser);
+        Task DeleteStudent(string courseId, string studentId, string relatedUser);
+        Task DeleteTeacher(string courseId, string teacherId, string relatedUser);
     }
     public class CourseMembersService: ICourseMembersService
     {
@@ -19,7 +19,7 @@ namespace HITs_classroom.Services
             _googleClassroomService = googleClassroomService;
         }
 
-        public List<UserInfoModel> GetStudentsList(string courseId, string relatedUser)
+        public async Task<List<UserInfoModel>> GetStudentsList(string courseId, string relatedUser)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
 
@@ -30,7 +30,7 @@ namespace HITs_classroom.Services
                 var request = classroomService.Courses.Students.List(courseId);
                 request.PageSize = 100;
                 request.PageToken = pageToken;
-                var response = request.Execute();
+                var response = await request.ExecuteAsync();
                 if (response.Students != null)
                 {
                     students.AddRange(response.Students);
@@ -48,7 +48,7 @@ namespace HITs_classroom.Services
             return users;
         }
 
-        public List<UserInfoModel> GetTeachersList(string courseId, string relatedUser)
+        public async Task<List<UserInfoModel>> GetTeachersList(string courseId, string relatedUser)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
 
@@ -59,7 +59,7 @@ namespace HITs_classroom.Services
                 var request = classroomService.Courses.Teachers.List(courseId);
                 request.PageSize = 100;
                 request.PageToken = pageToken;
-                var response = request.Execute();
+                var response = await request.ExecuteAsync();
                 if (response.Teachers != null)
                 {
                     teachers.AddRange(response.Teachers);
@@ -78,18 +78,18 @@ namespace HITs_classroom.Services
             return users;
         }
 
-        public void DeleteStudent(string courseId, string studentId, string relatedUser)
+        public async Task DeleteStudent(string courseId, string studentId, string relatedUser)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             var request = classroomService.Courses.Students.Delete(courseId, studentId);
-            var response = request.Execute();
+            var response = await request.ExecuteAsync();
         }
 
-        public void DeleteTeacher(string courseId, string teacherId, string relatedUser)
+        public async Task DeleteTeacher(string courseId, string teacherId, string relatedUser)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             var request = classroomService.Courses.Teachers.Delete(courseId, teacherId);
-            var response = request.Execute();
+            var response = await request.ExecuteAsync();
         }
     }
 }

@@ -42,7 +42,7 @@ namespace HITs_classroom.Services
             newInvitation.Role = ((CourseRolesEnum)parameters.Role).ToString();
 
             var request = classroomService.Invitations.Create(newInvitation);
-            var response = request.Execute();
+            var response = await request.ExecuteAsync();
 
             InvitationDbModel invitationDbModel = new InvitationDbModel();
             invitationDbModel.Id = response.Id;
@@ -77,7 +77,7 @@ namespace HITs_classroom.Services
                 {
                     ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
                     var request = classroomService.Invitations.Delete(id);
-                    var response = request.Execute();
+                    var response = await request.ExecuteAsync();
                 }
                 catch (GoogleApiException e)
                 {
@@ -179,7 +179,7 @@ namespace HITs_classroom.Services
                 var request = classroomService.Courses.Teachers.List(courseId);
                 request.PageSize = 100;
                 request.PageToken = pageToken;
-                var response = request.Execute();
+                var response = await request.ExecuteAsync();
                 
                 if (response.Teachers != null)
                 {
@@ -237,7 +237,6 @@ namespace HITs_classroom.Services
             {
                 throw new ArgumentException();
             }
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
             List<InvitationDbModel> invitations = await _context.Invitations.Where(i => i.CourseId == courseId).ToListAsync();
             List<InvitationInfoModel> invitationInfoModels = invitations.Select(i => new InvitationInfoModel
             {
