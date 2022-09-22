@@ -37,4 +37,8 @@
     <None Include="wwwroot\pages\course_details.html" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="token.json\" />
+  </ItemGroup>
+
 </Project>

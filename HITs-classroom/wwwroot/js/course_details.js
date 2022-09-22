@@ -77,15 +77,17 @@ function createInvitation() {
 function showInvitationsList(json) {
     const invitationsPlace = document.querySelector('#invitationsPlace');
     invitationsPlace.innerHTML = '';
-    var invitationRow = document.querySelector('.invitationRow').cloneNode(true);
     for (let i = 0; i < json.length; i++) {
+        var invitationRow = document.querySelector('.invitationRow').cloneNode(true);
         invitationRow.querySelector('.invitation-number').innerHTML = i + 1;
         invitationRow.querySelector('.invitation-email').innerHTML = json[i]['email'];
         invitationRow.querySelector('.invitation-role').innerHTML = json[i]['role'];
         var status = 'accepted';
         invitationRow.querySelector('.invitation-status').classList.add('text-success');
+        invitationRow.querySelector('.invitation-status').classList.remove('text-danger');
         if (!json[i]['isAccepted']) {
             status = 'not accepted';
+            invitationRow.querySelector('.invitation-status').classList.remove('text-success');
             invitationRow.querySelector('.invitation-status').classList.add('text-danger');
         }
         invitationRow.querySelector('.invitation-status').innerHTML = status;

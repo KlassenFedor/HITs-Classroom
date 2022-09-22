@@ -9,6 +9,8 @@ namespace HITs_classroom.Jobs
         {
             IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
             await scheduler.Start();
+            List<int> newList = new List<int>();
+            scheduler.Context.Put("key", newList);
 
             IJobDetail job = JobBuilder.Create<CoursesCreator>().Build();
         }

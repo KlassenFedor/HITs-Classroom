@@ -217,6 +217,7 @@ namespace HITs_classroom.Services
                 Description = newCourse.Description,
                 DescriptionHeading = newCourse.DescriptionHeading,
                 Room = newCourse.Room,
+                EnrollmentCode = newCourse.EnrollmentCode,
                 CourseState = (int)Enum.Parse<CourseStatesEnum>(newCourse.CourseState),
                 HasAllTeachers = true
             };
@@ -365,6 +366,7 @@ namespace HITs_classroom.Services
             courseInfoModel.Description = courseDb.Description;
             courseInfoModel.DescriptionHeading = courseDb.DescriptionHeading;
             courseInfoModel.Section = courseDb.Section;
+            courseInfoModel.EnrollmentCode = courseDb.EnrollmentCode;
             courseInfoModel.CourseState = ((CourseStatesEnum)courseDb.CourseState).ToString();
             courseInfoModel.HasAllTeachers = courseDb.HasAllTeachers;
 
@@ -380,6 +382,7 @@ namespace HITs_classroom.Services
             courseInfoModel.Description = course.Description;
             courseInfoModel.DescriptionHeading = course.DescriptionHeading;
             courseInfoModel.Section = course.Section;
+            courseInfoModel.EnrollmentCode = course.EnrollmentCode;
             courseInfoModel.CourseState = course.CourseState;
 
             return courseInfoModel;
@@ -396,7 +399,6 @@ namespace HITs_classroom.Services
                 .FirstOrDefaultAsync(c => c.Id == courseId);
             if (courseDb == null)
             {
-                Debug.WriteLine(classroomAdmin.Email + "_1");
                 Course course = await GetCourseFromGoogleClassroom(courseId, relatedUser);
                 courseDb = new CourseDbModel
                 {
@@ -406,6 +408,7 @@ namespace HITs_classroom.Services
                     Description = course.Description,
                     DescriptionHeading = course.DescriptionHeading,
                     Room = course.Room,
+                    EnrollmentCode = course.EnrollmentCode,
                     CourseState = (int)Enum.Parse<CourseStatesEnum>(course.CourseState),
                     HasAllTeachers = true
                 };
