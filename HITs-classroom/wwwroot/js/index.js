@@ -3,7 +3,29 @@
 window.addEventListener('load', function () {
     const logoutBtn = this.document.querySelector('#logout-button');
     logoutBtn.addEventListener('click', logout);
+
+    const loginA = this.document.querySelector('#google-login');
+    loginA.setAttribute('href', 'https://accounts.google.com/o/oauth2/auth?' +
+                                 'redirect_uri=http://localhost/google-auth&' +
+                                 'response_type=code&' +
+                                 'client_id=661958257383-e3ftp6ndnksr4hae0cvg8nv83me6vurk.apps.googleusercontent.com&' +
+                                 'scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/classroom.profile.emails https://www.googleapis.com/auth/classroom.courses https://www.googleapis.com/auth/classroom.rosters'
+    );
 });
+
+//function login() {
+//    postRequestWithoutResponseBody(
+//        path + 'account/google-login'
+//    )
+//        .then(response => {
+//            if (response.status == 200) {
+//                alert('Successfully logged in.');
+//            } else {
+//                alert('Failed to log in.');
+//            }
+//        })
+//        .catch(error => console.error(error));
+//}
 
 function logout() {
     postRequestWithoutResponseBody(

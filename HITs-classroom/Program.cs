@@ -45,6 +45,19 @@ builder.Services.AddIdentity<ClassroomAdmin, IdentityRole>()
     .AddUserManager<UserManager<ClassroomAdmin>>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+//})
+//.AddCookie(options =>
+//{
+//    options.LoginPath = "/account/google-login"; // Must be lowercase
+//})
+//.AddGoogle(googleOptions =>
+//{
+//    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+//    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+//});
 
 var app = builder.Build();
 

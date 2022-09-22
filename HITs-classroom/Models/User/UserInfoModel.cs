@@ -1,4 +1,4 @@
-﻿namespace HITs_classroom.Models.ClassrooomUser
+﻿namespace HITs_classroom.Models.User
 {
     public class UserInfoModel
     {

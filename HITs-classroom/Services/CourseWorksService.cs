@@ -1,8 +1,8 @@
 ﻿using Google.Apis.Classroom.v1;
 using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Enums;
-using HITs_classroom.Models.ClassrooomUser;
 using HITs_classroom.Models.Grade;
+using HITs_classroom.Models.User;
 
 namespace HITs_classroom.Services
 {
