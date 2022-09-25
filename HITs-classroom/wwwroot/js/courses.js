@@ -262,6 +262,9 @@ function createCourse() {
             console.log(response.ok);
             if (response.ok) {
                 alert('Created successfully.');
+                response.json().then(res => {
+                    window.location.href = path + 'pages/course_details.html?id=' + res['courseId']
+                });
             } else {
                 alert('Failed to create.');
             }
