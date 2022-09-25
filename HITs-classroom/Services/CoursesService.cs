@@ -446,20 +446,5 @@ namespace HITs_classroom.Services
 
             return response;
         }
-
-        //private async Task<bool> CheckIfUserRelatedToCourse(string courseId, string user)
-        //{
-        //    ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == user);
-        //    List<CourseDbModel> courses = await _context.Courses
-        //        .Where(c => c.Id == courseId).ToListAsync();
-        //    foreach (var course in courses)
-        //    {
-        //        if (course.RelatedUsers.FirstOrDefault(ru => ru == classroomAdmin) != null)
-        //        {
-        //            return true;
-        //        }
-        //    }
-        //    return false;
-        //}
     }
 }
