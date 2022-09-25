@@ -12,6 +12,8 @@ window.addEventListener('load', function () {
 
     //getCourseInvitations();
     setCourseInfo();
+    getMembers();
+    getCourseInvitations();
 });
 
 
