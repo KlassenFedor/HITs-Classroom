@@ -1,4 +1,5 @@
 ﻿using Google;
+using HITs_classroom.Jobs;
 using HITs_classroom.Models.Invitation;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -193,7 +194,7 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Unable to access your courses.");
                 }
-                await _invitationsService.UpdateAllInvitations(relatedUser.Value);
+                InvitationsScheduler.Start(relatedUser.Value);
                 return Ok();
             }
             catch (GoogleApiException e)

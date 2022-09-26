@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Classroom.v1;
 using Google.Apis.Classroom.v1.Data;
+using HITs_classroom.Jobs;
 using HITs_classroom.Models.Course;
 using HITs_classroom.Models.User;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ namespace HITs_classroom.Services
         Task<CourseInfoModel> PatchCourse(string courseId, CoursePatching parameters, string relatedUser);
         Task<CourseInfoModel> UpdateCourse(string courseId, CoursePatching parameters, string relatedUser);
         Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom(string relatedUser);
+        void CreateCoursesList(List<CourseShortModel> courses, string relatedUser);
     }
 
     public class CoursesService: ICoursesService
@@ -445,6 +447,16 @@ namespace HITs_classroom.Services
             }
 
             return response;
+        }
+
+        public async void CreateCoursesList(List<CourseShortModel> courses, string relatedUser)
+        {
+            Debug.WriteLine("courses creating started");
+            foreach (var course in courses)
+            {
+                await CreateCourse(course, relatedUser);
+            }
+            Debug.WriteLine("courses creating ended");
         }
     }
 }

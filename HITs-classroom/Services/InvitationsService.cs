@@ -6,6 +6,7 @@ using HITs_classroom.Models.Course;
 using HITs_classroom.Models.Invitation;
 using HITs_classroom.Models.User;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace HITs_classroom.Services
@@ -149,6 +150,7 @@ namespace HITs_classroom.Services
 
         public async Task UpdateAllInvitations(string relatedUser)
         {
+            Debug.WriteLine("invitations updating started");
             ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == relatedUser);
             if (classroomAdmin == null)
             {
@@ -161,6 +163,7 @@ namespace HITs_classroom.Services
             {
                 await UpdateCourseInvitations(course, relatedUser);
             }
+            Debug.WriteLine("invitations updated");
         }
 
         public async Task UpdateCourseInvitations(string courseId, string relatedUser)

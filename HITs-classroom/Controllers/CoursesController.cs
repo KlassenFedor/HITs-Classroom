@@ -621,15 +621,19 @@ namespace HITs_classroom.Controllers
 
         [Authorize]
         [HttpPost("createList")]
-        public IActionResult CreateCoursesList()
+        public IActionResult CreateCoursesList([FromBody] List<CourseShortModel> courses)
         {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
             Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
             if (relatedUser == null)
             {
                 _logger.LogInformation("An error was found when executing the request 'createList'. {error}", "Email not found.");
                 return StatusCode(401, "Unable to access your courses.");
             }
-            CoursesScheduler.Start(relatedUser.Value);
+            CoursesScheduler.Start(relatedUser.Value, courses);
             return Ok();
         }
     }
