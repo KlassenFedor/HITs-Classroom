@@ -41,7 +41,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'students/list/{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Unauthorized");
                 }
                 var result = await _courseMembersService.GetStudentsList(courseId, relatedUser.Value);
                 return new JsonResult(result);
@@ -99,7 +99,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'teachers/list/{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Unauthorized");
                 }
                 var result = await _courseMembersService.GetTeachersList(courseId, relatedUser.Value);
                 if (result.Count == 0)
@@ -163,7 +163,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'delete/courses/{{courseId}}/students/{{studentId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Unauthorized");
                 }
                 await _courseMembersService.DeleteStudent(courseId, studentId, relatedUser.Value);
                 return Ok();
@@ -223,7 +223,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'delete/courses/{{courseId}}/teachers/{{teacherId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Unauthorized");
                 }
                 await _courseMembersService.DeleteTeacher(courseId, teacherId, relatedUser.Value);
                 return Ok();

@@ -32,7 +32,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Unauthorized");
                 }
                 _courseWorksService.SetAdmittedStudentsForCourseWork(courseId, courseWorkId, users, relatedUser.Value);
                 return Ok();
