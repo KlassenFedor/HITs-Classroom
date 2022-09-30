@@ -6,6 +6,7 @@ using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using HITs_classroom.Jobs;
+using Google.Apis.Classroom.v1;
 
 namespace HITs_classroom.Controllers
 {
@@ -42,7 +43,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'get/{{courseId}}. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var course = await _coursesService.GetCourseFromDb(courseId, relatedUser.Value);
+                var course = await _coursesService.GetCourseFromDb(courseId);
                 return new JsonResult(course);
             }
             catch (Exception e)
@@ -107,7 +108,8 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'list'. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var response = await _coursesService.GetCoursesListFromGoogleClassroom(searchParameters, relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                var response = await _coursesService.GetCoursesListFromGoogleClassroom(searchParameters, classroomService);
                 return new JsonResult(response);
             }
             catch (Exception e)
@@ -159,7 +161,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'list'. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var response = await _coursesService.GetCoursesListFromDb(courseState, relatedUser.Value);
+                var response = await _coursesService.GetCoursesListFromDb(courseState);
                 return new JsonResult(response);
             }
             catch (Exception e)
@@ -198,7 +200,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'active'. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var response = await _coursesService.GetActiveCoursesListFromDb(relatedUser.Value);
+                var response = await _coursesService.GetActiveCoursesListFromDb();
                 return new JsonResult(response);
             }
             catch (Exception e)
@@ -237,7 +239,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'archived'. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var response = _coursesService.GetArchivedCoursesListFromDb(relatedUser.Value);
+                var response = _coursesService.GetArchivedCoursesListFromDb();
                 return new JsonResult(response);
             }
             catch (Exception e)
@@ -282,7 +284,8 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'create'. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var result = await _coursesService.CreateCourse(course, relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                var result = await _coursesService.CreateCourse(course, classroomService);
                 return new JsonResult(result);
             }
             catch (Exception e)
@@ -331,7 +334,8 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var response = await _coursesService.PatchCourse(courseId, course, relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                var response = await _coursesService.PatchCourse(courseId, course, classroomService);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -399,7 +403,8 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var response = await _coursesService.PatchCourse(courseId, course, relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                var response = await _coursesService.PatchCourse(courseId, course, classroomService);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -467,7 +472,8 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var response = await _coursesService.UpdateCourse(courseId, course, relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                var response = await _coursesService.UpdateCourse(courseId, course, classroomService);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -529,7 +535,8 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                await _coursesService.DeleteCourse(courseId, relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                await _coursesService.DeleteCourse(courseId, classroomService);
                 return new JsonResult("Course was deleted successfully.");
             }
             catch (GoogleApiException e)
@@ -591,7 +598,8 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var response = await _coursesService.SynchronizeCoursesListsInDbAndGoogleClassroom(relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                var response = await _coursesService.SynchronizeCoursesListsInDbAndGoogleClassroom(classroomService);
                 return new JsonResult(response);
             }
             catch (Exception e)

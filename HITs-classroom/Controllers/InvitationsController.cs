@@ -1,4 +1,5 @@
 ﻿using Google;
+using Google.Apis.Classroom.v1;
 using HITs_classroom.Jobs;
 using HITs_classroom.Models.Invitation;
 using HITs_classroom.Services;
@@ -42,7 +43,7 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var result = await _invitationsService.GetInvitation(invitationId, relatedUser.Value);
+                var result = await _invitationsService.GetInvitation(invitationId);
                 return Ok(new JsonResult(result).Value);
             }
             catch (Exception e)
@@ -86,7 +87,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'list/{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var result = await _invitationsService.GetCourseInvitations(courseId, relatedUser.Value);
+                var result = await _invitationsService.GetCourseInvitations(courseId);
                 return Ok(new JsonResult(result).Value);
             }
             catch (GoogleApiException e)
@@ -141,7 +142,7 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var result = await _invitationsService.CheckInvitationStatus(invitationId, relatedUser.Value);
+                var result = await _invitationsService.CheckInvitationStatus(invitationId);
                 return Ok(result);
             }
             catch (Exception e)
@@ -227,7 +228,8 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                await _invitationsService.UpdateCourseInvitations(courseId, relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                await _invitationsService.UpdateCourseInvitations(courseId, classroomService);
                 return Ok();
             }
             catch (GoogleApiException e)
@@ -281,7 +283,8 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var invitation = await _invitationsService.CreateInvitation(parameters, relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                var invitation = await _invitationsService.CreateInvitation(parameters, classroomService);
                 return new JsonResult(invitation);
             }
             catch (GoogleApiException e)
@@ -343,7 +346,8 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                await _invitationsService.DeleteInvitation(invitationId, relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                await _invitationsService.DeleteInvitation(invitationId, classroomService);
                 return Ok(new JsonResult("Successfully deleted."));
             }
             catch (GoogleApiException e)
@@ -388,7 +392,6 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to resend invitations for this course.</response>
         /// <response code="404">Invitation does not exist.</response>
-        /// <response code="409">Invitation already exists.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpPost("resend/{invitationId}")]
@@ -403,17 +406,13 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                await _invitationsService.ResendInvitation(invitationId, relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                await _invitationsService.ResendInvitation(invitationId, classroomService);
                 return Ok();
             }
             catch (GoogleApiException e)
             {
-                if (e.HttpStatusCode == System.Net.HttpStatusCode.Conflict)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'resend/{{invitationId}}'. {error}", e.Message);
-                    return StatusCode(409, "Invitation already exists.");
-                }
-                else if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+                if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     _logger.LogInformation("An error was found when executing the request 'resend/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(404, "Invitation does not exist.");
@@ -471,7 +470,7 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                var response = await _invitationsService.CheckIfAllTeachersAcceptedInvitations(courseId, relatedUser.Value);
+                var response = await _invitationsService.CheckIfAllTeachersAcceptedInvitations(courseId);
                 return new JsonResult(response);
             }
             catch (Exception e)

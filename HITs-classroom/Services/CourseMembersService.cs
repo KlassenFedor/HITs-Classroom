@@ -6,28 +6,20 @@ namespace HITs_classroom.Services
 {
     public interface ICourseMembersService
     {
-        Task<List<UserInfoModel>> GetStudentsList(string courseId, string relatedUser);
-        Task<List<UserInfoModel>> GetTeachersList(string courseId, string relatedUser);
-        Task DeleteStudent(string courseId, string studentId, string relatedUser);
-        Task DeleteTeacher(string courseId, string teacherId, string relatedUser);
+        Task<List<UserInfoModel>> GetStudentsList(string courseId, ClassroomService service);
+        Task<List<UserInfoModel>> GetTeachersList(string courseId, ClassroomService service);
+        Task DeleteStudent(string courseId, string studentId, ClassroomService service);
+        Task DeleteTeacher(string courseId, string teacherId, ClassroomService service);
     }
     public class CourseMembersService: ICourseMembersService
     {
-        private GoogleClassroomService _googleClassroomService;
-        public CourseMembersService(GoogleClassroomService googleClassroomService)
+        public async Task<List<UserInfoModel>> GetStudentsList(string courseId, ClassroomService service)
         {
-            _googleClassroomService = googleClassroomService;
-        }
-
-        public async Task<List<UserInfoModel>> GetStudentsList(string courseId, string relatedUser)
-        {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
-
             string pageToken = null;
             List<Student> students = new List<Student>();
             do
             {
-                var request = classroomService.Courses.Students.List(courseId);
+                var request = service.Courses.Students.List(courseId);
                 request.PageSize = 100;
                 request.PageToken = pageToken;
                 var response = await request.ExecuteAsync();
@@ -48,15 +40,13 @@ namespace HITs_classroom.Services
             return users;
         }
 
-        public async Task<List<UserInfoModel>> GetTeachersList(string courseId, string relatedUser)
+        public async Task<List<UserInfoModel>> GetTeachersList(string courseId, ClassroomService service)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
-
             string pageToken = null;
             List<Teacher> teachers = new List<Teacher>();
             do
             {
-                var request = classroomService.Courses.Teachers.List(courseId);
+                var request =service.Courses.Teachers.List(courseId);
                 request.PageSize = 100;
                 request.PageToken = pageToken;
                 var response = await request.ExecuteAsync();
@@ -78,17 +68,15 @@ namespace HITs_classroom.Services
             return users;
         }
 
-        public async Task DeleteStudent(string courseId, string studentId, string relatedUser)
+        public async Task DeleteStudent(string courseId, string studentId, ClassroomService service)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
-            var request = classroomService.Courses.Students.Delete(courseId, studentId);
+            var request = service.Courses.Students.Delete(courseId, studentId);
             var response = await request.ExecuteAsync();
         }
 
-        public async Task DeleteTeacher(string courseId, string teacherId, string relatedUser)
+        public async Task DeleteTeacher(string courseId, string teacherId, ClassroomService service)
         {
-            ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
-            var request = classroomService.Courses.Teachers.Delete(courseId, teacherId);
+            var request = service.Courses.Teachers.Delete(courseId, teacherId);
             var response = await request.ExecuteAsync();
         }
     }

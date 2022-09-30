@@ -1,4 +1,5 @@
 ﻿using Google;
+using Google.Apis.Classroom.v1;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,8 @@ namespace HITs_classroom.Controllers
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unauthorized");
                 }
-                _courseWorksService.SetAdmittedStudentsForCourseWork(courseId, courseWorkId, users, relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                _courseWorksService.SetAdmittedStudentsForCourseWork(courseId, courseWorkId, users, classroomService);
                 return Ok();
             }
             catch (GoogleApiException e)
