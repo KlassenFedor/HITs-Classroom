@@ -27,8 +27,7 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// invitationId - invitation Identifier
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
-        /// <response code="403">You are not permitted to delete invitations for this course.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="404">No invitation exists with the requested ID.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -42,7 +41,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request 'get/{{invitationId}}'. {error}",
                         "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var result = await _invitationsService.GetInvitation(invitationId, relatedUser.Value);
                 return Ok(new JsonResult(result).Value);
@@ -59,11 +58,6 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'get/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(404, "No invitation exists with the requested ID.");
                 }
-                else if (e is ArgumentException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'get/{{invitationId}}'. {error}", e.Message);
-                    return StatusCode(403, "You are not allowed to get this invitation.");
-                }
                 else
                 {
                     _logger.LogInformation("An error was found when executing the request 'get/{{invitationId}}'. {error}", e.Message);
@@ -78,9 +72,8 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// courseId - course Identifier.
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
-        /// <response code="403">You are not permitted to delete invitations for this course.</response>
-        /// <response code="404">No invitation exists with the requested ID.</response>
+        /// <response code="401">Not authorized.</response>
+        /// <response code="404">No invitation exists with the requested course ID.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpGet("list/{courseId}")]
@@ -92,7 +85,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'list/{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var result = await _invitationsService.GetCourseInvitations(courseId, relatedUser.Value);
                 return Ok(new JsonResult(result).Value);

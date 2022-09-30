@@ -48,7 +48,7 @@ namespace HITs_classroom.Services
             return credential;
         }
 
-        private string GetAccessToken(string relatedUser)
+        public string GetAccessToken(string relatedUser)
         {
             string[] scopes = {
             };
@@ -83,10 +83,16 @@ namespace HITs_classroom.Services
             );
             request.Credential = credential;
 
-            var response = request.Execute();
-            Debug.WriteLine(response.AccessToken);
-
-            return response.AccessToken;
+            try
+            {
+                var response = request.Execute();
+                Debug.WriteLine(response.AccessToken);
+                return response.AccessToken;
+            }
+            catch (Exception e)
+            {
+                throw new AccessViolationException();
+            }
         }
     }
 }
