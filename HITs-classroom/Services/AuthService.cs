@@ -37,7 +37,14 @@ namespace HITs_classroom.Services
            
             if (user == null)
             {
-                await Register(userEmail);
+                try
+                {
+                    await Register(userEmail);
+                }
+                catch
+                {
+                    throw;
+                }
                 user = await _userManager.FindByNameAsync(userEmail);
             }
 
@@ -63,6 +70,18 @@ namespace HITs_classroom.Services
 
         public async Task Register(string email)
         {
+            GoogleClassroomService googleClassroomService = new GoogleClassroomService();
+            try
+            {
+                googleClassroomService.GetAccessToken(email);
+            }
+            catch (Exception e)
+            {
+                if (e is AccessViolationException)
+                {
+                    throw;
+                }
+            }
             var classroomAdmin = new ClassroomAdmin
             {
                 Email = email,
@@ -72,25 +91,6 @@ namespace HITs_classroom.Services
             if (result.Succeeded)
             {
                 await _signInManager.SignInAsync(classroomAdmin, false);
-
-                string[] Scopes = {
-                    ClassroomService.Scope.ClassroomCourses,
-                    ClassroomService.Scope.ClassroomRosters,
-                    ClassroomService.Scope.ClassroomProfileEmails
-                };
-                UserCredential credential;
-                using (var stream =
-                        new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
-                {
-                    string credPath = "token.json";
-                    credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                        GoogleClientSecrets.FromStream(stream).Secrets,
-                        Scopes,
-                        email,
-                        CancellationToken.None,
-                        new FileDataStore(credPath, true)).Result;
-                }
-
                 return;
             }
 

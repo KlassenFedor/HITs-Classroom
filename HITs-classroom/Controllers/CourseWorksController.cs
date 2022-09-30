@@ -1,8 +1,6 @@
 ﻿using Google;
-using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Claims;
@@ -32,7 +30,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Unauthorized");
                 }
                 _courseWorksService.SetAdmittedStudentsForCourseWork(courseId, courseWorkId, users, relatedUser.Value);
                 return Ok();
@@ -45,14 +43,13 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", e.Message);
-                    return StatusCode(404, "Course was not found.");
+                    return StatusCode(404, "Not found.");
                 }
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", e.Message);
-                    return StatusCode(400, "Unable to change course," +
-                        " you should check that you are trying to change only the available fields");
+                    return StatusCode(400, "Failed precondition.");
                 }
 
                 return StatusCode(520, "Unknown error");

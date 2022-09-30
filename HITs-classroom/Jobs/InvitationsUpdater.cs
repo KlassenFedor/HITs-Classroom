@@ -1,12 +1,6 @@
 ﻿using Quartz;
-using System.Net.Mail;
-using System.Net;
 using HITs_classroom.Services;
-using Google.Apis.Classroom.v1;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 namespace HITs_classroom.Jobs
 {
@@ -26,9 +20,11 @@ namespace HITs_classroom.Jobs
                 .AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection))
                 .BuildServiceProvider();
 
+            var schedulerContext = context.Scheduler.Context;
             var invitationsService = serviceProvider.GetRequiredService<IInvitationsService>();
-            Debug.WriteLine("job");
-            //await invitationsService.UpdateAllInvitations();
+
+            var relatedUser = (string)schedulerContext.Get("user");
+            await invitationsService.UpdateAllInvitations(relatedUser);
         }
     }
 }

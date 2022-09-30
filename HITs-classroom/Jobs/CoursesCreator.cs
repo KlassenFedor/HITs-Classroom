@@ -1,4 +1,5 @@
-﻿using HITs_classroom.Services;
+﻿using HITs_classroom.Models.Course;
+using HITs_classroom.Services;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 using System.Diagnostics;
@@ -23,7 +24,12 @@ namespace HITs_classroom.Jobs
                 .AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection))
                 .BuildServiceProvider();
 
+            var schedulerContext = context.Scheduler.Context;
             var coursesService = serviceProvider.GetRequiredService<ICoursesService>();
+
+            var courses = (List<CourseShortModel>)schedulerContext.Get("courses");
+            var relatedUser = (string)schedulerContext.Get("user");
+            coursesService.CreateCoursesList(courses, relatedUser);
         }
     }
 }

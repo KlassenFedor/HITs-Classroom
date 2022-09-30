@@ -12,6 +12,8 @@ window.addEventListener('load', function () {
 
     //getCourseInvitations();
     setCourseInfo();
+    getMembers();
+    getCourseInvitations();
 });
 
 
@@ -230,7 +232,7 @@ function showCourseInfo(json) {
     courseName.innerHTML = json['name'];
     courseId.innerHTML = json['courseId'];
     courseState.innerHTML = json['courseState'];
-    courseTeachers.innerHTML = json['hasAllTeachers'];
+    showCourseStatus(json['hasAllTeachers']);
 }
 
 //--------Wrappers for HTTP methods--------

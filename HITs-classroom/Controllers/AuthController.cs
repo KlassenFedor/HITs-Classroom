@@ -36,7 +36,7 @@ namespace HITs_classroom.Controllers
             catch (Exception e)
             {
                 _logger.LogInformation("An error was found when executing the request 'login'. {error}", e.Message);
-                return StatusCode(520, "Unknown error.");
+                return StatusCode(520, "Insufficient access rights.");
             }
         }
 

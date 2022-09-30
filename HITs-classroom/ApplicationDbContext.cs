@@ -42,9 +42,6 @@ namespace HITs_classroom
 
             modelBuilder.Entity<CourseDbModel>()
                 .HasKey(x => x.Id);
-            modelBuilder.Entity<CourseDbModel>()
-                .HasMany(c => c.RelatedUsers)
-                .WithMany(ru => ru.Courses);
         }
     }
 }

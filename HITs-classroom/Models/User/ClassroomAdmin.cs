@@ -6,6 +6,5 @@ namespace HITs_classroom.Models.User
     public class ClassroomAdmin : IdentityUser
     {
         public string Email { get; set; }
-        public List<CourseDbModel> Courses { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using HITs_classroom.Models.Course;
 using HITs_classroom.Models.Invitation;
 using HITs_classroom.Models.User;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace HITs_classroom.Services
@@ -66,10 +67,6 @@ namespace HITs_classroom.Services
             {
                 throw new NullReferenceException();
             }
-            if (!await CheckIfUserRelatedToCourse(invitation.CourseId, relatedUser))
-            {
-                throw new ArgumentException();
-            }
             InvitationDbModel? invitationDbModel = await _context.Invitations.FirstOrDefaultAsync(i => i.Id == id);
             if (invitationDbModel != null)
             {
@@ -108,21 +105,14 @@ namespace HITs_classroom.Services
             {
                 throw new NullReferenceException();
             }
-            if (await CheckIfUserRelatedToCourse(invitation.CourseId, relatedUser))
-            {
-                InvitationInfoModel response = new InvitationInfoModel();
-                response.Id = invitation.Id;
-                response.Email = invitation.Email;
-                response.CourseId = invitation.CourseId;
-                response.Role = ((CourseRolesEnum)invitation.Role).ToString();
-                response.IsAccepted = response.IsAccepted;
-                response.UpdateTime = response.UpdateTime;
-                return response;
-            }
-            else
-            {
-                throw new ArgumentException();
-            }
+            InvitationInfoModel response = new InvitationInfoModel();
+            response.Id = invitation.Id;
+            response.Email = invitation.Email;
+            response.CourseId = invitation.CourseId;
+            response.Role = ((CourseRolesEnum)invitation.Role).ToString();
+            response.IsAccepted = response.IsAccepted;
+            response.UpdateTime = response.UpdateTime;
+            return response;
         }
 
         public async Task<string> CheckInvitationStatus(string id, string relatedUser)
@@ -130,10 +120,6 @@ namespace HITs_classroom.Services
             var invitation = await _context.Invitations.Where(i => i.Id == id).FirstOrDefaultAsync();
             if (invitation != null)
             {
-                if (!await CheckIfUserRelatedToCourse(invitation.CourseId, relatedUser))
-                {
-                    throw new ArgumentException();
-                }
                 if (invitation.IsAccepted)
                 {
                     return InvitationStatusEnum.ACCEPTED.ToString();
@@ -149,13 +135,8 @@ namespace HITs_classroom.Services
 
         public async Task UpdateAllInvitations(string relatedUser)
         {
-            ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == relatedUser);
-            if (classroomAdmin == null)
-            {
-                throw new ArgumentException();
-            }
             List<string> courses = new List<string>();
-            courses.AddRange(await _context.Courses.Where(c => c.RelatedUsers.Contains(classroomAdmin)).Select(c => c.Id).ToListAsync());
+            courses.AddRange(await _context.Courses.Select(c => c.Id).ToListAsync());
 
             foreach (var course in courses)
             {
@@ -166,10 +147,6 @@ namespace HITs_classroom.Services
         public async Task UpdateCourseInvitations(string courseId, string relatedUser)
         {
             ClassroomService classroomService = _googleClassroomService.GetClassroomService(relatedUser);
-            if (!await CheckIfUserRelatedToCourse(courseId, relatedUser))
-            {
-                throw new ArgumentException();
-            }
 
             var invitations = await _context.Invitations.Where(i => i.CourseId == courseId && !i.IsAccepted).ToListAsync();
             List<string> users = new List<string>();
@@ -203,10 +180,6 @@ namespace HITs_classroom.Services
 
         public async Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId, string relatedUser) 
         {
-            if (!await CheckIfUserRelatedToCourse(courseId, relatedUser))
-            {
-                throw new ArgumentException();
-            }
             InvitationDbModel? invitation = await _context.Invitations.Where(i => i.CourseId == courseId &&
                 i.Role == (int)CourseRolesEnum.TEACHER && !i.IsAccepted).FirstOrDefaultAsync();
 
@@ -233,10 +206,6 @@ namespace HITs_classroom.Services
 
         public async Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId, string relatedUser)
         {
-            if (!await CheckIfUserRelatedToCourse(courseId, relatedUser))
-            {
-                throw new ArgumentException();
-            }
             List<InvitationDbModel> invitations = await _context.Invitations.Where(i => i.CourseId == courseId).ToListAsync();
             List<InvitationInfoModel> invitationInfoModels = invitations.Select(i => new InvitationInfoModel
             {
@@ -258,10 +227,6 @@ namespace HITs_classroom.Services
             {
                 throw new NullReferenceException();
             }
-            if (!await CheckIfUserRelatedToCourse(invitation.CourseId, relatedUser))
-            {
-                throw new ArgumentException();
-            }
             InvitationDbModel? oldInvitation = await _context.Invitations.FindAsync(invitationId);
             await DeleteInvitation(invitationId, relatedUser);
             if (!(oldInvitation == null))
@@ -275,25 +240,6 @@ namespace HITs_classroom.Services
             else
             {
                 throw new NullReferenceException();
-            }
-        }
-
-        private async Task<bool> CheckIfUserRelatedToCourse(string courseId, string user)
-        {
-            ClassroomAdmin? classroomAdmin = await _context.ClassroomAdmins.FirstOrDefaultAsync(ca => ca.Email == user);
-            var course = await _context.Courses
-                .FirstOrDefaultAsync(c => c.Id == courseId);
-            
-            if (course == null || classroomAdmin == null)
-            {
-                return false;
-            }
-            else
-            {
-                var users = _context.Courses
-                    .Where(c => c.Id == course.Id)
-                    .Select(c => c.RelatedUsers).ToList()[0];
-                return users.Contains(classroomAdmin);
             }
         }
     }
