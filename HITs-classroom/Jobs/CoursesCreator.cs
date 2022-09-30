@@ -29,7 +29,7 @@ namespace HITs_classroom.Jobs
 
             var courses = (List<CourseShortModel>)schedulerContext.Get("courses");
             var relatedUser = (string)schedulerContext.Get("user");
-            coursesService.CreateCoursesList(courses, relatedUser);
+            coursesService.CreateCoursesList(courses, new GoogleClassroomService().GetClassroomService(relatedUser));
         }
     }
 }

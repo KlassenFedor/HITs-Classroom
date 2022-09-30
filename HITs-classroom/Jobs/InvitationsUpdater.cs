@@ -24,7 +24,7 @@ namespace HITs_classroom.Jobs
             var invitationsService = serviceProvider.GetRequiredService<IInvitationsService>();
 
             var relatedUser = (string)schedulerContext.Get("user");
-            await invitationsService.UpdateAllInvitations(relatedUser);
+            await invitationsService.UpdateAllInvitations(new GoogleClassroomService().GetClassroomService(relatedUser));
         }
     }
 }
