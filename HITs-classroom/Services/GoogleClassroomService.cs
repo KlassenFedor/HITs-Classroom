@@ -10,7 +10,8 @@ namespace HITs_classroom.Services
         static string[] Scopes = { 
             ClassroomService.Scope.ClassroomCourses,
             ClassroomService.Scope.ClassroomRosters,
-            ClassroomService.Scope.ClassroomProfileEmails
+            ClassroomService.Scope.ClassroomProfileEmails,
+            "https://www.googleapis.com/auth/cloud-platform"
         };
 
         public ClassroomService GetClassroomService(string relatedUser)
