@@ -18,7 +18,7 @@ namespace HITs_classroom.Controllers
         [HttpGet("impersonate")]
         public IActionResult TestImpersonateUser()
         {
-            _servicesAccountsService.ImpersonateSA("hitscourse@gmail.com");
+            _servicesAccountsService.GetCourse("hitscourse@gmail.com");
             return Ok();
         }
     }
