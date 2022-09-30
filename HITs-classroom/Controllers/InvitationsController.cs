@@ -3,7 +3,6 @@ using HITs_classroom.Jobs;
 using HITs_classroom.Models.Invitation;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -126,7 +125,7 @@ namespace HITs_classroom.Controllers
         /// 
         /// Possible statuses: ACCEPTED, NOT_ACCEPTED, NOT_EXISTS (if the invitation is not found).
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -140,7 +139,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request 'check/{{invitationId}}'. {error}",
                         "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var result = await _invitationsService.CheckInvitationStatus(invitationId, relatedUser.Value);
                 return Ok(result);
@@ -151,11 +150,6 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request 'check/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
-                }
-                else if (e is ArgumentException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'check/{{invitationId}}'. {error}", e.Message);
-                    return StatusCode(403, "You are not allowed to get this invitation.");
                 }
                 else
                 {
@@ -171,7 +165,7 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// Сheck all the invitations and updates the value of the field IsAccepted.
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -185,7 +179,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request 'update'. {error}",
                         "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 InvitationsScheduler.Start(relatedUser.Value);
                 return Ok();
@@ -202,11 +196,6 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'update'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
                 }
-                else if (e is ArgumentException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'update'. {error}", e.Message);
-                    return StatusCode(403, "You are not permitted to update invitations.");
-                }
                 else
                 {
                     _logger.LogInformation("An error was found when executing the request 'update'. {error}", e.Message);
@@ -222,7 +211,7 @@ namespace HITs_classroom.Controllers
         /// courseId - course identifier.
         /// Сheck the invitations and updates the values of the field IsAccepted.
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -236,7 +225,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}",
                         "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 await _invitationsService.UpdateCourseInvitations(courseId, relatedUser.Value);
                 return Ok();
@@ -252,11 +241,6 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                     return StatusCode(500, "Credential Not found.");
-                }
-                else if (e is ArgumentException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'update'. {error}", e.Message);
-                    return StatusCode(403, "You are not permitted to update invitations for this course.");
                 }
                 else
                 {
@@ -275,7 +259,7 @@ namespace HITs_classroom.Controllers
         /// role - role to invite the user to have. (STUDENT = 1, TEACHER = 2, OWNER = 3)
         /// </remarks>
         /// <response code="400">Invalid input data.</response>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to create invitations for this course.</response>
         /// <response code="404">Course or user does not exist.</response>
         /// <response code="409">Invitation already exists.</response>
@@ -295,7 +279,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request 'create'. {error}",
                         "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var invitation = await _invitationsService.CreateInvitation(parameters, relatedUser.Value);
                 return new JsonResult(invitation);
@@ -342,7 +326,7 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// invitationId - invitation Identifier
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to delete invitations for this course.</response>
         /// <response code="404">No invitation exists with the requested ID.</response>
         /// <response code="500">Credential Not found.</response>
@@ -357,7 +341,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request 'delete/{{invitationId}}'. {error}",
                         "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 await _invitationsService.DeleteInvitation(invitationId, relatedUser.Value);
                 return Ok(new JsonResult("Successfully deleted."));
@@ -387,11 +371,6 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'delete/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(404, "No invitation exists with the requested ID.");
                 }
-                else if (e is ArgumentException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'delete/{{invitationId}}'. {error}", e.Message);
-                    return StatusCode(403, "You are not allowed to delete this invitation.");
-                }
                 else
                 {
                     _logger.LogInformation("An error was found when executing the request 'delete/{{invitationId}}'. {error}", e.Message);
@@ -406,7 +385,7 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// invitationId - invitation Identifier
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to resend invitations for this course.</response>
         /// <response code="404">Invitation does not exist.</response>
         /// <response code="409">Invitation already exists.</response>
@@ -422,7 +401,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request 'resend/{{invitationId}}'. {error}",
                         "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 await _invitationsService.ResendInvitation(invitationId, relatedUser.Value);
                 return Ok();
@@ -459,11 +438,6 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request 'resend/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(404, "No invitation exists with the requested ID.");
                 }
-                else if (e is ArgumentException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'resend/{{invitationId}}'. {error}", e.Message);
-                    return StatusCode(403, "You are not allowed to resend this invitation.");
-                }
                 else
                 {
                     _logger.LogInformation("An error was found when executing the request 'resend/{{invitationId}}'. {error}", e.Message);
@@ -480,7 +454,7 @@ namespace HITs_classroom.Controllers
         /// 
         /// Сhecks if all teachers have accepted the invitations.
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not allowed to check teachers for this course.</response>
         /// <response code="404">Couldn't find a course.</response>
         [Authorize]
@@ -495,7 +469,7 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'checkTeachersInvitations/{{courseId}}'. {error}",
                         "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var response = await _invitationsService.CheckIfAllTeachersAcceptedInvitations(courseId, relatedUser.Value);
                 return new JsonResult(response);
@@ -507,12 +481,6 @@ namespace HITs_classroom.Controllers
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'checkTeachersInvitations/{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Couldn't find a course.");
-                }
-                else if (e is ArgumentException)
-                {
-                    _logger.LogInformation("An error was found when executing the request" +
-                        " 'checkTeachersInvitations/{{courseId}}'. {error}", e.Message);
-                    return StatusCode(403, "You are not allowed to check teachers for this course.");
                 }
                 else
                 {

@@ -27,7 +27,7 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// courseId - Classroom-assigned identifier or an alias (if exists).
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -40,7 +40,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'get/{{courseId}}. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var course = await _coursesService.GetCourseFromDb(courseId, relatedUser.Value);
                 return new JsonResult(course);
@@ -80,7 +80,7 @@ namespace HITs_classroom.Controllers
         /// The default value is ACTIVE, ARCHIVED, PROVISIONED, DECLINED.
         /// </remarks>
         /// <response code="400">Invalid input data.</response>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -105,7 +105,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'list'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var response = await _coursesService.GetCoursesListFromGoogleClassroom(searchParameters, relatedUser.Value);
                 return new JsonResult(response);
@@ -140,7 +140,7 @@ namespace HITs_classroom.Controllers
         /// The default value is ACTIVE, ARCHIVED, PROVISIONED, DECLINED.
         /// </remarks>
         /// <response code="400">Invalid input data.</response>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -157,7 +157,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'list'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var response = await _coursesService.GetCoursesListFromDb(courseState, relatedUser.Value);
                 return new JsonResult(response);
@@ -183,7 +183,7 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// Returns courses with the ACTIVE courseState.
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -196,7 +196,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'active'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var response = await _coursesService.GetActiveCoursesListFromDb(relatedUser.Value);
                 return new JsonResult(response);
@@ -222,7 +222,7 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// Returns courses with the ACHIVED courseState.
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -235,7 +235,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'archived'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var response = _coursesService.GetArchivedCoursesListFromDb(relatedUser.Value);
                 return new JsonResult(response);
@@ -263,7 +263,7 @@ namespace HITs_classroom.Controllers
         /// Returns the created course.
         /// </remarks>
         /// <response code="400">Invalid input data.</response>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="404">OwnerId not specified.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -280,7 +280,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'create'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var result = await _coursesService.CreateCourse(course, relatedUser.Value);
                 return new JsonResult(result);
@@ -314,7 +314,7 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Unable to change course,
         /// you should check that you are trying to change only the available fields.
         /// </response>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -329,7 +329,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var response = await _coursesService.PatchCourse(courseId, course, relatedUser.Value);
                 return new JsonResult(response);
@@ -380,7 +380,7 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="400">Unable to change course,
         /// you should check that you are trying to change only the available fields.</response>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -397,7 +397,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var response = await _coursesService.PatchCourse(courseId, course, relatedUser.Value);
                 return new JsonResult(response);
@@ -448,7 +448,7 @@ namespace HITs_classroom.Controllers
         /// The following fields are valid: name, section, descriptionHeading, description, room, courseState, ownerId.
         /// </remarks>
         /// <response code="400">You are not permitted to modify this course or course is not modifable.</response>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -465,7 +465,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var response = await _coursesService.UpdateCourse(courseId, course, relatedUser.Value);
                 return new JsonResult(response);
@@ -514,7 +514,7 @@ namespace HITs_classroom.Controllers
         /// Deletes a course by id. You should archive course before deleting it.
         /// </remarks>
         /// <response code="400">Precondition check failed. Perhaps you should archive the course first.</response>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
@@ -527,7 +527,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 await _coursesService.DeleteCourse(courseId, relatedUser.Value);
                 return new JsonResult("Course was deleted successfully.");
@@ -577,7 +577,7 @@ namespace HITs_classroom.Controllers
         /// (adds courses that are in the Google classroom, but not in the database).
         /// </remarks>
         /// <response code="400">Google api exception.</response>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpPost("synchronize")]
@@ -589,7 +589,7 @@ namespace HITs_classroom.Controllers
                 if (relatedUser == null)
                 {
                     _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", "Email not found.");
-                    return StatusCode(401, "Unable to access your courses.");
+                    return StatusCode(401, "Not authorized.");
                 }
                 var response = await _coursesService.SynchronizeCoursesListsInDbAndGoogleClassroom(relatedUser.Value);
                 return new JsonResult(response);
@@ -631,7 +631,7 @@ namespace HITs_classroom.Controllers
             if (relatedUser == null)
             {
                 _logger.LogInformation("An error was found when executing the request 'createList'. {error}", "Email not found.");
-                return StatusCode(401, "Unable to access your courses.");
+                return StatusCode(401, "Not authorized.");
             }
             CoursesScheduler.Start(relatedUser.Value, courses);
             return Ok();
