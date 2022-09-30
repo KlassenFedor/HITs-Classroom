@@ -51,6 +51,7 @@ namespace HITs_classroom.Services
         public string GetAccessToken(string relatedUser)
         {
             string[] scopes = {
+                "https://www.googleapis.com/auth/cloud-platform"
             };
 
             string[] scopesGC = {

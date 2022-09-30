@@ -37,7 +37,14 @@ namespace HITs_classroom.Services
            
             if (user == null)
             {
-                await Register(userEmail);
+                try
+                {
+                    await Register(userEmail);
+                }
+                catch
+                {
+                    throw;
+                }
                 user = await _userManager.FindByNameAsync(userEmail);
             }
 
