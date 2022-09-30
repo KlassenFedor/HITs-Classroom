@@ -392,7 +392,6 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to resend invitations for this course.</response>
         /// <response code="404">Invitation does not exist.</response>
-        /// <response code="409">Invitation already exists.</response>
         /// <response code="500">Credential Not found.</response>
         [Authorize]
         [HttpPost("resend/{invitationId}")]
@@ -413,12 +412,7 @@ namespace HITs_classroom.Controllers
             }
             catch (GoogleApiException e)
             {
-                if (e.HttpStatusCode == System.Net.HttpStatusCode.Conflict)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'resend/{{invitationId}}'. {error}", e.Message);
-                    return StatusCode(409, "Invitation already exists.");
-                }
-                else if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+                if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     _logger.LogInformation("An error was found when executing the request 'resend/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(404, "Invitation does not exist.");
