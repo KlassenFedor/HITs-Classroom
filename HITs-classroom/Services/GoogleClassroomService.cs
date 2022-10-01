@@ -11,12 +11,6 @@ namespace HITs_classroom.Services
 {
     public class GoogleClassroomService
     {
-        static string[] Scopes = { 
-            ClassroomService.Scope.ClassroomCourses,
-            ClassroomService.Scope.ClassroomRosters,
-            ClassroomService.Scope.ClassroomProfileEmails
-        };
-
         public ClassroomService GetClassroomService(string relatedUser)
         {
             string accessToken = GetAccessToken(relatedUser);
@@ -72,7 +66,7 @@ namespace HITs_classroom.Services
                 Debug.WriteLine(response.AccessToken);
                 return response.AccessToken;
             }
-            catch (Exception e)
+            catch
             {
                 throw new AccessViolationException();
             }
