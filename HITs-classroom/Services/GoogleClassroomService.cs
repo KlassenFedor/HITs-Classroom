@@ -30,24 +30,6 @@ namespace HITs_classroom.Services
             return classroomService;
         }
 
-        private UserCredential MakeCredential(string relatedUser)
-        {
-            UserCredential credential;
-            using (var stream =
-                    new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
-            {
-                string credPath = "token.json";
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.FromStream(stream).Secrets,
-                    Scopes,
-                    relatedUser,
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
-            }
-
-            return credential;
-        }
-
         public string GetAccessToken(string relatedUser)
         {
             string[] scopes = {
