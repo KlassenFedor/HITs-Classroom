@@ -2,9 +2,6 @@
 using HITs_classroom.Services;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Security.Claims;
 
 namespace HITs_classroom.Jobs
 {
@@ -20,7 +17,7 @@ namespace HITs_classroom.Jobs
 
             var serviceProvider = new ServiceCollection()
                 .AddScoped<ICoursesService, CoursesService>()
-                .AddScoped<GoogleClassroomServiceForUser>()
+                .AddScoped<GoogleClassroomServiceForServiceAccount>()
                 .AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection))
                 .BuildServiceProvider();
 
@@ -28,8 +25,7 @@ namespace HITs_classroom.Jobs
             var coursesService = serviceProvider.GetRequiredService<ICoursesService>();
 
             var courses = (List<CourseShortModel>)schedulerContext.Get("courses");
-            var relatedUser = (string)schedulerContext.Get("user");
-            coursesService.CreateCoursesList(courses, new GoogleClassroomServiceForUser().GetClassroomService(relatedUser));
+            coursesService.CreateCoursesList(courses);
         }
     }
 }

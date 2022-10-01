@@ -15,7 +15,7 @@ namespace HITs_classroom.Services
             };
 
             GoogleCredential credential = GoogleCredential
-                .FromStream(new FileStream("hits-classroom-1661148456378-4f7735c17e75.json", FileMode.Open, FileAccess.Read))
+                .FromStream(new FileStream("Keys/hits-classroom-1661148456378-4f7735c17e75.json", FileMode.Open, FileAccess.Read))
                 .CreateScoped(scopes);
 
             ClassroomService classroomService = new ClassroomService(new BaseClientService.Initializer

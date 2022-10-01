@@ -26,14 +26,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\css\courses.css" />
+    <None Include="wwwroot\css\index.css" />
     <None Include="wwwroot\css\course_details.css" />
     <None Include="wwwroot\css\style.css" />
-    <None Include="wwwroot\index.html" />
-    <None Include="wwwroot\js\courses.js" />
-    <None Include="wwwroot\js\course_details.js" />
     <None Include="wwwroot\js\index.js" />
-    <None Include="wwwroot\pages\courses.html" />
+    <None Include="wwwroot\js\course_details.js" />
+    <None Include="wwwroot\index.html" />
     <None Include="wwwroot\pages\course_details.html" />
   </ItemGroup>
 

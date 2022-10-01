@@ -10,15 +10,14 @@ namespace HITs_classroom.Jobs
         public static async void Start(string relatedUser, List<CourseShortModel> courses)
         {
             IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
-            await scheduler.UnscheduleJob(new TriggerKey("coursesCreating", relatedUser));
+            await scheduler.UnscheduleJob(new TriggerKey("coursesCreating", "classroomServcie"));
             await scheduler.Start();
             scheduler.Context.Put("courses", courses);
-            scheduler.Context.Put("user", relatedUser);
 
             IJobDetail job = JobBuilder.Create<CoursesCreator>().Build();
 
             ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity("coursesCreating", relatedUser)
+                .WithIdentity("coursesCreating", "classroomServcie")
                 .StartNow()
                 .WithSimpleSchedule(x => x
                     .WithIntervalInMinutes(1)

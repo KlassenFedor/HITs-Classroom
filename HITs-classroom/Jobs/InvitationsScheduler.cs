@@ -7,17 +7,16 @@ namespace HITs_classroom.Jobs
 {
     public class InvitationsScheduler
     {
-        public static async void Start(string relatedUser)
+        public static async void Start()
         {
             IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
-            await scheduler.UnscheduleJob(new TriggerKey("invitationsUpdating", relatedUser));
+            await scheduler.UnscheduleJob(new TriggerKey("invitationsUpdating", "classroomServcie"));
             await scheduler.Start();
-            scheduler.Context.Put("user", relatedUser);
 
             IJobDetail job = JobBuilder.Create<InvitationsUpdater>().Build();
 
             ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity("invitationsUpdating", relatedUser)
+                .WithIdentity("invitationsUpdating", "classroomServcie")
                 .StartNow()
                 .WithSimpleSchedule(x => x
                     .WithIntervalInMinutes(1)

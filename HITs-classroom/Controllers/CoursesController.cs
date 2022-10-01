@@ -6,7 +6,6 @@ using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using HITs_classroom.Jobs;
-using Google.Apis.Classroom.v1;
 
 namespace HITs_classroom.Controllers
 {
@@ -31,18 +30,12 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpGet("get/{courseId}")]
         public async Task<IActionResult> GetCourse(string courseId)
         {
             try 
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'get/{{courseId}}. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
                 var course = await _coursesService.GetCourseFromDb(courseId);
                 return new JsonResult(course);
             }
@@ -84,7 +77,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpGet("listFromGC")]
         public async Task<IActionResult> GetCoursesListFromGoogleClassroom(
             [FromQuery] string? studentId,
@@ -102,14 +95,7 @@ namespace HITs_classroom.Controllers
                 searchParameters.StudentId = studentId;
                 searchParameters.TeacherId = teacherId;
                 searchParameters.CourseState = courseState;
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                var response = await _coursesService.GetCoursesListFromGoogleClassroom(searchParameters, classroomService);
+                var response = await _coursesService.GetCoursesListFromGoogleClassroom(searchParameters);
                 return new JsonResult(response);
             }
             catch (Exception e)
@@ -145,7 +131,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpGet("listFromDb")]
         public async Task<IActionResult> GetCoursesListFromDb([FromQuery] string? courseState)
         {
@@ -155,12 +141,6 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
                 var response = await _coursesService.GetCoursesListFromDb(courseState);
                 return new JsonResult(response);
             }
@@ -188,18 +168,12 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpGet("active")]
         public async Task<IActionResult> GetActiveCoursesList()
         {
             try 
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'active'. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
                 var response = await _coursesService.GetActiveCoursesListFromDb();
                 return new JsonResult(response);
             }
@@ -227,18 +201,12 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">No courses found.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpGet("archived")]
         public IActionResult GetArchivedCoursesList()
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'archived'. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
                 var response = _coursesService.GetArchivedCoursesListFromDb();
                 return new JsonResult(response);
             }
@@ -268,7 +236,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">OwnerId not specified.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateCourse([FromBody] CourseShortModel course)
         {
@@ -278,14 +246,7 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                var result = await _coursesService.CreateCourse(course, classroomService);
+                var result = await _coursesService.CreateCourse(course);
                 return new JsonResult(result);
             }
             catch (Exception e)
@@ -320,7 +281,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpPatch("archive/{courseId}")]
         public async Task<IActionResult> ArchiveCourse(string courseId)
         {
@@ -328,14 +289,7 @@ namespace HITs_classroom.Controllers
             {
                 CoursePatching course = new CoursePatching();
                 course.CourseState = "ARCHIVED";
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                var response = await _coursesService.PatchCourse(courseId, course, classroomService);
+                var response = await _coursesService.PatchCourse(courseId, course);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -387,7 +341,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpPatch("patch/{courseId}")]
         public async Task<IActionResult> PatchCourse(string courseId, [FromBody] CoursePatching course)
         {
@@ -397,14 +351,7 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                var response = await _coursesService.PatchCourse(courseId, course, classroomService);
+                var response = await _coursesService.PatchCourse(courseId, course);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -456,7 +403,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpPut("update/{courseId}")]
         public async Task<IActionResult> UpdateCourse(string courseId, [FromBody] CoursePatching course)
         {
@@ -466,14 +413,7 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                var response = await _coursesService.UpdateCourse(courseId, course, classroomService);
+                var response = await _coursesService.UpdateCourse(courseId, course);
                 return new JsonResult(response);
             }
             catch (GoogleApiException e)
@@ -523,20 +463,13 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpDelete("delete/{courseId}")]
         public async Task<IActionResult> DeleteCourse(string courseId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                await _coursesService.DeleteCourse(courseId, classroomService);
+                await _coursesService.DeleteCourse(courseId);
                 return new JsonResult("Course was deleted successfully.");
             }
             catch (GoogleApiException e)
@@ -586,20 +519,13 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Google api exception.</response>
         /// <response code="401">Not authorized.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpPost("synchronize")]
         public async Task<IActionResult> SynchronizeCourses()
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                var response = await _coursesService.SynchronizeCoursesListsInDbAndGoogleClassroom(classroomService);
+                var response = await _coursesService.SynchronizeCoursesListsInDbAndGoogleClassroom();
                 return new JsonResult(response);
             }
             catch (Exception e)
@@ -627,7 +553,7 @@ namespace HITs_classroom.Controllers
             }
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost("createList")]
         public IActionResult CreateCoursesList([FromBody] List<CourseShortModel> courses)
         {

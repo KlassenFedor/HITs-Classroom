@@ -30,19 +30,12 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">No invitation exists with the requested ID.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpGet("get/{invitationId}")]
         public async Task<IActionResult> GetInvitation(string invitationId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'get/{{invitationId}}'. {error}",
-                        "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
                 var result = await _invitationsService.GetInvitation(invitationId);
                 return Ok(new JsonResult(result).Value);
             }
@@ -75,18 +68,12 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">No invitation exists with the requested course ID.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpGet("list/{courseId}")]
         public async Task<IActionResult> GetCourseInvitations(string courseId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'list/{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
                 var result = await _invitationsService.GetCourseInvitations(courseId);
                 return Ok(new JsonResult(result).Value);
             }
@@ -129,19 +116,12 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpGet("check/{invitationId}")]
         public async Task<IActionResult> СheckInvitationStatus(string invitationId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'check/{{invitationId}}'. {error}",
-                        "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
                 var result = await _invitationsService.CheckInvitationStatus(invitationId);
                 return Ok(result);
             }
@@ -169,20 +149,13 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpPost("updateAll")]
         public async Task<IActionResult> UpdateAllInvitations()
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'update'. {error}",
-                        "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                InvitationsScheduler.Start(relatedUser.Value);
+                InvitationsScheduler.Start();
                 return Ok();
             }
             catch (GoogleApiException e)
@@ -215,21 +188,13 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpPost("update/{courseId}")]
         public async Task<IActionResult> UpdateCourseIvitations(string courseId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}",
-                        "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                await _invitationsService.UpdateCourseInvitations(courseId, classroomService);
+                await _invitationsService.UpdateCourseInvitations(courseId);
                 return Ok();
             }
             catch (GoogleApiException e)
@@ -266,7 +231,7 @@ namespace HITs_classroom.Controllers
         /// <response code="404">Course or user does not exist.</response>
         /// <response code="409">Invitation already exists.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateInvitation([FromBody] InvitationCreatingModel parameters)
         {
@@ -276,15 +241,7 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'create'. {error}",
-                        "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                var invitation = await _invitationsService.CreateInvitation(parameters, classroomService);
+                var invitation = await _invitationsService.CreateInvitation(parameters);
                 return new JsonResult(invitation);
             }
             catch (GoogleApiException e)
@@ -333,21 +290,13 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not permitted to delete invitations for this course.</response>
         /// <response code="404">No invitation exists with the requested ID.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpDelete("delete/{invitationId}")]
         public async Task<IActionResult> DeleteInvitation(string invitationId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'delete/{{invitationId}}'. {error}",
-                        "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                await _invitationsService.DeleteInvitation(invitationId, classroomService);
+                await _invitationsService.DeleteInvitation(invitationId);
                 return Ok(new JsonResult("Successfully deleted."));
             }
             catch (GoogleApiException e)
@@ -393,21 +342,13 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not permitted to resend invitations for this course.</response>
         /// <response code="404">Invitation does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpPost("resend/{invitationId}")]
         public async Task<IActionResult> ResendInvitation(string invitationId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'resend/{{invitationId}}'. {error}",
-                        "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                await _invitationsService.ResendInvitation(invitationId, classroomService);
+                await _invitationsService.ResendInvitation(invitationId);
                 return Ok();
             }
             catch (GoogleApiException e)
@@ -456,20 +397,12 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not allowed to check teachers for this course.</response>
         /// <response code="404">Couldn't find a course.</response>
-        [Authorize]
+        //[Authorize]
         [HttpGet("checkTeachersInvitations/{courseId}")]
         public async Task<IActionResult> CheckTeachersInvitations(string courseId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request" +
-                        " 'checkTeachersInvitations/{{courseId}}'. {error}",
-                        "Email not found.");
-                    return StatusCode(401, "Not authorized.");
-                }
                 var response = await _invitationsService.CheckIfAllTeachersAcceptedInvitations(courseId);
                 return new JsonResult(response);
             }

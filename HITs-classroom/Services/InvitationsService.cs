@@ -10,33 +10,36 @@ namespace HITs_classroom.Services
 {
     public interface IInvitationsService
     {
-        Task<Invitation> CreateInvitation(InvitationCreatingModel parameters, ClassroomService service);
-        Task DeleteInvitation(string id, ClassroomService service);
+        Task<Invitation> CreateInvitation(InvitationCreatingModel parameters);
+        Task DeleteInvitation(string id);
         Task<InvitationInfoModel> GetInvitation(string id);
         Task<string> CheckInvitationStatus(string id);
-        Task UpdateCourseInvitations(string? courseId, ClassroomService service);
-        Task UpdateAllInvitations(ClassroomService service);
+        Task UpdateCourseInvitations(string? courseId);
+        Task UpdateAllInvitations();
         Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId);
-        Task ResendInvitation(string invitationId, ClassroomService service);
+        Task ResendInvitation(string invitationId);
         Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId);
     }
 
     public class InvitationsService: IInvitationsService
     {
         private ApplicationDbContext _context;
-        public InvitationsService(ApplicationDbContext context)
+        private ClassroomService _service;
+        public InvitationsService(ApplicationDbContext context,
+            GoogleClassroomServiceForServiceAccount googleClassroomServiceForServiceAccount)
         {
             _context = context;
+            _service = googleClassroomServiceForServiceAccount.GetClassroomService();
         }
 
-        public async Task<Invitation> CreateInvitation(InvitationCreatingModel parameters, ClassroomService service)
+        public async Task<Invitation> CreateInvitation(InvitationCreatingModel parameters)
         {
             Invitation newInvitation = new Invitation();
             newInvitation.UserId = parameters.Email;
             newInvitation.CourseId = parameters.CourseId;
             newInvitation.Role = ((CourseRolesEnum)parameters.Role).ToString();
 
-            var request = service.Invitations.Create(newInvitation);
+            var request = _service.Invitations.Create(newInvitation);
             var response = await request.ExecuteAsync();
 
             InvitationDbModel invitationDbModel = new InvitationDbModel();
@@ -54,7 +57,7 @@ namespace HITs_classroom.Services
             return response;
         }
 
-        public async Task DeleteInvitation(string id, ClassroomService service)
+        public async Task DeleteInvitation(string id)
         {
             var invitation = await _context.Invitations.Where(i => i.Id == id).FirstOrDefaultAsync();
             if (invitation == null)
@@ -66,7 +69,7 @@ namespace HITs_classroom.Services
             {
                 try
                 {
-                    var request = service.Invitations.Delete(id);
+                    var request = _service.Invitations.Delete(id);
                     var response = await request.ExecuteAsync();
                 }
                 catch (GoogleApiException e)
@@ -126,25 +129,25 @@ namespace HITs_classroom.Services
             return InvitationStatusEnum.NOT_EXISTS.ToString();
         }
 
-        public async Task UpdateAllInvitations(ClassroomService service)
+        public async Task UpdateAllInvitations()
         {
             List<string> courses = new List<string>();
             courses.AddRange(await _context.Courses.Select(c => c.Id).ToListAsync());
 
             foreach (var course in courses)
             {
-                await UpdateCourseInvitations(course, service);
+                await UpdateCourseInvitations(course);
             }
         }
 
-        public async Task UpdateCourseInvitations(string courseId, ClassroomService service)
+        public async Task UpdateCourseInvitations(string courseId)
         {
             var invitations = await _context.Invitations.Where(i => i.CourseId == courseId && !i.IsAccepted).ToListAsync();
             List<string> users = new List<string>();
             string pageToken = null;
             do
             {
-                var request = service.Courses.Teachers.List(courseId);
+                var request = _service.Courses.Teachers.List(courseId);
                 request.PageSize = 100;
                 request.PageToken = pageToken;
                 var response = await request.ExecuteAsync();
@@ -211,7 +214,7 @@ namespace HITs_classroom.Services
             return invitationInfoModels;
         }
 
-        public async Task ResendInvitation(string invitationId, ClassroomService service)
+        public async Task ResendInvitation(string invitationId)
         {
             var invitation = await _context.Invitations.Where(i => i.Id == invitationId).FirstOrDefaultAsync();
             if (invitation == null)
@@ -219,14 +222,14 @@ namespace HITs_classroom.Services
                 throw new NullReferenceException();
             }
             InvitationDbModel? oldInvitation = await _context.Invitations.FindAsync(invitationId);
-            await DeleteInvitation(invitationId, service);
+            await DeleteInvitation(invitationId);
             if (!(oldInvitation == null))
             {
                 InvitationCreatingModel newInvitation = new InvitationCreatingModel();
                 newInvitation.CourseId = oldInvitation.CourseId;
                 newInvitation.Email = oldInvitation.Email;
                 newInvitation.Role = oldInvitation.Role;
-                await CreateInvitation(newInvitation, service);
+                await CreateInvitation(newInvitation);
             }
             else
             {

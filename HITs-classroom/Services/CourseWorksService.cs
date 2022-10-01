@@ -8,19 +8,24 @@ namespace HITs_classroom.Services
 {
     public interface ICourseWorksService
     {
-        Task<List<GradeModel>> GetGradesForCourseWork(string courseId, string courseWorkId, ClassroomService service);
-        Task SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users, ClassroomService service);
+        Task<List<GradeModel>> GetGradesForCourseWork(string courseId, string courseWorkId);
+        Task SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users);
     }
 
     public class CourseWorksService: ICourseWorksService
     {
-        public async Task<List<GradeModel>> GetGradesForCourseWork(string courseId, string courseWorkId, ClassroomService service)
+        private ClassroomService _service;
+        public CourseWorksService(GoogleClassroomServiceForServiceAccount googleClassroomServiceForServiceAccount)
+        {
+            _service = googleClassroomServiceForServiceAccount.GetClassroomService();
+        }
+        public async Task<List<GradeModel>> GetGradesForCourseWork(string courseId, string courseWorkId)
         {
             string pageToken = null;
             List<StudentSubmission> submissions = new List<StudentSubmission>();
             do
             {
-                var request = service.Courses.CourseWork.StudentSubmissions.List(courseId, courseWorkId);
+                var request = _service.Courses.CourseWork.StudentSubmissions.List(courseId, courseWorkId);
                 request.PageSize = 100;
                 request.PageToken = pageToken;
                 var response = await request.ExecuteAsync();
@@ -40,7 +45,7 @@ namespace HITs_classroom.Services
                 gradeModel.StudentId = submission.UserId;
                 gradeModel.Grade = submission.AssignedGrade;
                 gradeModel.WorkName = "name";
-                UserInfoModel userInfoModel = GetUserInfo(submission.UserId, service);
+                UserInfoModel userInfoModel = GetUserInfo(submission.UserId);
                 if (userInfoModel != null)
                 {
                     gradeModel.StudentEmail = userInfoModel.Email;
@@ -55,18 +60,18 @@ namespace HITs_classroom.Services
             return null;
         }
 
-        public async Task SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users, ClassroomService service)
+        public async Task SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users)
         {
             ModifyCourseWorkAssigneesRequest courseWorkModification = new ModifyCourseWorkAssigneesRequest();
             courseWorkModification.AssigneeMode = AssigneeModeEnum.INDIVIDUAL_STUDENTS.ToString();
             courseWorkModification.ModifyIndividualStudentsOptions.AddStudentIds = users;
-            var request = service.Courses.CourseWork.ModifyAssignees(courseWorkModification, courseId, courseWorkId);
+            var request = _service.Courses.CourseWork.ModifyAssignees(courseWorkModification, courseId, courseWorkId);
             var response = await request.ExecuteAsync();
         }
 
-        private UserInfoModel GetUserInfo(string UserId, ClassroomService service)
+        private UserInfoModel GetUserInfo(string UserId)
         {
-            var request = service.UserProfiles.Get(UserId);
+            var request = _service.UserProfiles.Get(UserId);
             var response = request.Execute();
 
             if (response != null)

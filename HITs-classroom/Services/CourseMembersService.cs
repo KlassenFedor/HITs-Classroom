@@ -6,20 +6,25 @@ namespace HITs_classroom.Services
 {
     public interface ICourseMembersService
     {
-        Task<List<UserInfoModel>> GetStudentsList(string courseId, ClassroomService service);
-        Task<List<UserInfoModel>> GetTeachersList(string courseId, ClassroomService service);
-        Task DeleteStudent(string courseId, string studentId, ClassroomService service);
-        Task DeleteTeacher(string courseId, string teacherId, ClassroomService service);
+        Task<List<UserInfoModel>> GetStudentsList(string courseId);
+        Task<List<UserInfoModel>> GetTeachersList(string courseId);
+        Task DeleteStudent(string courseId, string studentId);
+        Task DeleteTeacher(string courseId, string teacherId);
     }
     public class CourseMembersService: ICourseMembersService
     {
-        public async Task<List<UserInfoModel>> GetStudentsList(string courseId, ClassroomService service)
+        private ClassroomService _service;
+        public CourseMembersService(GoogleClassroomServiceForServiceAccount googleClassroomServiceForServiceAccount)
+        {
+            _service = googleClassroomServiceForServiceAccount.GetClassroomService();
+        }
+        public async Task<List<UserInfoModel>> GetStudentsList(string courseId)
         {
             string pageToken = null;
             List<Student> students = new List<Student>();
             do
             {
-                var request = service.Courses.Students.List(courseId);
+                var request = _service.Courses.Students.List(courseId);
                 request.PageSize = 100;
                 request.PageToken = pageToken;
                 var response = await request.ExecuteAsync();
@@ -40,13 +45,13 @@ namespace HITs_classroom.Services
             return users;
         }
 
-        public async Task<List<UserInfoModel>> GetTeachersList(string courseId, ClassroomService service)
+        public async Task<List<UserInfoModel>> GetTeachersList(string courseId)
         {
             string pageToken = null;
             List<Teacher> teachers = new List<Teacher>();
             do
             {
-                var request =service.Courses.Teachers.List(courseId);
+                var request = _service.Courses.Teachers.List(courseId);
                 request.PageSize = 100;
                 request.PageToken = pageToken;
                 var response = await request.ExecuteAsync();
@@ -68,15 +73,15 @@ namespace HITs_classroom.Services
             return users;
         }
 
-        public async Task DeleteStudent(string courseId, string studentId, ClassroomService service)
+        public async Task DeleteStudent(string courseId, string studentId)
         {
-            var request = service.Courses.Students.Delete(courseId, studentId);
+            var request = _service.Courses.Students.Delete(courseId, studentId);
             var response = await request.ExecuteAsync();
         }
 
-        public async Task DeleteTeacher(string courseId, string teacherId, ClassroomService service)
+        public async Task DeleteTeacher(string courseId, string teacherId)
         {
-            var request = service.Courses.Teachers.Delete(courseId, teacherId);
+            var request = _service.Courses.Teachers.Delete(courseId, teacherId);
             var response = await request.ExecuteAsync();
         }
     }

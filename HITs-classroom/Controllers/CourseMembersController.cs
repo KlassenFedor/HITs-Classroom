@@ -1,9 +1,6 @@
 ﻿using Google;
-using Google.Apis.Classroom.v1;
 using HITs_classroom.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace HITs_classroom.Controllers
 {
@@ -29,21 +26,13 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to get students.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpGet("students/list/{courseId}")]
         public async Task<IActionResult> GetStudentsList(string courseId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request" +
-                        " 'students/list/{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unauthorized");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                var result = await _courseMembersService.GetStudentsList(courseId, classroomService);
+                var result = await _courseMembersService.GetStudentsList(courseId);
                 return new JsonResult(result);
             }
             catch (GoogleApiException e)
@@ -88,21 +77,13 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to get teachers.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpGet("teachers/list/{courseId}")]
         public async Task<IActionResult> GetTeachersList(string courseId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request" +
-                        " 'teachers/list/{{courseId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unauthorized");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                var result = await _courseMembersService.GetTeachersList(courseId, classroomService);
+                var result = await _courseMembersService.GetTeachersList(courseId);
                 if (result.Count == 0)
                 {
                     return new JsonResult(new Object());
@@ -153,21 +134,13 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to delete this student.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpDelete("delete/courses/{courseId}/students/{studentId}")]
         public async Task<IActionResult> DeleteStudent(string courseId, string studentId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request" +
-                        " 'delete/courses/{{courseId}}/students/{{studentId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unauthorized");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                await _courseMembersService.DeleteStudent(courseId, studentId, classroomService);
+                await _courseMembersService.DeleteStudent(courseId, studentId);
                 return Ok();
             }
             catch (GoogleApiException e)
@@ -214,21 +187,13 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to delete this teacher.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
+        //[Authorize]
         [HttpDelete("delete/courses/{courseId}/teachers/{teacherId}")]
         public async Task<IActionResult> DeleteTeacher(string courseId, string teacherId)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request" +
-                        " 'delete/courses/{{courseId}}/teachers/{{teacherId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unauthorized");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                await _courseMembersService.DeleteTeacher(courseId, teacherId, classroomService);
+                await _courseMembersService.DeleteTeacher(courseId, teacherId);
                 return Ok();
             }
             catch (GoogleApiException e)

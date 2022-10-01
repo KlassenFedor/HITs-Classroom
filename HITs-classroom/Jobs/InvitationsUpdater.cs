@@ -16,15 +16,14 @@ namespace HITs_classroom.Jobs
 
             var serviceProvider = new ServiceCollection()
                 .AddScoped<IInvitationsService, InvitationsService>()
-                .AddScoped<GoogleClassroomServiceForUser>()
+                .AddScoped<GoogleClassroomServiceForServiceAccount>()
                 .AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection))
                 .BuildServiceProvider();
 
             var schedulerContext = context.Scheduler.Context;
             var invitationsService = serviceProvider.GetRequiredService<IInvitationsService>();
 
-            var relatedUser = (string)schedulerContext.Get("user");
-            await invitationsService.UpdateAllInvitations(new GoogleClassroomServiceForUser().GetClassroomService(relatedUser));
+            await invitationsService.UpdateAllInvitations();
         }
     }
 }

@@ -1,13 +1,8 @@
 using HITs_classroom;
-using HITs_classroom.Jobs;
-using HITs_classroom.Models.User;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Quartz;
-using System.Data;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,11 +15,10 @@ builder.Host.ConfigureLogging(logging =>
 
 // Add services to the container.
 
-builder.Services.AddScoped<GoogleClassroomServiceForUser>();
+builder.Services.AddScoped<GoogleClassroomServiceForServiceAccount>();
 builder.Services.AddScoped<ICoursesService, CoursesService>();
 builder.Services.AddScoped<IInvitationsService, InvitationsService>();
 builder.Services.AddScoped<ICourseMembersService, CourseMembersService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -38,11 +32,6 @@ builder.Services.AddCors();
 
 var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection));
-
-builder.Services.AddIdentity<GoogleUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddSignInManager<SignInManager<GoogleUser>>()
-    .AddUserManager<UserManager<GoogleUser>>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 

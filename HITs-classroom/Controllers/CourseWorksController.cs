@@ -20,21 +20,13 @@ namespace HITs_classroom.Controllers
             _logger = logger;
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost("acces/course/{courseId}/courseWork/{courseWorkId}")]
         public IActionResult SetAdmittedStudentsToCourseWork(string courseId, string courseWorkId, [FromBody] List<string>? users)
         {
             try
             {
-                Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-                if (relatedUser == null)
-                {
-                    _logger.LogInformation("An error was found when executing the request" +
-                        " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", "Email not found.");
-                    return StatusCode(401, "Unauthorized");
-                }
-                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
-                _courseWorksService.SetAdmittedStudentsForCourseWork(courseId, courseWorkId, users, classroomService);
+                _courseWorksService.SetAdmittedStudentsForCourseWork(courseId, courseWorkId, users);
                 return Ok();
             }
             catch (GoogleApiException e)

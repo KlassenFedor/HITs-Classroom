@@ -1,5 +1,4 @@
 ﻿using HITs_classroom.Models.Invitation;
-using HITs_classroom.Models.User;
 
 namespace HITs_classroom.Models.Course
 {
