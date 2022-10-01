@@ -7,11 +7,11 @@ using HITs_classroom.Models.Grade;
 
 namespace HITs_classroom
 {
-    public class ApplicationDbContext : IdentityDbContext<ClassroomAdmin>
+    public class ApplicationDbContext : IdentityDbContext<GoogleUser>
     {
         public DbSet<InvitationDbModel> Invitations { get; set; }
         public DbSet<CourseDbModel> Courses { get; set; }
-        public DbSet<ClassroomAdmin> ClassroomAdmins { get; set; }
+        public DbSet<GoogleUser> GoogleUsers { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -22,13 +22,13 @@ namespace HITs_classroom
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<ClassroomAdmin>()
+            modelBuilder.Entity<GoogleUser>()
                 .HasIndex(ca => ca.Email)
                 .IsUnique();
-            modelBuilder.Entity<ClassroomAdmin>()
+            modelBuilder.Entity<GoogleUser>()
                 .Property(ca => ca.UserName)
                 .IsRequired();
-            modelBuilder.Entity<ClassroomAdmin>()
+            modelBuilder.Entity<GoogleUser>()
                 .Property(ca => ca.NormalizedUserName)
                 .IsRequired();
 

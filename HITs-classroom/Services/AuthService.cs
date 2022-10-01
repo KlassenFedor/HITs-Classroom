@@ -18,11 +18,11 @@ namespace HITs_classroom.Services
     }
     public class AuthService: IAuthService
     {
-        private readonly UserManager<ClassroomAdmin> _userManager;
-        private readonly SignInManager<ClassroomAdmin> _signInManager;
+        private readonly UserManager<GoogleUser> _userManager;
+        private readonly SignInManager<GoogleUser> _signInManager;
 
-        public AuthService(UserManager<ClassroomAdmin> userManager,
-                SignInManager<ClassroomAdmin> signInManager)
+        public AuthService(UserManager<GoogleUser> userManager,
+                SignInManager<GoogleUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -82,7 +82,7 @@ namespace HITs_classroom.Services
                     throw;
                 }
             }
-            var classroomAdmin = new ClassroomAdmin
+            var classroomAdmin = new GoogleUser
             {
                 Email = email,
                 UserName = email

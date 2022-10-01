@@ -54,7 +54,7 @@ namespace HITs_classroom.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courses");
+                    b.ToTable("Courses", (string)null);
                 });
 
             modelBuilder.Entity("HITs_classroom.Models.Invitation.InvitationDbModel", b =>
@@ -86,7 +86,7 @@ namespace HITs_classroom.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Invitations");
+                    b.ToTable("Invitations", (string)null);
                 });
 
             modelBuilder.Entity("HITs_classroom.Models.User.ClassroomAdmin", b =>
