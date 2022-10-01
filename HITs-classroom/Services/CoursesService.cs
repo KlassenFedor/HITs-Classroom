@@ -30,7 +30,7 @@ namespace HITs_classroom.Services
     public class CoursesService: ICoursesService
     {
         private ApplicationDbContext _context;
-        public CoursesService(GoogleClassroomService googleClassroomService, ApplicationDbContext context)
+        public CoursesService(GoogleClassroomServiceForUser googleClassroomService, ApplicationDbContext context)
         {
             _context = context;
         }

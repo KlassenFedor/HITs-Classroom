@@ -70,10 +70,10 @@ namespace HITs_classroom.Services
 
         public async Task Register(string email)
         {
-            GoogleClassroomService googleClassroomService = new GoogleClassroomService();
+            GoogleClassroomServiceForUser googleClassroomService = new GoogleClassroomServiceForUser();
             try
             {
-                googleClassroomService.GetAccessToken(email);
+                googleClassroomService.GetClassroomService(email);
             }
             catch (Exception e)
             {

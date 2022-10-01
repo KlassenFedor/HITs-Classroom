@@ -228,7 +228,7 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
                 await _invitationsService.UpdateCourseInvitations(courseId, classroomService);
                 return Ok();
             }
@@ -283,7 +283,7 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
                 var invitation = await _invitationsService.CreateInvitation(parameters, classroomService);
                 return new JsonResult(invitation);
             }
@@ -346,7 +346,7 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
                 await _invitationsService.DeleteInvitation(invitationId, classroomService);
                 return Ok(new JsonResult("Successfully deleted."));
             }
@@ -406,7 +406,7 @@ namespace HITs_classroom.Controllers
                         "Email not found.");
                     return StatusCode(401, "Not authorized.");
                 }
-                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
                 await _invitationsService.ResendInvitation(invitationId, classroomService);
                 return Ok();
             }

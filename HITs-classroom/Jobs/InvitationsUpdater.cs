@@ -16,7 +16,7 @@ namespace HITs_classroom.Jobs
 
             var serviceProvider = new ServiceCollection()
                 .AddScoped<IInvitationsService, InvitationsService>()
-                .AddScoped<GoogleClassroomService>()
+                .AddScoped<GoogleClassroomServiceForUser>()
                 .AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection))
                 .BuildServiceProvider();
 
@@ -24,7 +24,7 @@ namespace HITs_classroom.Jobs
             var invitationsService = serviceProvider.GetRequiredService<IInvitationsService>();
 
             var relatedUser = (string)schedulerContext.Get("user");
-            await invitationsService.UpdateAllInvitations(new GoogleClassroomService().GetClassroomService(relatedUser));
+            await invitationsService.UpdateAllInvitations(new GoogleClassroomServiceForUser().GetClassroomService(relatedUser));
         }
     }
 }

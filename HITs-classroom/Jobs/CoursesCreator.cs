@@ -20,7 +20,7 @@ namespace HITs_classroom.Jobs
 
             var serviceProvider = new ServiceCollection()
                 .AddScoped<ICoursesService, CoursesService>()
-                .AddScoped<GoogleClassroomService>()
+                .AddScoped<GoogleClassroomServiceForUser>()
                 .AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection))
                 .BuildServiceProvider();
 
@@ -29,7 +29,7 @@ namespace HITs_classroom.Jobs
 
             var courses = (List<CourseShortModel>)schedulerContext.Get("courses");
             var relatedUser = (string)schedulerContext.Get("user");
-            coursesService.CreateCoursesList(courses, new GoogleClassroomService().GetClassroomService(relatedUser));
+            coursesService.CreateCoursesList(courses, new GoogleClassroomServiceForUser().GetClassroomService(relatedUser));
         }
     }
 }

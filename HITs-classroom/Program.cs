@@ -20,7 +20,7 @@ builder.Host.ConfigureLogging(logging =>
 
 // Add services to the container.
 
-builder.Services.AddScoped<GoogleClassroomService>();
+builder.Services.AddScoped<GoogleClassroomServiceForUser>();
 builder.Services.AddScoped<ICoursesService, CoursesService>();
 builder.Services.AddScoped<IInvitationsService, InvitationsService>();
 builder.Services.AddScoped<ICourseMembersService, CourseMembersService>();

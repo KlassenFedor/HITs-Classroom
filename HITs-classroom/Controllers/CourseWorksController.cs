@@ -33,7 +33,7 @@ namespace HITs_classroom.Controllers
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unauthorized");
                 }
-                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
                 _courseWorksService.SetAdmittedStudentsForCourseWork(courseId, courseWorkId, users, classroomService);
                 return Ok();
             }

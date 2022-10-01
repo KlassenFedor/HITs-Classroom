@@ -8,7 +8,7 @@ using Google.Apis.IAMCredentials.v1.Data;
 
 namespace HITs_classroom.Services
 {
-    public class GoogleClassroomService
+    public class GoogleClassroomServiceForUser
     {
         public ClassroomService GetClassroomService(string relatedUser)
         {
@@ -23,7 +23,7 @@ namespace HITs_classroom.Services
             return classroomService;
         }
 
-        public string GetAccessToken(string relatedUser)
+        private string GetAccessToken(string relatedUser)
         {
             string[] scopes = {
                 "https://www.googleapis.com/auth/cloud-platform"

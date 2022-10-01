@@ -42,7 +42,7 @@ namespace HITs_classroom.Controllers
                         " 'students/list/{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unauthorized");
                 }
-                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
                 var result = await _courseMembersService.GetStudentsList(courseId, classroomService);
                 return new JsonResult(result);
             }
@@ -101,7 +101,7 @@ namespace HITs_classroom.Controllers
                         " 'teachers/list/{{courseId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unauthorized");
                 }
-                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
                 var result = await _courseMembersService.GetTeachersList(courseId, classroomService);
                 if (result.Count == 0)
                 {
@@ -166,7 +166,7 @@ namespace HITs_classroom.Controllers
                         " 'delete/courses/{{courseId}}/students/{{studentId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unauthorized");
                 }
-                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
                 await _courseMembersService.DeleteStudent(courseId, studentId, classroomService);
                 return Ok();
             }
@@ -227,7 +227,7 @@ namespace HITs_classroom.Controllers
                         " 'delete/courses/{{courseId}}/teachers/{{teacherId}}'. {error}", "Email not found.");
                     return StatusCode(401, "Unauthorized");
                 }
-                ClassroomService classroomService = new GoogleClassroomService().GetClassroomService(relatedUser.Value);
+                ClassroomService classroomService = new GoogleClassroomServiceForUser().GetClassroomService(relatedUser.Value);
                 await _courseMembersService.DeleteTeacher(courseId, teacherId, classroomService);
                 return Ok();
             }
