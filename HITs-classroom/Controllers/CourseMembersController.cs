@@ -1,9 +1,7 @@
 ﻿using Google;
 using Google.Apis.Classroom.v1;
-using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 

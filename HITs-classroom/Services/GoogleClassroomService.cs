@@ -4,7 +4,6 @@ using Google.Apis.IAMCredentials.v1;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using static Google.Apis.IAMCredentials.v1.ProjectsResource;
-using System.Diagnostics;
 using Google.Apis.IAMCredentials.v1.Data;
 
 namespace HITs_classroom.Services
@@ -63,7 +62,6 @@ namespace HITs_classroom.Services
             try
             {
                 var response = request.Execute();
-                Debug.WriteLine(response.AccessToken);
                 return response.AccessToken;
             }
             catch
