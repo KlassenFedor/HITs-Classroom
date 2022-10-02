@@ -8,23 +8,30 @@ namespace HITs_classroom.Services
     {
         public ClassroomService GetClassroomService()
         {
-            string[] scopes = {
+            try
+            {
+                string[] scopes = {
                 ClassroomService.Scope.ClassroomCourses,
                 ClassroomService.Scope.ClassroomRosters,
                 ClassroomService.Scope.ClassroomProfileEmails
             };
 
-            GoogleCredential credential = GoogleCredential
-                .FromStream(new FileStream("Keys/hits-classroom-1661148456378-4f7735c17e75.json", FileMode.Open, FileAccess.Read))
-                .CreateScoped(scopes);
+                GoogleCredential credential = GoogleCredential
+                    .FromStream(new FileStream("Keys/hits-classroom-1661148456378-4f7735c17e75.json", FileMode.Open, FileAccess.Read))
+                    .CreateScoped(scopes);
 
-            ClassroomService classroomService = new ClassroomService(new BaseClientService.Initializer
+                ClassroomService classroomService = new ClassroomService(new BaseClientService.Initializer
+                {
+                    HttpClientInitializer = credential,
+                    ApplicationName = "HITs-Classroom"
+                });
+
+                return classroomService;
+            }
+            catch
             {
-                HttpClientInitializer = credential,
-                ApplicationName = "HITs-Classroom"
-            });
-
-            return classroomService;
+                throw new AggregateException();
+            }
         }
 
     }

@@ -29,7 +29,6 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">No invitation exists with the requested ID.</response>
-        /// <response code="500">Credential Not found.</response>
         //[Authorize]
         [HttpGet("get/{invitationId}")]
         public async Task<IActionResult> GetInvitation(string invitationId)
@@ -41,12 +40,7 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'get/{{invitationId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
-                }
-                else if (e is NullReferenceException)
+                if (e is NullReferenceException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'get/{{invitationId}}'. {error}", e.Message);
                     return StatusCode(404, "No invitation exists with the requested ID.");
@@ -67,7 +61,6 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">No invitation exists with the requested course ID.</response>
-        /// <response code="500">Credential Not found.</response>
         //[Authorize]
         [HttpGet("list/{courseId}")]
         public async Task<IActionResult> GetCourseInvitations(string courseId)
@@ -92,16 +85,8 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'list/{{courseId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
-                }
-                else
-                {
-                    _logger.LogInformation("An error was found when executing the request 'list/{{courseId}}'. {error}", e.Message);
-                    return StatusCode(520, "Unknown error.");
-                }
+                _logger.LogInformation("An error was found when executing the request 'list/{{courseId}}'. {error}", e.Message);
+                return StatusCode(520, "Unknown error.");
             }
         }
 
@@ -115,7 +100,7 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpGet("check/{invitationId}")]
         public async Task<IActionResult> СheckInvitationStatus(string invitationId)
@@ -130,7 +115,7 @@ namespace HITs_classroom.Controllers
                 if (e is AggregateException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'check/{{invitationId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
@@ -147,8 +132,8 @@ namespace HITs_classroom.Controllers
         /// Сheck all the invitations and updates the value of the field IsAccepted.
         /// </remarks>
         /// <response code="401">Not authorized.</response>
-        /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="403">You are not permitted to update invitations.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpPost("updateAll")]
         public async Task<IActionResult> UpdateAllInvitations()
@@ -186,7 +171,7 @@ namespace HITs_classroom.Controllers
         /// Сheck the invitations and updates the values of the field IsAccepted.
         /// </remarks>
         /// <response code="401">Not authorized.</response>
-        /// <response code="403">You are not permitted to check invitations for this course.Course does not exist.</response>
+        /// <response code="403">You are not permitted to update invitations for this course.</response>
         /// <response code="500">Credential Not found.</response>
         //[Authorize]
         [HttpPost("update/{courseId}")]
@@ -230,7 +215,7 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not permitted to create invitations for this course.</response>
         /// <response code="404">Course or user does not exist.</response>
         /// <response code="409">Invitation already exists.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateInvitation([FromBody] InvitationCreatingModel parameters)
@@ -269,7 +254,7 @@ namespace HITs_classroom.Controllers
                 if (e is AggregateException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
@@ -289,7 +274,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to delete invitations for this course.</response>
         /// <response code="404">No invitation exists with the requested ID.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpDelete("delete/{invitationId}")]
         public async Task<IActionResult> DeleteInvitation(string invitationId)
@@ -317,7 +302,7 @@ namespace HITs_classroom.Controllers
                 if (e is AggregateException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'delete/{{invitationId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
+                    return StatusCode(500, "Credentials error.");
                 }
                 else if (e is NullReferenceException)
                 {
@@ -341,7 +326,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not permitted to resend invitations for this course.</response>
         /// <response code="404">Invitation does not exist.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpPost("resend/{invitationId}")]
         public async Task<IActionResult> ResendInvitation(string invitationId)
@@ -371,7 +356,7 @@ namespace HITs_classroom.Controllers
                 if (e is AggregateException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'resend/{{invitationId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
+                    return StatusCode(500, "Credentials error.");
                 }
                 else if (e is NullReferenceException)
                 {
@@ -397,6 +382,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not allowed to check teachers for this course.</response>
         /// <response code="404">Couldn't find a course.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpGet("checkTeachersInvitations/{courseId}")]
         public async Task<IActionResult> CheckTeachersInvitations(string courseId)
@@ -408,7 +394,17 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                if (e is NullReferenceException)
+                if (e is AggregateException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'checkTeachersInvitations/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
+                }
+                else if (e is GoogleApiException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'checkTeachersInvitations/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(403, "You are not allowed to check teachers for this course.");
+                }
+                else if (e is NullReferenceException)
                 {
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'checkTeachersInvitations/{{courseId}}'. {error}", e.Message);

@@ -3,8 +3,6 @@ using HITs_classroom.Services;
 using Microsoft.AspNetCore.Mvc;
 using HITs_classroom.Models.Course;
 using System.Net;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 using HITs_classroom.Jobs;
 
 namespace HITs_classroom.Controllers
@@ -29,7 +27,6 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course does not exist.</response>
-        /// <response code="500">Credential Not found.</response>
         //[Authorize]
         [HttpGet("get/{courseId}")]
         public async Task<IActionResult> GetCourse(string courseId)
@@ -41,12 +38,7 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'get/{{courseId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
-                }
-                else if (e is NullReferenceException)
+                if (e is NullReferenceException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'get/{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course does not exist.");
@@ -76,7 +68,7 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Invalid input data.</response>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">No courses found.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpGet("listFromGC")]
         public async Task<IActionResult> GetCoursesListFromGoogleClassroom(
@@ -100,15 +92,15 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
-                }
-                else if (e is ArgumentNullException)
+                if (e is ArgumentNullException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'list'. {error}", e.Message);
                     return StatusCode(404, "No courses found.");
+                }
+                else if (e is AggregateException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
@@ -130,7 +122,6 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Invalid input data.</response>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">No courses found.</response>
-        /// <response code="500">Credential Not found.</response>
         //[Authorize]
         [HttpGet("listFromDb")]
         public async Task<IActionResult> GetCoursesListFromDb([FromQuery] string? courseState)
@@ -166,8 +157,6 @@ namespace HITs_classroom.Controllers
         /// Returns courses with the ACTIVE courseState.
         /// </remarks>
         /// <response code="401">Not authorized.</response>
-        /// <response code="404">No courses found.</response>
-        /// <response code="500">Credential Not found.</response>
         //[Authorize]
         [HttpGet("active")]
         public async Task<IActionResult> GetActiveCoursesList()
@@ -179,16 +168,8 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'active'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
-                }
-                else
-                {
-                    _logger.LogInformation("An error was found when executing the request 'active'. {error}", e.Message);
-                    return StatusCode(520, "Unknown error.");
-                }
+                _logger.LogInformation("An error was found when executing the request 'active'. {error}", e.Message);
+                return StatusCode(520, "Unknown error.");
             }
         }
 
@@ -199,8 +180,6 @@ namespace HITs_classroom.Controllers
         /// Returns courses with the ACHIVED courseState.
         /// </remarks>
         /// <response code="401">Not authorized.</response>
-        /// <response code="404">No courses found.</response>
-        /// <response code="500">Credential Not found.</response>
         //[Authorize]
         [HttpGet("archived")]
         public IActionResult GetArchivedCoursesList()
@@ -212,16 +191,8 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'archived'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
-                }
-                else
-                {
-                    _logger.LogInformation("An error was found when executing the request 'archived'. {error}", e.Message);
-                    return StatusCode(520, "Unknown error.");
-                }
+                _logger.LogInformation("An error was found when executing the request 'archived'. {error}", e.Message);
+                return StatusCode(520, "Unknown error.");
             }
         }
 
@@ -232,10 +203,10 @@ namespace HITs_classroom.Controllers
         /// You can set name, ownerId, courseState, description, descriptionHeading, room, section.
         /// Returns the created course.
         /// </remarks>
-        /// <response code="400">Invalid input data.</response>
+        /// <response code="400">Invalid input data or Google api error.</response>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">OwnerId not specified.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateCourse([FromBody] CourseShortModel course)
@@ -251,15 +222,15 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
+                if (e is GoogleApiException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
+                    return StatusCode(400, "Google api error.");
                 }
-                else if (e is GoogleApiException)
+                else if (e is AggregateException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
-                    return StatusCode(404, "OwnerId not specified." + e.Message);
+                    return StatusCode(500, "Credentials error");
                 }
                 else
                 {
@@ -280,7 +251,7 @@ namespace HITs_classroom.Controllers
         /// </response>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpPatch("archive/{courseId}")]
         public async Task<IActionResult> ArchiveCourse(string courseId)
@@ -308,19 +279,20 @@ namespace HITs_classroom.Controllers
                         " you should check that you are trying to change only the available fields");
                 }
 
+                _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
                 return StatusCode(520, "Unknown error");
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
-                }
-                else if (e is NullReferenceException)
+                if (e is NullReferenceException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course not found in database.");
+                }
+                else if (e is AggregateException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
@@ -340,7 +312,7 @@ namespace HITs_classroom.Controllers
         /// you should check that you are trying to change only the available fields.</response>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpPatch("patch/{courseId}")]
         public async Task<IActionResult> PatchCourse(string courseId, [FromBody] CoursePatching course)
@@ -375,15 +347,15 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
-                }
-                else if (e is NullReferenceException)
+                if (e is NullReferenceException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course not found in database.");
+                }
+                else if (e is AggregateException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
@@ -402,7 +374,7 @@ namespace HITs_classroom.Controllers
         /// <response code="400">You are not permitted to modify this course or course is not modifable.</response>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpPut("update/{courseId}")]
         public async Task<IActionResult> UpdateCourse(string courseId, [FromBody] CoursePatching course)
@@ -431,19 +403,20 @@ namespace HITs_classroom.Controllers
                     return StatusCode(400, "You are not permitted to modify this course or course is not modifable.");
                 }
 
+                _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                 return StatusCode(520, "Unknown error.");
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
-                }
-                else if (e is NullReferenceException)
+                if (e is NullReferenceException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course not found in database.");
+                }
+                else if (e is AggregateException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
@@ -462,7 +435,7 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Precondition check failed. Perhaps you should archive the course first.</response>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpDelete("delete/{courseId}")]
         public async Task<IActionResult> DeleteCourse(string courseId)
@@ -487,19 +460,20 @@ namespace HITs_classroom.Controllers
                     return StatusCode(400, "Precondition check failed. Perhaps you should archive the course first.");
                 }
 
+                _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
                 return StatusCode(520, "Unknown error.");
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
-                }
-                else if (e is NullReferenceException)
+                if (e is NullReferenceException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course not found in database.");
+                }
+                else if (e is AggregateException)
+                {
+                    _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
@@ -518,7 +492,7 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="400">Google api exception.</response>
         /// <response code="401">Not authorized.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpPost("synchronize")]
         public async Task<IActionResult> SynchronizeCourses()
@@ -530,20 +504,15 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
-                }
-                else if (e is GoogleApiException)
+                if (e is GoogleApiException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", e.Message);
                     return StatusCode(400, "GoogleApi exception.");
                 }
-                else if (e is NullReferenceException)
+                if (e is AggregateException)
                 {
                     _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", e.Message);
-                    return StatusCode(404, "Course not found in database.");
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
@@ -561,13 +530,7 @@ namespace HITs_classroom.Controllers
             {
                 return StatusCode(400, "Invalid input data.");
             }
-            Claim? relatedUser = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-            if (relatedUser == null)
-            {
-                _logger.LogInformation("An error was found when executing the request 'createList'. {error}", "Email not found.");
-                return StatusCode(401, "Not authorized.");
-            }
-            CoursesScheduler.Start(relatedUser.Value, courses);
+            CoursesScheduler.Start(courses);
             return Ok();
         }
     }

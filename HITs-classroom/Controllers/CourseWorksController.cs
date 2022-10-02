@@ -46,6 +46,8 @@ namespace HITs_classroom.Controllers
                     return StatusCode(400, "Failed precondition.");
                 }
 
+                _logger.LogInformation("An error was found when executing the request" +
+                        " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", e.Message);
                 return StatusCode(520, "Unknown error");
             }
             catch (Exception e)
@@ -54,7 +56,7 @@ namespace HITs_classroom.Controllers
                 {
                     _logger.LogInformation("An error was found when executing the request" +
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {

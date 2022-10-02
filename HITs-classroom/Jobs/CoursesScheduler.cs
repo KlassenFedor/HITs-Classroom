@@ -7,7 +7,7 @@ namespace HITs_classroom.Jobs
 {
     public class CoursesScheduler
     {
-        public static async void Start(string relatedUser, List<CourseShortModel> courses)
+        public static async void Start(List<CourseShortModel> courses)
         {
             IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
             await scheduler.UnscheduleJob(new TriggerKey("coursesCreating", "classroomServcie"));

@@ -22,10 +22,10 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// courseId - course Identifier.
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not allowed to get students.</response>
         /// <response code="404">Course does not exist.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpGet("students/list/{courseId}")]
         public async Task<IActionResult> GetStudentsList(string courseId)
@@ -55,13 +55,13 @@ namespace HITs_classroom.Controllers
                 if (e is AggregateException)
                 {
                     _logger.LogInformation("An error was found when executing the request" +
-                        " 'students/list/{{courseId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
+                            " 'students/list/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
                     _logger.LogInformation("An error was found when executing the request" +
-                        " 'students/list/{{courseId}}'. {error}", e.Message);
+                            " 'students/list/{{courseId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -73,10 +73,10 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// courseId - course Identifier.
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not allowed to get teachers.</response>
         /// <response code="404">Course does not exist.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpGet("teachers/list/{courseId}")]
         public async Task<IActionResult> GetTeachersList(string courseId)
@@ -110,8 +110,8 @@ namespace HITs_classroom.Controllers
                 if (e is AggregateException)
                 {
                     _logger.LogInformation("An error was found when executing the request" +
-                        " 'teachers/list/{{courseId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
+                            " 'teachers/list/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
@@ -130,10 +130,10 @@ namespace HITs_classroom.Controllers
         /// 
         /// studentId - course student Identifier.
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">Not authorized.</response>
         /// <response code="403">You are not allowed to delete this student.</response>
         /// <response code="404">Course does not exist.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpDelete("delete/courses/{courseId}/students/{studentId}")]
         public async Task<IActionResult> DeleteStudent(string courseId, string studentId)
@@ -163,8 +163,8 @@ namespace HITs_classroom.Controllers
                 if (e is AggregateException)
                 {
                     _logger.LogInformation("An error was found when executing the request" +
-                        " 'delete/courses/{{courseId}}/students/{{studentId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
+                            " 'delete/courses/{{courseId}}/students/{{studentId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
@@ -183,10 +183,10 @@ namespace HITs_classroom.Controllers
         /// 
         /// teacherId - course teacher Identifier.
         /// </remarks>
-        /// <response code="401">Could not access the user's email.</response>
+        /// <response code="401">not authorized.</response>
         /// <response code="403">You are not allowed to delete this teacher.</response>
         /// <response code="404">Course does not exist.</response>
-        /// <response code="500">Credential Not found.</response>
+        /// <response code="500">Credentials error.</response>
         //[Authorize]
         [HttpDelete("delete/courses/{courseId}/teachers/{teacherId}")]
         public async Task<IActionResult> DeleteTeacher(string courseId, string teacherId)
@@ -216,8 +216,8 @@ namespace HITs_classroom.Controllers
                 if (e is AggregateException)
                 {
                     _logger.LogInformation("An error was found when executing the request" +
-                        " 'delete/courses/{{courseId}}/teachers/{{teacherId}}'. {error}", e.Message);
-                    return StatusCode(500, "Credential Not found.");
+                            " 'delete/courses/{{courseId}}/teachers/{{teacherId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
                 }
                 else
                 {

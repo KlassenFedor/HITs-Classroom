@@ -174,6 +174,14 @@ namespace HITs_classroom.Services
 
         public async Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId) 
         {
+            try
+            {
+                await UpdateCourseInvitations(courseId);
+            }
+            catch
+            {
+                throw;
+            }
             InvitationDbModel? invitation = await _context.Invitations.Where(i => i.CourseId == courseId &&
                 i.Role == (int)CourseRolesEnum.TEACHER && !i.IsAccepted).FirstOrDefaultAsync();
 
