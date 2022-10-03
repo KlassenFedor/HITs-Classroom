@@ -7,6 +7,7 @@
         public string WorkName { get; set; }
         public string StudentId { get; set; }
         public string StudentEmail { get; set; }
-        public double? Grade { get; set; }
+        public double? DraftGrade { get; set; }
+        public double? AssignedGrade { get; set; }
     }
 }

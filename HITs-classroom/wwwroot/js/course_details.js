@@ -1,16 +1,17 @@
 const path = 'https://localhost:7284/';
 
 window.addEventListener('load', function () {
-    const updateButton = this.document.querySelector('#invitations-update-btn')
+    document.querySelector('#invitations-update-btn')
         .addEventListener('click', getCourseInvitations);
-    const createButton = this.document.querySelector('#createInvitationBtn')
+    document.querySelector('#createInvitationBtn')
         .addEventListener('click', createInvitation);
-    const getMembersButton = this.document.querySelector('#members-get-btn')
+    document.querySelector('#members-get-btn')
         .addEventListener('click', getMembers);
-    const updateCourseTeachersButton = this.document.querySelector('#course-update-teachers-button')
+    document.querySelector('#course-update-teachers-button')
         .addEventListener('click', updateTeachersInvitations);
+    this.document.querySelector('#get-grades-btn')
+        .addEventListener('click', GetGrades);
 
-    //getCourseInvitations();
     setCourseInfo();
     getMembers();
     getCourseInvitations();
@@ -210,6 +211,17 @@ function showStudents(json) {
         studentRow.id = json[i]['email'];
         studentsPlace.appendChild(studentRow);
     }
+}
+
+//--------Grades----------
+
+function GetGrades() {
+    console.log('getGrades');
+    getRequest(
+        path + 'api/CourseWorks/courseGrades/' + window.location.href.split('?')[1].split('=')[1]
+    )
+        .then(response => console.log(response))
+        .catch(error => { console.error(error), alert('Unable to get grades') })
 }
 
 //--------Course info--------

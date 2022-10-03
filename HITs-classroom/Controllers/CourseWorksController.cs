@@ -64,5 +64,45 @@ namespace HITs_classroom.Controllers
                 }
             }
         }
+
+        [HttpGet("courseGrades/{courseId}")]
+        public async Task<IActionResult> GetCourseGrades(string courseId)
+        {
+            try
+            {
+                var response = await _courseWorksService.GetCourseGrades(courseId);
+                return Ok(new JsonResult(response).Value);
+            }
+            catch (GoogleApiException e)
+            {
+                if (e.HttpStatusCode == HttpStatusCode.NotFound)
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'courseGrades/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(404, "Course not found.");
+                }
+                else
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'courseGrades/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(400, "Unable to get course grades.");
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is AggregateException)
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'courseGrades/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
+                }
+                else
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'courseGrades/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(520, "Unknown error");
+                }
+            }
+        }
     }
 }
