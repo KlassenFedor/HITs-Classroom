@@ -9,12 +9,15 @@ window.addEventListener('load', function () {
         .addEventListener('click', getMembers);
     document.querySelector('#course-update-teachers-button')
         .addEventListener('click', updateTeachersInvitations);
-    this.document.querySelector('#get-grades-btn')
-        .addEventListener('click', GetGrades);
+    document.querySelector('#get-grades-btn')
+        .addEventListener('click', getGrades);
+    document.querySelector('#get-course-works-btn')
+        .addEventListener('click', getCourseWorks);
 
     setCourseInfo();
     getMembers();
     getCourseInvitations();
+    getCourseWorks();
 });
 
 
@@ -213,15 +216,38 @@ function showStudents(json) {
     }
 }
 
-//--------Grades----------
+//--------Course works and grades----------
 
-function GetGrades() {
+function getGrades() {
     console.log('getGrades');
     getRequest(
         path + 'api/CourseWorks/courseGrades/' + window.location.href.split('?')[1].split('=')[1]
     )
         .then(response => console.log(response))
         .catch(error => { console.error(error), alert('Unable to get grades') })
+}
+
+function getCourseWorks() {
+    console.log('getCourseWorks');
+    getRequest(
+        path + 'api/CourseWorks/courseWorks/' + window.location.href.split('?')[1].split('=')[1]
+    )
+        .then(response => showCourseWorks(response))
+        .catch(error => { console.error(error), alert('Unable to get course works') })
+}
+
+function showCourseWorks(works) {
+    var worksPlace = document.querySelector('#course-works-place');
+    worksPlace.innerHTML = '';
+    for (let i = 0; i < works.length; i++) {
+        var courseWorkClone = document.querySelector('.course-work').cloneNode(true);
+        courseWorkClone.querySelector('.course-work-title').innerHTML = works[i]['title'];
+        let courseWorkLink = courseWorkClone.querySelector('.course-work-title');
+        //courseWorkLink.setAttribute('href',
+        //    courseWorkLink.getAttribute('href') + works[i]['courseId'] + '/work/' + works[i]['id']);
+        courseWorkClone.classList.remove('d-none');
+        worksPlace.appendChild(courseWorkClone);
+    }
 }
 
 //--------Course info--------

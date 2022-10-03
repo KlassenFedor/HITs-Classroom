@@ -80,7 +80,7 @@
                         <div class="nav nav-tabs" id="courseDetails" role="tablist">
                             <button class="nav-link active" id="nav-members-tab" data-bs-toggle="tab" data-bs-target="#nav-members" type="button" role="tab" aria-controls="nav-members" aria-selected="true">Members</button>
                             <button class="nav-link" id="nav-invitations-tab" data-bs-toggle="tab" data-bs-target="#nav-invitations" type="button" role="tab" aria-controls="nav-invitations" aria-selected="false">Invitations</button>
-                            <button class="nav-link" id="nav-grades-tab" data-bs-toggle="tab" data-bs-target="#nav-grades" type="button" role="tab" aria-controls="nav-grades" aria-selected="false">Grades</button>
+                            <button class="nav-link" id="nav-course-works-tab" data-bs-toggle="tab" data-bs-target="#nav-course-works" type="button" role="tab" aria-controls="nav-course-works" aria-selected="false">Gourse works</button>
                         </div>
                     </nav>
                     <div class="tab-content" id="courseDetailsContent">
@@ -133,8 +133,10 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="tab-pane fade p-2" id="nav-grades" role="tabpanel" aria-labelledby="nav-grades-tab">
-                            <button type="button" class="btn btn-primary" id="get-grades-btn">Get grades</button>
+                        <div class="tab-pane fade p-2" id="nav-course-works" role="tabpanel" aria-labelledby="nav-course-works-tab">
+                            <button type="button" class="btn btn-primary m-2" id="get-grades-btn">Get grades</button>
+                            <button type="button" class="btn btn-primary" id="get-course-works-btn">Get course works</button>
+                            <div id="course-works-place"></div>
                         </div>
                     </div>
                 </div>
@@ -172,6 +174,7 @@
     </content>
 
     <d-none-elements>
+
         <table>
             <tbody>
 
@@ -207,6 +210,13 @@
 
             </tbody>
         </table>
+
+        <div class="card course-work d-none m-2">
+            <div class="card-body">
+                <a class="course-work-title" href="#"></a>
+            </div>
+        </div>
+
     </d-none-elements>
 
     <footer>

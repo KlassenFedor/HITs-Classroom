@@ -114,5 +114,55 @@ namespace HITs_classroom.Controllers
                 }
             }
         }
+
+        /// <summary>
+        /// Receive grades for all course works.
+        /// </summary>
+        /// <remarks>
+        /// Sends a list of all course works.
+        /// </remarks>
+        /// <response code="400">Unable to get course works.</response>
+        /// <response code="401">Not authorized.</response>
+        /// <response code="404">Course was not found.</response>
+        /// <response code="500">Credential Not found.</response>
+        [HttpGet("courseWorks/{courseId}")]
+        public async Task<IActionResult> GetCourseWorks(string courseId)
+        {
+            try
+            {
+                var response = await _courseWorksService.GetCourseWorks(courseId);
+                return Ok(new JsonResult(response).Value);
+            }
+            catch (GoogleApiException e)
+            {
+                if (e.HttpStatusCode == HttpStatusCode.NotFound)
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'courseWorks/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(404, "Course not found.");
+                }
+                else
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'courseWorks/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(400, "Unable to get course grades.");
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is AggregateException)
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'courseWorks/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(500, "Credentials error.");
+                }
+                else
+                {
+                    _logger.LogInformation("An error was found when executing the request" +
+                        " 'courseWorks/{{courseId}}'. {error}", e.Message);
+                    return StatusCode(520, "Unknown error");
+                }
+            }
+        }
     }
 }

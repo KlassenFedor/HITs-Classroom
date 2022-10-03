@@ -2,6 +2,7 @@
 using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Enums;
 using HITs_classroom.Models.ClassrooomUser;
+using HITs_classroom.Models.CourseWork;
 using HITs_classroom.Models.Grade;
 
 namespace HITs_classroom.Services
@@ -11,6 +12,7 @@ namespace HITs_classroom.Services
         Task<List<GradeModel>> GetGradesForCourseWork(string courseId, string courseWorkId);
         Task SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users);
         Task<Dictionary<string, List<GradeModel>>> GetCourseGrades(string courseId);
+        Task<List<CourseWorkModel>> GetCourseWorks(string courseId);
     }
 
     public class CourseWorksService: ICourseWorksService
@@ -58,23 +60,6 @@ namespace HITs_classroom.Services
             return grades;
         }
 
-        private GradeModel CreateGradeModelFromStudentSubmission(StudentSubmission submission)
-        {
-            GradeModel gradeModel = new GradeModel();
-            gradeModel.CourseId = submission.CourseId;
-            gradeModel.CourseWorkId = submission.CourseWorkId;
-            gradeModel.StudentId = submission.UserId;
-            gradeModel.DraftGrade = submission.DraftGrade;
-            gradeModel.AssignedGrade = submission.AssignedGrade;
-            gradeModel.WorkName = "name";
-            UserInfoModel userInfoModel = GetUserInfo(submission.UserId);
-            if (userInfoModel != null)
-            {
-                gradeModel.StudentEmail = userInfoModel.Email;
-            }
-            return gradeModel;
-        }
-
         public async Task SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users)
         {
             ModifyCourseWorkAssigneesRequest courseWorkModification = new ModifyCourseWorkAssigneesRequest();
@@ -83,6 +68,48 @@ namespace HITs_classroom.Services
             var request = _service.Courses.CourseWork.ModifyAssignees(courseWorkModification, courseId, courseWorkId);
             var response = await request.ExecuteAsync();
         }
+
+        public async Task<List<CourseWorkModel>> GetCourseWorks(string courseId)
+        {
+            var response = await _service.Courses.CourseWork.List(courseId).ExecuteAsync();
+            var works = response.CourseWork;
+            List<CourseWorkModel> courseWorks = new List<CourseWorkModel>();
+            foreach (var work in works)
+            {
+                CourseWorkModel courseWork = new CourseWorkModel();
+                courseWork.CourseId = work.CourseId;
+                courseWork.Id = work.Id;
+                courseWork.Title = work.Title;
+                courseWorks.Add(courseWork);
+            }
+
+            return courseWorks;
+        }
+
+        //private CourseWorkModel CreateCourseWorkModel(CourseWork courseWork)
+        //{
+        //    var courseWorkModel = new CourseWorkModel();
+        //    courseWorkModel.CourseId = courseWork.CourseId;
+        //    courseWorkModel.Id = courseWork.Id;
+        //    courseWorkModel.
+        //}
+
+        private GradeModel CreateGradeModelFromStudentSubmission(StudentSubmission submission)
+        {
+            GradeModel gradeModel = new GradeModel();
+            gradeModel.CourseId = submission.CourseId;
+            gradeModel.CourseWorkId = submission.CourseWorkId;
+            gradeModel.StudentId = submission.UserId;
+            gradeModel.DraftGrade = submission.DraftGrade;
+            gradeModel.AssignedGrade = submission.AssignedGrade;
+            UserInfoModel userInfoModel = GetUserInfo(submission.UserId);
+            if (userInfoModel != null)
+            {
+                gradeModel.StudentEmail = userInfoModel.Email;
+            }
+            return gradeModel;
+        }
+
 
         private UserInfoModel GetUserInfo(string UserId)
         {
