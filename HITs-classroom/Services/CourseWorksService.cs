@@ -80,6 +80,11 @@ namespace HITs_classroom.Services
                 courseWork.CourseId = work.CourseId;
                 courseWork.Id = work.Id;
                 courseWork.Title = work.Title;
+                var submissions = await _service.Courses.CourseWork.StudentSubmissions
+                    .List(courseId, courseWork.Id).ExecuteAsync();
+                courseWork.WorksPassed = submissions.StudentSubmissions.Count();
+                courseWork.WorksEvaluted = submissions.StudentSubmissions
+                    .Where(s => s.DraftGrade != null || s.AssignedGrade != null).Count();
                 courseWorks.Add(courseWork);
             }
 

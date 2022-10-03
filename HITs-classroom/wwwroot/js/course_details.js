@@ -242,9 +242,8 @@ function showCourseWorks(works) {
     for (let i = 0; i < works.length; i++) {
         var courseWorkClone = document.querySelector('.course-work').cloneNode(true);
         courseWorkClone.querySelector('.course-work-title').innerHTML = works[i]['title'];
-        let courseWorkLink = courseWorkClone.querySelector('.course-work-title');
-        //courseWorkLink.setAttribute('href',
-        //    courseWorkLink.getAttribute('href') + works[i]['courseId'] + '/work/' + works[i]['id']);
+        courseWorkClone.querySelector('.works-passed').innerHTML = 'Works passed: ' + works[i]['worksPassed'];
+        courseWorkClone.querySelector('.works-evaluted').innerHTML = 'Works evaluted: ' + works[i]['worksEvaluted'];
         courseWorkClone.classList.remove('d-none');
         worksPlace.appendChild(courseWorkClone);
     }
