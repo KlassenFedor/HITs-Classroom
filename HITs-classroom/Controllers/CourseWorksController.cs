@@ -65,6 +65,16 @@ namespace HITs_classroom.Controllers
             }
         }
 
+        /// <summary>
+        /// Receive grades for all course works.
+        /// </summary>
+        /// <remarks>
+        /// Sends a list of all users' grades for all course works.
+        /// </remarks>
+        /// <response code="400">Unable to get course grades.</response>
+        /// <response code="401">Not authorized.</response>
+        /// <response code="404">Course was not found.</response>
+        /// <response code="500">Credential Not found.</response>
         [HttpGet("courseGrades/{courseId}")]
         public async Task<IActionResult> GetCourseGrades(string courseId)
         {
