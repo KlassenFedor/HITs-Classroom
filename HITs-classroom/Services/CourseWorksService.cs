@@ -2,6 +2,7 @@
 using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Enums;
 using HITs_classroom.Models.ClassrooomUser;
+using HITs_classroom.Models.CourseWork;
 using HITs_classroom.Models.Grade;
 
 namespace HITs_classroom.Services
@@ -10,6 +11,8 @@ namespace HITs_classroom.Services
     {
         Task<List<GradeModel>> GetGradesForCourseWork(string courseId, string courseWorkId);
         Task SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users);
+        Task<Dictionary<string, List<GradeModel>>> GetCourseGrades(string courseId);
+        Task<List<CourseWorkModel>> GetCourseWorks(string courseId);
     }
 
     public class CourseWorksService: ICourseWorksService
@@ -39,25 +42,22 @@ namespace HITs_classroom.Services
             List<GradeModel> grades = new List<GradeModel>();
             foreach (var submission in submissions)
             {
-                GradeModel gradeModel = new GradeModel();
-                gradeModel.CourseId = courseId;
-                gradeModel.CourseWorkId = courseWorkId;
-                gradeModel.StudentId = submission.UserId;
-                gradeModel.Grade = submission.AssignedGrade;
-                gradeModel.WorkName = "name";
-                UserInfoModel userInfoModel = GetUserInfo(submission.UserId);
-                if (userInfoModel != null)
-                {
-                    gradeModel.StudentEmail = userInfoModel.Email;
-                }
+                GradeModel gradeModel = CreateGradeModelFromStudentSubmission(submission);
+                grades.Add(gradeModel);
             }
 
             return grades;
         }
 
-        public async Task<List<List<GradeModel>>> GedCourseGrades(string courseId, string relatedUser)
+        public async Task<Dictionary<string, List<GradeModel>>> GetCourseGrades(string courseId)
         {
-            return null;
+            var courseWorks = await _service.Courses.CourseWork.List(courseId).ExecuteAsync();
+            Dictionary<string, List<GradeModel>> grades = new Dictionary<string, List<GradeModel>>();
+            foreach (CourseWork courseWork in courseWorks.CourseWork)
+            {
+                grades.Add(courseWork.Title, await GetGradesForCourseWork(courseId, courseWork.Id));
+            }
+            return grades;
         }
 
         public async Task SetAdmittedStudentsForCourseWork(string courseId, string courseWorkId, List<string>? users)
@@ -68,6 +68,53 @@ namespace HITs_classroom.Services
             var request = _service.Courses.CourseWork.ModifyAssignees(courseWorkModification, courseId, courseWorkId);
             var response = await request.ExecuteAsync();
         }
+
+        public async Task<List<CourseWorkModel>> GetCourseWorks(string courseId)
+        {
+            var response = await _service.Courses.CourseWork.List(courseId).ExecuteAsync();
+            var works = response.CourseWork;
+            List<CourseWorkModel> courseWorks = new List<CourseWorkModel>();
+            foreach (var work in works)
+            {
+                CourseWorkModel courseWork = new CourseWorkModel();
+                courseWork.CourseId = work.CourseId;
+                courseWork.Id = work.Id;
+                courseWork.Title = work.Title;
+                var submissions = await _service.Courses.CourseWork.StudentSubmissions
+                    .List(courseId, courseWork.Id).ExecuteAsync();
+                courseWork.WorksPassed = submissions.StudentSubmissions.Count();
+                courseWork.WorksEvaluted = submissions.StudentSubmissions
+                    .Where(s => s.DraftGrade != null || s.AssignedGrade != null).Count();
+                courseWorks.Add(courseWork);
+            }
+
+            return courseWorks;
+        }
+
+        //private CourseWorkModel CreateCourseWorkModel(CourseWork courseWork)
+        //{
+        //    var courseWorkModel = new CourseWorkModel();
+        //    courseWorkModel.CourseId = courseWork.CourseId;
+        //    courseWorkModel.Id = courseWork.Id;
+        //    courseWorkModel.
+        //}
+
+        private GradeModel CreateGradeModelFromStudentSubmission(StudentSubmission submission)
+        {
+            GradeModel gradeModel = new GradeModel();
+            gradeModel.CourseId = submission.CourseId;
+            gradeModel.CourseWorkId = submission.CourseWorkId;
+            gradeModel.StudentId = submission.UserId;
+            gradeModel.DraftGrade = submission.DraftGrade;
+            gradeModel.AssignedGrade = submission.AssignedGrade;
+            UserInfoModel userInfoModel = GetUserInfo(submission.UserId);
+            if (userInfoModel != null)
+            {
+                gradeModel.StudentEmail = userInfoModel.Email;
+            }
+            return gradeModel;
+        }
+
 
         private UserInfoModel GetUserInfo(string UserId)
         {

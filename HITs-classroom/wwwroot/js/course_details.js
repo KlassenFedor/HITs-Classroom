@@ -1,19 +1,23 @@
 const path = 'https://localhost:7284/';
 
 window.addEventListener('load', function () {
-    const updateButton = this.document.querySelector('#invitations-update-btn')
+    document.querySelector('#invitations-update-btn')
         .addEventListener('click', getCourseInvitations);
-    const createButton = this.document.querySelector('#createInvitationBtn')
+    document.querySelector('#createInvitationBtn')
         .addEventListener('click', createInvitation);
-    const getMembersButton = this.document.querySelector('#members-get-btn')
+    document.querySelector('#members-get-btn')
         .addEventListener('click', getMembers);
-    const updateCourseTeachersButton = this.document.querySelector('#course-update-teachers-button')
+    document.querySelector('#course-update-teachers-button')
         .addEventListener('click', updateTeachersInvitations);
+    document.querySelector('#get-grades-btn')
+        .addEventListener('click', getGrades);
+    document.querySelector('#get-course-works-btn')
+        .addEventListener('click', getCourseWorks);
 
-    //getCourseInvitations();
     setCourseInfo();
     getMembers();
     getCourseInvitations();
+    getCourseWorks();
 });
 
 
@@ -209,6 +213,39 @@ function showStudents(json) {
         studentRow.classList.remove('d-none');
         studentRow.id = json[i]['email'];
         studentsPlace.appendChild(studentRow);
+    }
+}
+
+//--------Course works and grades----------
+
+function getGrades() {
+    console.log('getGrades');
+    getRequest(
+        path + 'api/CourseWorks/courseGrades/' + window.location.href.split('?')[1].split('=')[1]
+    )
+        .then(response => console.log(response))
+        .catch(error => { console.error(error), alert('Unable to get grades') })
+}
+
+function getCourseWorks() {
+    console.log('getCourseWorks');
+    getRequest(
+        path + 'api/CourseWorks/courseWorks/' + window.location.href.split('?')[1].split('=')[1]
+    )
+        .then(response => showCourseWorks(response))
+        .catch(error => { console.error(error), alert('Unable to get course works') })
+}
+
+function showCourseWorks(works) {
+    var worksPlace = document.querySelector('#course-works-place');
+    worksPlace.innerHTML = '';
+    for (let i = 0; i < works.length; i++) {
+        var courseWorkClone = document.querySelector('.course-work').cloneNode(true);
+        courseWorkClone.querySelector('.course-work-title').innerHTML = works[i]['title'];
+        courseWorkClone.querySelector('.works-passed').innerHTML = 'Works passed: ' + works[i]['worksPassed'];
+        courseWorkClone.querySelector('.works-evaluted').innerHTML = 'Works evaluted: ' + works[i]['worksEvaluted'];
+        courseWorkClone.classList.remove('d-none');
+        worksPlace.appendChild(courseWorkClone);
     }
 }
 

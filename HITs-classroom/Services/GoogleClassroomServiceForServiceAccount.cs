@@ -13,7 +13,9 @@ namespace HITs_classroom.Services
                 string[] scopes = {
                 ClassroomService.Scope.ClassroomCourses,
                 ClassroomService.Scope.ClassroomRosters,
-                ClassroomService.Scope.ClassroomProfileEmails
+                ClassroomService.Scope.ClassroomProfileEmails,
+                ClassroomService.Scope.ClassroomCourseworkMe,
+                ClassroomService.Scope.ClassroomCourseworkStudents
             };
 
                 GoogleCredential credential = GoogleCredential

@@ -55,7 +55,7 @@
                             </div>
                             <div class="collapse m-2" id="newCourse">
                                 <div class="card card-body">
-                                    <form action="https://localhost:7284/api/Courses/CreateCourse" method="post" id="createCourseForm">
+                                    <form id="createCourseForm">
                                         <div class="row">
                                             <div class="mb-3 col">
                                                 <label for="courseName_Creating" class="form-label">Course name</label>
@@ -117,7 +117,6 @@
                                             <option value="ACTIVE">ACTIVE</option>
                                             <option value="ARCHIVED">ARCHIVED</option>
                                             <option value="PROVISIONED">PROVISIONED</option>
-                                            <option value="DECLINED">DECLINED</option>
                                         </select>
                                     </div>
                                     <button type="button" class="btn btn-primary" id="searchCourseSubmitButton">Submit</button>
