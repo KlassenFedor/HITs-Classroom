@@ -2,6 +2,7 @@
 using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Models.Course;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using static Google.Apis.Classroom.v1.CoursesResource.ListRequest;
 
 namespace HITs_classroom.Services
@@ -168,6 +169,7 @@ namespace HITs_classroom.Services
 
         public async Task<CourseInfoModel> CreateCourse(CourseShortModel parameters)
         {
+            string ownerId = parameters.OwnerId != null ? parameters.OwnerId : "me";
             var newCourse = new Course
             {
                 Name = parameters.Name,
@@ -175,11 +177,11 @@ namespace HITs_classroom.Services
                 DescriptionHeading = parameters.DescriptionHeading,
                 Description = parameters.Description,
                 Room = parameters.Room,
-                OwnerId = parameters.OwnerId,
+                OwnerId = ownerId,
                 CourseState = parameters.CourseState
             };
 
-            newCourse = _service.Courses.Create(newCourse).Execute();
+            newCourse = await _service.Courses.Create(newCourse).ExecuteAsync();
             CourseDbModel courseDb = new CourseDbModel
             {
                 Id = newCourse.Id,
@@ -189,14 +191,17 @@ namespace HITs_classroom.Services
                 DescriptionHeading = newCourse.DescriptionHeading,
                 Room = newCourse.Room,
                 EnrollmentCode = newCourse.EnrollmentCode,
-                CourseState = (int)Enum.Parse<CourseStatesEnum>(newCourse.CourseState),
+                CourseState = (int)Enum.Parse<CourseStatesEnum>("ACTIVE"),
                 HasAllTeachers = true
             };
-            
+
             await _context.Courses.AddAsync(courseDb);
             await _context.SaveChangesAsync();
 
+            await UpdateCourse(newCourse.Id, new CoursePatching { CourseState = "ACTIVE"});
+
             return CreateCourseInfoModelFromCourseDbModel(courseDb);
+
         }
 
         public async Task DeleteCourse(string courseId)
@@ -259,7 +264,7 @@ namespace HITs_classroom.Services
             if (parameters.DescriptionHeading != null) course.DescriptionHeading = parameters.DescriptionHeading;
             if (parameters.CourseState != null) course.CourseState = parameters.CourseState;
 
-            course = _service.Courses.Update(course, courseId).Execute();
+            course = await _service.Courses.Update(course, courseId).ExecuteAsync();
 
             CourseDbModel? courseDb = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
             if (courseDb != null)

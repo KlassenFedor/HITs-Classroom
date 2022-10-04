@@ -1,6 +1,7 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Classroom.v1;
 using Google.Apis.Services;
+using System.Diagnostics;
 
 namespace HITs_classroom.Services
 {
@@ -11,16 +12,21 @@ namespace HITs_classroom.Services
             try
             {
                 string[] scopes = {
-                ClassroomService.Scope.ClassroomCourses,
-                ClassroomService.Scope.ClassroomRosters,
-                ClassroomService.Scope.ClassroomProfileEmails,
-                ClassroomService.Scope.ClassroomCourseworkMe,
-                ClassroomService.Scope.ClassroomCourseworkStudents
-            };
+                    ClassroomService.Scope.ClassroomCourses,
+                    ClassroomService.Scope.ClassroomRosters,
+                    ClassroomService.Scope.ClassroomProfileEmails,
+                    ClassroomService.Scope.ClassroomCourseworkMe,
+                    ClassroomService.Scope.ClassroomCourseworkStudents
+                };
+
+                var MyConfig = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+                var user = MyConfig.GetValue<string>("UserEmail");
+                var key = MyConfig.GetValue<string>("ServiceAccountKeyPath");
 
                 GoogleCredential credential = GoogleCredential
-                    .FromStream(new FileStream("Keys/hits-classroom-1661148456378-4f7735c17e75.json", FileMode.Open, FileAccess.Read))
-                    .CreateScoped(scopes);
+                    .FromStream(new FileStream(key, FileMode.Open, FileAccess.Read))
+                    .CreateScoped(scopes)
+                    .CreateWithUser(user);
 
                 ClassroomService classroomService = new ClassroomService(new BaseClientService.Initializer
                 {
@@ -30,8 +36,9 @@ namespace HITs_classroom.Services
 
                 return classroomService;
             }
-            catch
+            catch (Exception e)
             {
+                Debug.WriteLine(e.Message);
                 throw new AggregateException();
             }
         }

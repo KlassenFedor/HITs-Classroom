@@ -74,6 +74,10 @@ namespace HITs_classroom.Services
             var response = await _service.Courses.CourseWork.List(courseId).ExecuteAsync();
             var works = response.CourseWork;
             List<CourseWorkModel> courseWorks = new List<CourseWorkModel>();
+            if (works == null)
+            {
+                return courseWorks;
+            }
             foreach (var work in works)
             {
                 CourseWorkModel courseWork = new CourseWorkModel();
