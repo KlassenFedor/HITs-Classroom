@@ -18,7 +18,7 @@ namespace HITs_classroom.Jobs
             var serviceProvider = new ServiceCollection()
                 .AddScoped<ICoursesService, CoursesService>()
                 .AddScoped<GoogleClassroomServiceForServiceAccount>()
-                .AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection))
+                .AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connection))
                 .BuildServiceProvider();
 
             var schedulerContext = context.Scheduler.Context;

@@ -9,8 +9,8 @@ namespace HITs_classroom.Models.Invitation
         public string CourseId { get; set; }
         public int Role { get; set; }
         public bool IsAccepted { get; set; }
-        public DateTime CreationTime { get; set; }
-        public DateTime UpdateTime { get; set; }
+        public DateTimeOffset CreationTime { get; set; }
+        public DateTimeOffset UpdateTime { get; set; }
         public CourseDbModel Course { get; set; }
     }
 }

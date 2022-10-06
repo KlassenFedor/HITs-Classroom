@@ -7,6 +7,6 @@
         public string CourseId { get; set; }
         public string Role { get; set; }
         public bool IsAccepted { get; set; }
-        public DateTime UpdateTime { get; set; }
+        public DateTimeOffset UpdateTime { get; set; }
     }
 }
