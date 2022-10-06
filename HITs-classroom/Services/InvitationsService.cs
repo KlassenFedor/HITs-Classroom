@@ -19,6 +19,10 @@ namespace HITs_classroom.Services
         Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId);
         Task ResendInvitation(string invitationId);
         Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId);
+
+
+        Task UpdateCourseInvitationsNV(string courseId);
+        Task<bool> CheckIfAllTeachersAcceptedInvitationsNV(string courseId);
     }
 
     public class InvitationsService: IInvitationsService
@@ -176,7 +180,6 @@ namespace HITs_classroom.Services
 
         public async Task UpdateCourseInvitationsNV(string courseId)
         {
-            await UpdateCourseInvitationsNV(courseId);
             List<Invitation> invitations = new List<Invitation>();
             string pageToken = null;
             do
@@ -211,7 +214,6 @@ namespace HITs_classroom.Services
             List<Invitation> invitations = new List<Invitation>();
             var request = _service.Invitations.List();
             request.CourseId = courseId;
-            request.PageSize = 1;
             var response = await request.ExecuteAsync();
 
             if (response.Invitations != null)
@@ -219,7 +221,7 @@ namespace HITs_classroom.Services
                 invitations.AddRange(response.Invitations);
             }
 
-            return invitations.Count() > 0;
+            return !(invitations.Count() > 0);
         }
 
         public async Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId)

@@ -179,7 +179,7 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                await _invitationsService.UpdateCourseInvitations(courseId);
+                await _invitationsService.UpdateCourseInvitationsNV(courseId);
                 return Ok();
             }
             catch (GoogleApiException e)
@@ -389,7 +389,7 @@ namespace HITs_classroom.Controllers
         {
             try
             {
-                var response = await _invitationsService.CheckIfAllTeachersAcceptedInvitations(courseId);
+                var response = await _invitationsService.CheckIfAllTeachersAcceptedInvitationsNV(courseId);
                 return new JsonResult(response);
             }
             catch (Exception e)
