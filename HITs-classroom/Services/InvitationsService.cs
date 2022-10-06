@@ -172,7 +172,57 @@ namespace HITs_classroom.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId) 
+        //updates invitations for course
+
+        public async Task UpdateCourseInvitationsNV(string courseId)
+        {
+            await UpdateCourseInvitationsNV(courseId);
+            List<Invitation> invitations = new List<Invitation>();
+            string pageToken = null;
+            do
+            {
+                var request = _service.Invitations.List();
+                request.CourseId = courseId;
+                request.PageSize = 100;
+                request.PageToken = pageToken;
+                var response = await request.ExecuteAsync();
+
+                if (response.Invitations != null)
+                {
+                    invitations.AddRange(response.Invitations);
+                }
+                pageToken = response.NextPageToken;
+            } while (pageToken != null);
+
+            var dbInvitations = await _context.Invitations
+                        .Where(i => !invitations.Select(i => i.Id).Contains(i.Id) && i.CourseId == courseId).ToListAsync();
+            foreach (var dbInvitation in dbInvitations)
+            {
+                dbInvitation.IsAccepted = true;
+                dbInvitation.UpdateTime = DateTimeOffset.Now.ToUniversalTime();
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        //check if invitations exists in google classroom
+        public async Task<bool> CheckIfAllTeachersAcceptedInvitationsNV(string courseId)
+        {
+            await UpdateCourseInvitationsNV(courseId);
+            List<Invitation> invitations = new List<Invitation>();
+            var request = _service.Invitations.List();
+            request.CourseId = courseId;
+            request.PageSize = 1;
+            var response = await request.ExecuteAsync();
+
+            if (response.Invitations != null)
+            {
+                invitations.AddRange(response.Invitations);
+            }
+
+            return invitations.Count() > 0;
+        }
+
+        public async Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId)
         {
             try
             {
