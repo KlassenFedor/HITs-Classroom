@@ -123,12 +123,12 @@ function showCourseStatus(response) {
     const statusPlace = document.querySelector('#course-has-all-teachers');
     if (response) {
         statusPlace.innerHTML = 'All teachers accepted invitations';
-        studentsPlace.classList.remove('text-danger');
+        statusPlace.classList.remove('text-danger');
         statusPlace.classList.add('text-success');
     }
     else {
         statusPlace.innerHTML = 'Not all teachers accepted invitations';
-        studentsPlace.classList.remove('text-success');
+        statusPlace.classList.remove('text-success');
         statusPlace.classList.add('text-danger');
     }
 }
