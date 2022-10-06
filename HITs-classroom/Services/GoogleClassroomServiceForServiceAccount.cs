@@ -25,8 +25,8 @@ namespace HITs_classroom.Services
 
                 GoogleCredential credential = GoogleCredential
                     .FromStream(new FileStream(key, FileMode.Open, FileAccess.Read))
-                    .CreateScoped(scopes)
-                    .CreateWithUser(user);
+                    .CreateScoped(scopes);
+                    //.CreateWithUser(user);
 
                 ClassroomService classroomService = new ClassroomService(new BaseClientService.Initializer
                 {

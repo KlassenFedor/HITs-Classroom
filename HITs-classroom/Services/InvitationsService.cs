@@ -47,8 +47,8 @@ namespace HITs_classroom.Services
             invitationDbModel.CourseId = parameters.CourseId;
             invitationDbModel.Email = parameters.Email;
             invitationDbModel.Role = parameters.Role;
-            invitationDbModel.CreationTime = DateTime.Now;
-            invitationDbModel.UpdateTime = DateTime.Now;
+            invitationDbModel.CreationTime = DateTimeOffset.Now.ToUniversalTime();
+            invitationDbModel.UpdateTime = DateTimeOffset.Now.ToUniversalTime();
             await _context.Invitations.AddAsync(invitationDbModel);
             await _context.SaveChangesAsync();
 
@@ -165,7 +165,7 @@ namespace HITs_classroom.Services
                 {
                     invitation.IsAccepted = true;
                 }
-                invitation.UpdateTime = DateTime.Now;
+                invitation.UpdateTime = DateTimeOffset.Now.ToUniversalTime();
                 _context.Entry(invitation).State = EntityState.Modified;
             }
 

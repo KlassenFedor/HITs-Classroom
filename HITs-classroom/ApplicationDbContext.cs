@@ -9,8 +9,7 @@ namespace HITs_classroom
         public DbSet<InvitationDbModel> Invitations { get; set; }
         public DbSet<CourseDbModel> Courses { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
         {
         }
 
