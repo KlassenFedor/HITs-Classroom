@@ -52,65 +52,6 @@ namespace HITs_classroom.Controllers
         }
 
         /// <summary>
-        /// Returns a list of courses from Google Classroom corresponding to the specified parameters.
-        /// </summary>
-        /// <remarks>
-        /// Query parameters:
-        /// 
-        /// studentId - restricts returned courses to those having a student with the specified identifier.
-        /// 
-        /// teacherId - restricts returned courses to those having a teacher with the specified identifier.
-        /// (the numeric identifier for the user, the email address of the user, the string literal "me", indicating the requesting user).
-        /// 
-        /// courseState - restricts returned courses to those in one of the specified states.
-        /// The default value is ACTIVE, ARCHIVED, PROVISIONED, DECLINED.
-        /// </remarks>
-        /// <response code="400">Invalid input data.</response>
-        /// <response code="401">Not authorized.</response>
-        /// <response code="404">No courses found.</response>
-        /// <response code="500">Credentials error.</response>
-        //[Authorize]
-        [HttpGet("listFromGC")]
-        public async Task<IActionResult> GetCoursesListFromGoogleClassroom(
-            [FromQuery] string? studentId,
-            [FromQuery] string? teacherId,
-            [FromQuery] string? courseState
-            )
-        {
-            if (!ModelState.IsValid)
-            {
-                return StatusCode(400, "Invalid input data.");
-            }
-            try
-            {
-                var searchParameters = new CourseSearch();
-                searchParameters.StudentId = studentId;
-                searchParameters.TeacherId = teacherId;
-                searchParameters.CourseState = courseState;
-                var response = await _coursesService.GetCoursesListFromGoogleClassroom(searchParameters);
-                return new JsonResult(response);
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", e.Message);
-                    return StatusCode(404, "No courses found.");
-                }
-                else if (e is AggregateException)
-                {
-                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", e.Message);
-                    return StatusCode(500, "Credentials error.");
-                }
-                else
-                {
-                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", e.Message);
-                    return StatusCode(520, "Unknown error.");
-                }
-            }
-        }
-
-        /// <summary>
         /// Returns a list of courses from database corresponding to the specified parameters.
         /// </summary>
         /// <remarks>
