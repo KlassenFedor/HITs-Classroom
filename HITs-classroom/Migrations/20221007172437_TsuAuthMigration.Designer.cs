@@ -3,6 +3,7 @@ using System;
 using HITs_classroom;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HITs_classroom.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221007172437_TsuAuthMigration")]
+    partial class TsuAuthMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,6 +89,25 @@ namespace HITs_classroom.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("Invitations");
+                });
+
+            modelBuilder.Entity("HITs_classroom.Models.Token.Token", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "LoginProvider");
+
+                    b.ToTable("Tokens", (string)null);
                 });
 
             modelBuilder.Entity("HITs_classroom.Models.TsuAccount.TsuAccountUser", b =>
@@ -285,7 +306,7 @@ namespace HITs_classroom.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("Tokens", (string)null);
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("HITs_classroom.Models.Invitation.InvitationDbModel", b =>
