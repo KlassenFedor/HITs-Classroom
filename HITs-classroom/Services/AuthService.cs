@@ -10,8 +10,8 @@ namespace HITs_classroom.Services
 {
     public interface IAuthService
     {
-        Task Register(string email);
-        Task Login(string token);
+        Task Register(string accountId, string accessToken);
+        Task Login(string accountId, string accessToken);
         Task Logout();
     }
     public class AuthService : IAuthService
@@ -26,30 +26,23 @@ namespace HITs_classroom.Services
             _signInManager = signInManager;
         }
 
-        public async Task Login(string token)
+        public async Task Login(string accountId, string accessToken)
         {
-            string userEmail = "";
-            var user = await _userManager.FindByNameAsync(userEmail);
+            var user = await _userManager.FindByIdAsync(accountId);
 
             if (user == null)
             {
-                await Register(userEmail);
-                user = await _userManager.FindByNameAsync(userEmail);
+                await Register(accountId, accessToken);
+                user = await _userManager.FindByIdAsync(accountId);
             }
-
-            var claims = new List<Claim>
-            {
-                new (ClaimTypes.Email, userEmail)
-            };
 
             var authProperties = new AuthenticationProperties
             {
-                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(2),
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(1),
                 IsPersistent = true
             };
 
-            await _signInManager.SignInWithClaimsAsync(user, authProperties, claims);
-
+            await _signInManager.SignInAsync(user, authProperties);
         }
 
         public async Task Logout()
@@ -57,37 +50,21 @@ namespace HITs_classroom.Services
             await _signInManager.SignOutAsync();
         }
 
-        public async Task Register(string email)
+        public async Task Register(string accountId, string accessToken)
         {
-            var classroomAdmin = new TsuAccountUser();
-            var result = await _userManager.CreateAsync(classroomAdmin);
-            //await _userManager.SetAuthenticationTokenAsync
-            if (result.Succeeded)
-            {
-                await _signInManager.SignInAsync(classroomAdmin, false);
+            var tsuUser = new TsuAccountUser();
+            tsuUser.TsuAccountId = accountId;
+            var userResult = await _userManager.CreateAsync(tsuUser);
+            var tokenResult = await _userManager.SetAuthenticationTokenAsync(tsuUser, "TSU.Account", "AccessToken", accessToken);
 
-                string[] Scopes = {
-                    ClassroomService.Scope.ClassroomCourses,
-                    ClassroomService.Scope.ClassroomRosters,
-                    ClassroomService.Scope.ClassroomProfileEmails
-                };
-                UserCredential credential;
-                using (var stream =
-                        new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
-                {
-                    string credPath = "token.json";
-                    credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                        GoogleClientSecrets.FromStream(stream).Secrets,
-                        Scopes,
-                        email,
-                        CancellationToken.None,
-                        new FileDataStore(credPath, true)).Result;
-                }
+            if (userResult.Succeeded && tokenResult.Succeeded)
+            {
+                await _signInManager.SignInAsync(tsuUser, false);
 
                 return;
             }
 
-            var errors = string.Join(", ", result.Errors.Select(x => x.Description));
+            var errors = string.Join(", ", userResult.Errors.Select(x => x.Description), tokenResult.Errors.Select(x => x.Description));
             throw new ArgumentException(errors);
         }
     }

@@ -1,5 +1,4 @@
-﻿using HITs_classroom.Models.Token;
-using HITs_classroom.Services;
+﻿using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,21 +19,30 @@ namespace HITs_classroom.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] string token)
         {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogInformation("An model error was found when executing the request 'login'.");
-                return StatusCode(400, "Invalid input data.");
-            }
             try
             {
-                await _authService.Login(token);
-                _logger.LogInformation("Successfully logged in.");
+                HttpClient client = new HttpClient();
+                var values = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "applicationId", "" },
+                    { "secretKey", "" }
+                };
+
+                var content = new FormUrlEncodedContent(values);
+                var response = await client.PostAsync("https://accounts.tsu.ru/api/Account/", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                string accountId = "";
+                string accessToken = "";
+                await _authService.Login(accountId, accessToken);
+
                 return Ok();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogInformation("An error was found when executing the request 'login'. {error}", e.Message);
-                return StatusCode(520, "Unknown error.");
+                _logger.LogError(ex.Message);
+                return BadRequest();
             }
         }
 

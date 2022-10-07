@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\Token\" />
     <Folder Include="token.json\" />
   </ItemGroup>
 
