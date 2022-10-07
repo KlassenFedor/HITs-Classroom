@@ -1,6 +1,5 @@
 ﻿using HITs_classroom.Models.Course;
 using HITs_classroom.Models.Invitation;
-using HITs_classroom.Models.Token;
 using HITs_classroom.Models.TsuAccount;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
