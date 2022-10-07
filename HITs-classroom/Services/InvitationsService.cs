@@ -14,15 +14,11 @@ namespace HITs_classroom.Services
         Task DeleteInvitation(string id);
         Task<InvitationInfoModel> GetInvitation(string id);
         Task<string> CheckInvitationStatus(string id);
-        Task UpdateCourseInvitations(string? courseId);
+        Task UpdateCourseInvitations(string courseId);
         Task UpdateAllInvitations();
         Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId);
         Task ResendInvitation(string invitationId);
         Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId);
-
-
-        Task UpdateCourseInvitationsNV(string courseId);
-        Task<bool> CheckIfAllTeachersAcceptedInvitationsNV(string courseId);
     }
 
     public class InvitationsService: IInvitationsService
@@ -146,40 +142,6 @@ namespace HITs_classroom.Services
 
         public async Task UpdateCourseInvitations(string courseId)
         {
-            var invitations = await _context.Invitations.Where(i => i.CourseId == courseId && !i.IsAccepted).ToListAsync();
-            List<string> users = new List<string>();
-            string pageToken = null;
-            do
-            {
-                var request = _service.Courses.Teachers.List(courseId);
-                request.PageSize = 100;
-                request.PageToken = pageToken;
-                var response = await request.ExecuteAsync();
-                
-                if (response.Teachers != null)
-                {
-                    users.AddRange(response.Teachers.Select(s => s.Profile.EmailAddress));
-                }
-                pageToken = response.NextPageToken;
-            } while (pageToken != null);
-
-            foreach (var invitation in invitations)
-            {
-                if (users.Contains(invitation.Email))
-                {
-                    invitation.IsAccepted = true;
-                }
-                invitation.UpdateTime = DateTimeOffset.Now.ToUniversalTime();
-                _context.Entry(invitation).State = EntityState.Modified;
-            }
-
-            await _context.SaveChangesAsync();
-        }
-
-        //updates invitations for course
-
-        public async Task UpdateCourseInvitationsNV(string courseId)
-        {
             List<Invitation> invitations = new List<Invitation>();
             string pageToken = null;
             do
@@ -198,64 +160,32 @@ namespace HITs_classroom.Services
             } while (pageToken != null);
 
             var dbInvitations = await _context.Invitations
-                        .Where(i => !invitations.Select(i => i.Id).Contains(i.Id) && i.CourseId == courseId).ToListAsync();
+                        .Where(i => i.CourseId == courseId).ToListAsync();
+            List<string> invitationsIds = invitations.Select(i => i.Id).ToList();
             foreach (var dbInvitation in dbInvitations)
             {
-                dbInvitation.IsAccepted = true;
+                if (!invitationsIds.Contains(dbInvitation.Id))
+                {
+                    dbInvitation.IsAccepted = true;
+                }
                 dbInvitation.UpdateTime = DateTimeOffset.Now.ToUniversalTime();
             }
             await _context.SaveChangesAsync();
         }
 
-        //check if invitations exists in google classroom
-        public async Task<bool> CheckIfAllTeachersAcceptedInvitationsNV(string courseId)
+        public async Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId)
         {
-            await UpdateCourseInvitationsNV(courseId);
-            List<Invitation> invitations = new List<Invitation>();
+            await UpdateCourseInvitations(courseId);
             var request = _service.Invitations.List();
             request.CourseId = courseId;
             var response = await request.ExecuteAsync();
 
             if (response.Invitations != null)
             {
-                invitations.AddRange(response.Invitations);
+                return response.Invitations.Where(i => i.Role == CourseRolesEnum.TEACHER.ToString()).Count() == 0;
             }
 
-            return !(invitations.Count() > 0);
-        }
-
-        public async Task<bool> CheckIfAllTeachersAcceptedInvitations(string courseId)
-        {
-            try
-            {
-                await UpdateCourseInvitations(courseId);
-            }
-            catch
-            {
-                throw;
-            }
-            InvitationDbModel? invitation = await _context.Invitations.Where(i => i.CourseId == courseId &&
-                i.Role == (int)CourseRolesEnum.TEACHER && !i.IsAccepted).FirstOrDefaultAsync();
-
-            CourseDbModel? course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
-            if (course != null)
-            {
-                if (invitation == null)
-                {
-                    course.HasAllTeachers = true;
-                }
-                else
-                {
-                    course.HasAllTeachers = false;
-                }
-                _context.Entry(course).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-                return course.HasAllTeachers;
-            }
-            else
-            {
-                throw new NullReferenceException();
-            }
+            return true;
         }
 
         public async Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId)
