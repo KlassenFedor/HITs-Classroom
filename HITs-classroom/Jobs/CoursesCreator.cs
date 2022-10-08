@@ -25,7 +25,10 @@ namespace HITs_classroom.Jobs
             var coursesService = serviceProvider.GetRequiredService<ICoursesService>();
 
             var courses = (List<CourseShortModel>)schedulerContext.Get("courses");
-            coursesService.CreateCoursesList(courses);
+            foreach (var course in courses)
+            {
+                await coursesService.CreateCourse(course);
+            }
         }
     }
 }

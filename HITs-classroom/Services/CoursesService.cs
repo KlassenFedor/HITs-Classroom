@@ -1,10 +1,11 @@
 ﻿using Google.Apis.Classroom.v1;
 using Google.Apis.Classroom.v1.Data;
+using HITs_classroom.Jobs;
 using HITs_classroom.Models.Course;
+using HITs_classroom.Models.CoursesList;
+using HITs_classroom.Models.Task;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using static Google.Apis.Classroom.v1.CoursesResource.ListRequest;
-using static System.Collections.Specialized.BitVector32;
 
 namespace HITs_classroom.Services
 {
@@ -22,7 +23,7 @@ namespace HITs_classroom.Services
         Task<CourseInfoModel> PatchCourse(string courseId, CoursePatching parameters);
         Task<CourseInfoModel> UpdateCourse(string courseId, CoursePatching parameters);
         Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom();
-        void CreateCoursesList(List<CourseShortModel> courses);
+        Task<int> CreateCoursesList(List<CourseShortModel> courses);
     }
 
     public class CoursesService: ICoursesService
@@ -361,12 +362,34 @@ namespace HITs_classroom.Services
             return response;
         }
 
-        public async void CreateCoursesList(List<CourseShortModel> courses)
+        public async Task<int> CreateCoursesList(List<CourseShortModel> courses)
         {
+            AssignedTask task = new AssignedTask
+            {
+                CreationTime = DateTimeOffset.Now.ToUniversalTime(),
+                IsCoompleted = false                
+            };
+            await _context.Tasks.AddAsync(task);
+
             foreach (var course in courses)
             {
-                await CreateCourse(course);
+                CoursePreCreatingModel newCourse = new CoursePreCreatingModel 
+                { 
+                    Name = course.Name,
+                    Section = course.Section,
+                    Description = course.Description,
+                    DescriptionHeading = course.DescriptionHeading,
+                    Room = course.Room,
+                    Task = task
+                };
+                await _context.PreCreatedCourses.AddAsync(newCourse);
             }
+
+            await _context.SaveChangesAsync();
+
+            //CoursesScheduler.Start(task.Id);
+
+            return task.Id;
         }
 
         private async Task<CourseInfoModel> UpdateCourseInDb(string courseId, Course course)

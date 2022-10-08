@@ -464,16 +464,24 @@ namespace HITs_classroom.Controllers
             }
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost("createList")]
-        public IActionResult CreateCoursesList([FromBody] List<CourseShortModel> courses)
+        public async Task<IActionResult> CreateCoursesList([FromBody] List<CourseShortModel> courses)
         {
             if (!ModelState.IsValid)
             {
                 return StatusCode(400, "Invalid input data.");
             }
-            CoursesScheduler.Start(courses);
-            return Ok();
+            try
+            {
+                var task = await _coursesService.CreateCoursesList(courses);
+                return Ok(new JsonResult(task).Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogInformation("An error was found when executing the request 'createList'. {error}", e.Message);
+                return StatusCode(520, "Unknown error.");
+            }
         }
     }
 }
