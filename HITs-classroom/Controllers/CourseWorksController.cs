@@ -20,7 +20,7 @@ namespace HITs_classroom.Controllers
             _logger = logger;
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("acces/course/{courseId}/courseWork/{courseWorkId}")]
         public IActionResult SetAdmittedStudentsToCourseWork(string courseId, string courseWorkId, [FromBody] List<string>? users)
         {
@@ -77,6 +77,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpGet("courseGrades/{courseId}")]
         public async Task<IActionResult> GetCourseGrades(string courseId)
         {
@@ -127,6 +128,7 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
+        [Authorize]
         [HttpGet("courseWorks/{courseId}")]
         public async Task<IActionResult> GetCourseWorks(string courseId)
         {

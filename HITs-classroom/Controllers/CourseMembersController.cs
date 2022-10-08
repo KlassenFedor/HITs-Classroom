@@ -1,5 +1,6 @@
 ﻿using Google;
 using HITs_classroom.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HITs_classroom.Controllers
@@ -26,7 +27,7 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to get students.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credentials error.</response>
-        //[Authorize]
+        [Authorize]
         [HttpGet("students/list/{courseId}")]
         public async Task<IActionResult> GetStudentsList(string courseId)
         {
@@ -77,7 +78,7 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to get teachers.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credentials error.</response>
-        //[Authorize]
+        [Authorize]
         [HttpGet("teachers/list/{courseId}")]
         public async Task<IActionResult> GetTeachersList(string courseId)
         {
@@ -134,7 +135,7 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to delete this student.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credentials error.</response>
-        //[Authorize]
+        [Authorize]
         [HttpDelete("delete/courses/{courseId}/students/{studentId}")]
         public async Task<IActionResult> DeleteStudent(string courseId, string studentId)
         {
@@ -187,7 +188,7 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to delete this teacher.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credentials error.</response>
-        //[Authorize]
+        [Authorize]
         [HttpDelete("delete/courses/{courseId}/teachers/{teacherId}")]
         public async Task<IActionResult> DeleteTeacher(string courseId, string teacherId)
         {
