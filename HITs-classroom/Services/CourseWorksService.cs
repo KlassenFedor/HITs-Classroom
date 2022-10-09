@@ -24,7 +24,7 @@ namespace HITs_classroom.Services
         }
         public async Task<List<GradeModel>> GetGradesForCourseWork(string courseId, string courseWorkId)
         {
-            string pageToken = null;
+            string? pageToken = null;
             List<StudentSubmission> submissions = new List<StudentSubmission>();
             do
             {
@@ -111,7 +111,7 @@ namespace HITs_classroom.Services
             gradeModel.StudentId = submission.UserId;
             gradeModel.DraftGrade = submission.DraftGrade;
             gradeModel.AssignedGrade = submission.AssignedGrade;
-            UserInfoModel userInfoModel = GetUserInfo(submission.UserId);
+            UserInfoModel? userInfoModel = GetUserInfo(submission.UserId);
             if (userInfoModel != null)
             {
                 gradeModel.StudentEmail = userInfoModel.Email;
@@ -120,7 +120,7 @@ namespace HITs_classroom.Services
         }
 
 
-        private UserInfoModel GetUserInfo(string UserId)
+        private UserInfoModel? GetUserInfo(string UserId)
         {
             var request = _service.UserProfiles.Get(UserId);
             var response = request.Execute();

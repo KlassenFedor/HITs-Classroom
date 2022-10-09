@@ -1,18 +1,16 @@
 ﻿using Quartz.Impl;
 using Quartz;
-using HITs_classroom.Models.Course;
-using System.Diagnostics;
 
 namespace HITs_classroom.Jobs
 {
     public class CoursesScheduler
     {
-        public static async void Start(List<CourseShortModel> courses)
+        public static async void Start(int taskId)
         {
             IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
             await scheduler.UnscheduleJob(new TriggerKey("coursesCreating", "classroomServcie"));
             await scheduler.Start();
-            scheduler.Context.Put("courses", courses);
+            scheduler.Context.Put("task", taskId);
 
             IJobDetail job = JobBuilder.Create<CoursesCreator>().Build();
 

@@ -1,4 +1,7 @@
-﻿using HITs_classroom.Models.Course;
+﻿using HITs_classroom.Enums;
+using HITs_classroom.Models.Course;
+using HITs_classroom.Models.CoursesList;
+using HITs_classroom.Models.Task;
 using HITs_classroom.Services;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
@@ -24,11 +27,70 @@ namespace HITs_classroom.Jobs
             var schedulerContext = context.Scheduler.Context;
             var coursesService = serviceProvider.GetRequiredService<ICoursesService>();
 
-            var courses = (List<CourseShortModel>)schedulerContext.Get("courses");
-            foreach (var course in courses)
+            var dbContext = (ApplicationDbContext)serviceProvider.GetRequiredService<DbContext>();
+            var task = await dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == (int)schedulerContext.Get("task"));
+
+            if (task != null) 
             {
-                await coursesService.CreateCourse(course);
+                task.Status = (int)TaskStatusEnum.IN_PROCESS;
+                await dbContext.SaveChangesAsync();
+                await CreateCoursesList(dbContext, task, coursesService);
+            }
+            else
+            {
+                ILogger<CoursesCreator> logger = serviceProvider.GetRequiredService<ILogger<CoursesCreator>>();
+                logger.LogError("Task with id={id} doesn't found.", (int)schedulerContext.Get("task"));
+            }
+        }
+
+        private async Task CreateCourse(
+            ApplicationDbContext dbContext,
+            AssignedTask task,
+            ICoursesService coursesService,
+            CoursePreCreatingModel preCreatedCourse)
+        {
+            CourseShortModel courseCreatingModel = new CourseShortModel
+            {
+                Name = preCreatedCourse.Name,
+                Section = preCreatedCourse.Section,
+                Room = preCreatedCourse.Room,
+                Description = preCreatedCourse.Description,
+                DescriptionHeading = preCreatedCourse.DescriptionHeading,
+                OwnerId = "me"
+            };
+            var newCourse = await coursesService.CreateCourse(courseCreatingModel);
+            var realCourse = await dbContext.Courses.FirstOrDefaultAsync(c => c.Id == newCourse.CourseId);
+
+            if (realCourse != null)
+            {
+                preCreatedCourse.IsCreated = true;
+                preCreatedCourse.RealCourse = realCourse;
+                await dbContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CreateCoursesList(
+                ApplicationDbContext dbContext,
+                AssignedTask task,
+                ICoursesService coursesService)
+        {
+            var preCreatedCourses = await dbContext.PreCreatedCourses.Where(c => c.TaskId == task.Id && !c.IsCreated).ToListAsync();
+            try
+            {
+                foreach (var preCreatedCourse in preCreatedCourses)
+                {
+                    await CreateCourse(dbContext, task, coursesService, preCreatedCourse);
+                }
+                task.Status = (int)TaskStatusEnum.COMPLETED;
+                task.EndTime = DateTimeOffset.Now.ToUniversalTime();
+                await dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                task.Status = (int)TaskStatusEnum.FAILED;
+                await dbContext.SaveChangesAsync();
             }
         }
     }
+
 }

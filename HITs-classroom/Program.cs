@@ -20,7 +20,8 @@ builder.Services.AddScoped<ICoursesService, CoursesService>();
 builder.Services.AddScoped<IInvitationsService, InvitationsService>();
 builder.Services.AddScoped<ICourseMembersService, CourseMembersService>();
 builder.Services.AddScoped<ICourseWorksService, CourseWorksService>();
-//builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICoursesListService, CoursesListService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -14,16 +14,13 @@ namespace HITs_classroom.Services
         Task<Course> GetCourseFromGoogleClassroom(string courseId);
         Task<CourseInfoModel> GetCourseFromDb(string courseId);
         Task<List<CourseInfoModel>> GetCoursesListFromDb(string? courseState);
-        Task<List<Course>> GetActiveCoursesListFromGoogleClassroom();
         Task<List<CourseInfoModel>> GetActiveCoursesListFromDb();
-        Task<List<Course>> GetArchivedCoursesListFromGoogleClassroom();
         Task<List<CourseInfoModel>> GetArchivedCoursesListFromDb();
         Task<CourseInfoModel> CreateCourse(CourseShortModel parameters);
         Task DeleteCourse(string courseId);
         Task<CourseInfoModel> PatchCourse(string courseId, CoursePatching parameters);
         Task<CourseInfoModel> UpdateCourse(string courseId, CoursePatching parameters);
         Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom();
-        Task<int> CreateCoursesList(List<CourseShortModel> courses);
     }
 
     public class CoursesService: ICoursesService
@@ -56,7 +53,7 @@ namespace HITs_classroom.Services
 
         private async Task<List<Course>> GetCoursesListFromGoogleClassroom(CourseSearch parameters)
         {
-            string pageToken = null;
+            string? pageToken = null;
             var courses = new List<Course>();
 
             do
@@ -103,55 +100,12 @@ namespace HITs_classroom.Services
             return courses;
         }
 
-        public async Task<List<Course>> GetActiveCoursesListFromGoogleClassroom()
-        {
-            string pageToken = null;
-            var courses = new List<Course>();
-
-            do
-            {
-                var request = _service.Courses.List();
-                request.PageSize = 100;
-                request.PageToken = pageToken;
-                request.CourseStates = CourseStatesEnum.ACTIVE;
-                var response = await request.ExecuteAsync();
-                if (response.Courses != null)
-                {
-                    courses.AddRange(response.Courses);
-                }
-                pageToken = response.NextPageToken;
-            } while (pageToken != null);
-
-            return courses;
-        }
         public async Task<List<CourseInfoModel>> GetActiveCoursesListFromDb()
         {
             List<CourseDbModel> courses = new List<CourseDbModel>();
             courses = await _context.Courses
                 .Where(c => c.CourseState == (int)CourseStatesEnum.ACTIVE).ToListAsync();
             return courses.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
-        }
-
-        public async Task<List<Course>> GetArchivedCoursesListFromGoogleClassroom()
-        {
-            string pageToken = null;
-            var courses = new List<Course>();
-
-            do
-            {
-                var request = _service.Courses.List();
-                request.PageSize = 100;
-                request.PageToken = pageToken;
-                request.CourseStates = CourseStatesEnum.ARCHIVED;
-                var response = await request.ExecuteAsync();
-                if (response.Courses != null)
-                {
-                    courses.AddRange(response.Courses);
-                }
-                pageToken = response.NextPageToken;
-            } while (pageToken != null);
-
-            return courses;
         }
 
         public async Task<List<CourseInfoModel>> GetArchivedCoursesListFromDb()
@@ -360,36 +314,6 @@ namespace HITs_classroom.Services
             }
 
             return response;
-        }
-
-        public async Task<int> CreateCoursesList(List<CourseShortModel> courses)
-        {
-            AssignedTask task = new AssignedTask
-            {
-                CreationTime = DateTimeOffset.Now.ToUniversalTime(),
-                IsCoompleted = false                
-            };
-            await _context.Tasks.AddAsync(task);
-
-            foreach (var course in courses)
-            {
-                CoursePreCreatingModel newCourse = new CoursePreCreatingModel 
-                { 
-                    Name = course.Name,
-                    Section = course.Section,
-                    Description = course.Description,
-                    DescriptionHeading = course.DescriptionHeading,
-                    Room = course.Room,
-                    Task = task
-                };
-                await _context.PreCreatedCourses.AddAsync(newCourse);
-            }
-
-            await _context.SaveChangesAsync();
-
-            //CoursesScheduler.Start(task.Id);
-
-            return task.Id;
         }
 
         private async Task<CourseInfoModel> UpdateCourseInDb(string courseId, Course course)

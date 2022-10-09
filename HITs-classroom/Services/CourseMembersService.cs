@@ -20,7 +20,7 @@ namespace HITs_classroom.Services
         }
         public async Task<List<UserInfoModel>> GetStudentsList(string courseId)
         {
-            string pageToken = null;
+            string? pageToken = null;
             List<Student> students = new List<Student>();
             do
             {
@@ -47,7 +47,7 @@ namespace HITs_classroom.Services
 
         public async Task<List<UserInfoModel>> GetTeachersList(string courseId)
         {
-            string pageToken = null;
+            string? pageToken = null;
             List<Teacher> teachers = new List<Teacher>();
             do
             {

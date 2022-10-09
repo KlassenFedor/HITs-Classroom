@@ -14,10 +14,15 @@ namespace HITs_classroom.Controllers
     {
         private readonly ICoursesService _coursesService;
         private readonly ILogger _logger;
-        public CoursesController(ICoursesService coursesService, ILogger<CoursesController> logger)
+        private readonly ICoursesListService _coursesListService;
+        public CoursesController(
+            ICoursesService coursesService,
+            ILogger<CoursesController> logger,
+            ICoursesListService coursesListService)
         {
             _coursesService = coursesService;
             _logger = logger;
+            _coursesListService = coursesListService;
         }
 
         /// <summary>
@@ -466,7 +471,7 @@ namespace HITs_classroom.Controllers
 
         //[Authorize]
         [HttpPost("createList")]
-        public async Task<IActionResult> CreateCoursesList([FromBody] List<CourseShortModel> courses)
+        public async Task<IActionResult> CreateCoursesList([FromBody] List<string> courses)
         {
             if (!ModelState.IsValid)
             {
@@ -474,7 +479,7 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                var task = await _coursesService.CreateCoursesList(courses);
+                var task = await _coursesListService.CreateCoursesList(courses);
                 return Ok(new JsonResult(task).Value);
             }
             catch (Exception e)

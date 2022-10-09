@@ -143,7 +143,7 @@ namespace HITs_classroom.Services
         public async Task UpdateCourseInvitations(string courseId)
         {
             List<Invitation> invitations = new List<Invitation>();
-            string pageToken = null;
+            string? pageToken = null;
             do
             {
                 var request = _service.Invitations.List();
