@@ -50,6 +50,10 @@ namespace HITs_classroom.Controllers
         [HttpPost("passwordLogin")]
         public async Task<IActionResult> LoginWithPassword([FromBody] PasswordModel passwordModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
             try
             {
                 await _authService.LoginWithPassword(passwordModel.Password);

@@ -15,9 +15,9 @@ function loginViaPassword() {
         path + 'api/Auth/passwordLogin/',
         data
     )
-        .then(response => () => {
+        .then(response => {
             if (response.ok) {
-                window.location.replace(path + 'pages/courses.html')
+                window.location.replace(path + 'pages/courses.html');
             }
             else {
                 alert('Incorrect password.')

@@ -1,10 +1,10 @@
 using HITs_classroom;
+using HITs_classroom.Helpers;
 using HITs_classroom.Models.TsuAccount;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Quartz;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,7 +49,7 @@ var app = builder.Build();
 using var serviceScope = app.Services.CreateScope();
 var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
 
-//InvitationsScheduler.Start();
+await app.ConfigureIdentityAsync();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

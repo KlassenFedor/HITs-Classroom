@@ -48,8 +48,8 @@ namespace HITs_classroom.Services
 
         public async Task LoginWithPassword(string password)
         {
-            var user = await _userManager.FindByIdAsync("adminId");
-            await _signInManager.PasswordSignInAsync(user, password, true, false);
+            var user = await _userManager.FindByIdAsync("admin");
+            await _signInManager.PasswordSignInAsync(user, password, false, false);
         }
 
         public async Task Logout()
