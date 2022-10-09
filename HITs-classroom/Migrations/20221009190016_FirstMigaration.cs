@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HITs_classroom.Migrations
 {
-    public partial class TsuAuthMigration : Migration
+    public partial class FirstMigaration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -25,24 +25,29 @@ namespace HITs_classroom.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tokens",
+                name: "Courses",
                 columns: table => new
                 {
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    LoginProvider = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: true),
-                    Value = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Section = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    DescriptionHeading = table.Column<string>(type: "text", nullable: true),
+                    EnrollmentCode = table.Column<string>(type: "text", nullable: true),
+                    Room = table.Column<string>(type: "text", nullable: true),
+                    CourseState = table.Column<int>(type: "integer", nullable: false),
+                    HasAllTeachers = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tokens", x => new { x.UserId, x.LoginProvider });
+                    table.PrimaryKey("PK_Courses", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "TsuUsers",
                 columns: table => new
                 {
-                    TsuAccountId = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<string>(type: "text", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -60,7 +65,7 @@ namespace HITs_classroom.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TsuUsers", x => x.TsuAccountId);
+                    table.PrimaryKey("PK_TsuUsers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -85,6 +90,29 @@ namespace HITs_classroom.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Invitations",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    CourseId = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<int>(type: "integer", nullable: false),
+                    IsAccepted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreationTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdateTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Invitations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Invitations_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
@@ -101,7 +129,7 @@ namespace HITs_classroom.Migrations
                         name: "FK_AspNetUserClaims_TsuUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "TsuUsers",
-                        principalColumn: "TsuAccountId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -121,7 +149,7 @@ namespace HITs_classroom.Migrations
                         name: "FK_AspNetUserLogins_TsuUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "TsuUsers",
-                        principalColumn: "TsuAccountId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -145,12 +173,12 @@ namespace HITs_classroom.Migrations
                         name: "FK_AspNetUserRoles_TsuUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "TsuUsers",
-                        principalColumn: "TsuAccountId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserTokens",
+                name: "Tokens",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "text", nullable: false),
@@ -160,12 +188,12 @@ namespace HITs_classroom.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.PrimaryKey("PK_Tokens", x => new { x.UserId, x.LoginProvider, x.Name });
                     table.ForeignKey(
-                        name: "FK_AspNetUserTokens_TsuUsers_UserId",
+                        name: "FK_Tokens_TsuUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "TsuUsers",
-                        principalColumn: "TsuAccountId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -196,6 +224,11 @@ namespace HITs_classroom.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Invitations_CourseId",
+                table: "Invitations",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
                 name: "EmailIndex",
                 table: "TsuUsers",
                 column: "NormalizedEmail");
@@ -222,13 +255,16 @@ namespace HITs_classroom.Migrations
                 name: "AspNetUserRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUserTokens");
+                name: "Invitations");
 
             migrationBuilder.DropTable(
                 name: "Tokens");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Courses");
 
             migrationBuilder.DropTable(
                 name: "TsuUsers");

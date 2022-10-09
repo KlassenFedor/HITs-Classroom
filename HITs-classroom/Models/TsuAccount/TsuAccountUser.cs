@@ -4,6 +4,6 @@ namespace HITs_classroom.Models.TsuAccount
 {
     public class TsuAccountUser: IdentityUser
     {
-        public string TsuAccountId { get; set; }
+        public string Id { get; set; }
     }
 }

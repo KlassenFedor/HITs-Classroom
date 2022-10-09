@@ -1,8 +1,10 @@
 using HITs_classroom;
+using HITs_classroom.Helpers;
+using HITs_classroom.Models.TsuAccount;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Quartz;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +38,11 @@ builder.Services.AddCors();
 var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connection));
 
+builder.Services.AddIdentity<TsuAccountUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddSignInManager<SignInManager<TsuAccountUser>>()
+    .AddUserManager<UserManager<TsuAccountUser>>();
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
 var app = builder.Build();
@@ -43,7 +50,7 @@ var app = builder.Build();
 using var serviceScope = app.Services.CreateScope();
 var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
 
-//InvitationsScheduler.Start();
+await app.ConfigureIdentityAsync();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
