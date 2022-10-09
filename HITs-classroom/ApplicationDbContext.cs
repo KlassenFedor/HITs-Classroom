@@ -23,7 +23,7 @@ namespace HITs_classroom
 
             modelBuilder.Entity<TsuAccountUser>()
                 .ToTable("TsuUsers")
-                .HasKey(u => u.TsuAccountId);
+                .HasKey(u => u.Id);
 
             modelBuilder.Entity<IdentityUserToken<string>>()
                 .ToTable("Tokens");

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HITs_classroom.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20221007172437_TsuAuthMigration")]
-    partial class TsuAuthMigration
+    [Migration("20221009190016_FirstMigaration")]
+    partial class FirstMigaration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -91,28 +91,9 @@ namespace HITs_classroom.Migrations
                     b.ToTable("Invitations");
                 });
 
-            modelBuilder.Entity("HITs_classroom.Models.Token.Token", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("text");
-
-                    b.HasKey("UserId", "LoginProvider");
-
-                    b.ToTable("Tokens", (string)null);
-                });
-
             modelBuilder.Entity("HITs_classroom.Models.TsuAccount.TsuAccountUser", b =>
                 {
-                    b.Property<string>("TsuAccountId")
+                    b.Property<string>("Id")
                         .HasColumnType("text");
 
                     b.Property<int>("AccessFailedCount")
@@ -128,9 +109,6 @@ namespace HITs_classroom.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -165,7 +143,7 @@ namespace HITs_classroom.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.HasKey("TsuAccountId");
+                    b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -306,7 +284,7 @@ namespace HITs_classroom.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
+                    b.ToTable("Tokens", (string)null);
                 });
 
             modelBuilder.Entity("HITs_classroom.Models.Invitation.InvitationDbModel", b =>

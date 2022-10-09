@@ -1,4 +1,5 @@
-﻿using HITs_classroom.Services;
+﻿using HITs_classroom.Models.Password;
+using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -43,6 +44,22 @@ namespace HITs_classroom.Controllers
             {
                 _logger.LogError(ex.Message);
                 return BadRequest();
+            }
+        }
+
+        [HttpPost("passwordLogin")]
+        public async Task<IActionResult> LoginWithPassword([FromBody] PasswordModel passwordModel)
+        {
+            try
+            {
+                await _authService.LoginWithPassword(passwordModel.Password);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest("Incorrect password.");
             }
         }
 

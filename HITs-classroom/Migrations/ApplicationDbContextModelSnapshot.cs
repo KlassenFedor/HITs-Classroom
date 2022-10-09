@@ -91,7 +91,7 @@ namespace HITs_classroom.Migrations
 
             modelBuilder.Entity("HITs_classroom.Models.TsuAccount.TsuAccountUser", b =>
                 {
-                    b.Property<string>("TsuAccountId")
+                    b.Property<string>("Id")
                         .HasColumnType("text");
 
                     b.Property<int>("AccessFailedCount")
@@ -107,9 +107,6 @@ namespace HITs_classroom.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -144,7 +141,7 @@ namespace HITs_classroom.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.HasKey("TsuAccountId");
+                    b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");

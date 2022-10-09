@@ -11,6 +11,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\Token\**" />
+    <Content Remove="Models\Token\**" />
+    <EmbeddedResource Remove="Models\Token\**" />
+    <None Remove="Models\Token\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Google.Apis.Classroom.v1" Version="1.57.0.2639" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.9">
@@ -33,7 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Token\" />
     <Folder Include="token.json\" />
   </ItemGroup>
 
