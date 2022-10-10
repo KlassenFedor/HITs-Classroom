@@ -2,27 +2,20 @@
 
 window.addEventListener('load', function () {
 
-    const searchBtn = document.querySelector('#searchCourseSubmitButton');
-    if (searchBtn) {
-        searchBtn.addEventListener("click", findCourses);
-    }
+    document.querySelector('#searchCourseSubmitButton')
+        .addEventListener("click", findCourses);
 
-    const searchByIdBtn = document.querySelector('#searchCourseByIdSubmitButton');
-    if (searchByIdBtn) {
-        searchByIdBtn.addEventListener("click", findCourseById);
-    }
+    document.querySelector('#searchCourseByIdSubmitButton')
+        .addEventListener("click", findCourseById);
 
-    //const updateCourseBtn = this.document.querySelector('#courses-teachers-button');
-    //updateCourseBtn.addEventListener('click', updateCoursesStatuses);
+    document.querySelector('#createCourseSubmitButton')
+        .addEventListener("click", createCourse);
 
-    const createBtn = document.querySelector('#createCourseSubmitButton');
-    if (createBtn) {
-        createBtn.addEventListener("click", createCourse);
-    }
+    document.querySelector('#sync-courses-button')
+        .addEventListener('click', syncCourses);
 
-    const syncBtn = this.document.querySelector('#sync-courses-button');
-    syncBtn.addEventListener('click', syncCourses)
-
+    document.querySelector('#logout-btn')
+        .addEventListener('click', logout);
 
     findActiveCourses();
 });
@@ -143,6 +136,16 @@ function fillModalForEditing(event) {
 }
 
 //--------Wrappers for HTTP methods--------
+
+function logout() {
+    postRequest(
+        path + 'api/Auth/logout'
+    )
+        .then(response => {
+            window.location.replace(path + 'index.html');
+        })
+        .catch(error => console.error(error))
+}
 
 function archiveCourse(event) {
     console.log('archiveCourse');

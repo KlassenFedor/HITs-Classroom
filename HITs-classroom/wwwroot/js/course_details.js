@@ -1,18 +1,27 @@
 const path = 'https://localhost:7284/';
 
 window.addEventListener('load', function () {
+
     document.querySelector('#invitations-update-btn')
         .addEventListener('click', getCourseInvitations);
+
     document.querySelector('#createInvitationBtn')
         .addEventListener('click', createInvitation);
+
     document.querySelector('#members-get-btn')
         .addEventListener('click', getMembers);
+
     document.querySelector('#course-update-teachers-button')
         .addEventListener('click', updateTeachersInvitations);
+
     document.querySelector('#get-grades-btn')
         .addEventListener('click', getGrades);
+
     document.querySelector('#get-course-works-btn')
         .addEventListener('click', getCourseWorks);
+
+    document.querySelector('#logout-btn')
+        .addEventListener('click', logout);
 
     setCourseInfo();
     getMembers();
@@ -270,6 +279,18 @@ function showCourseInfo(json) {
     courseId.innerHTML = json['courseId'];
     courseState.innerHTML = json['courseState'];
     showCourseStatus(json['hasAllTeachers']);
+}
+
+//--------Auth--------
+
+function logout() {
+    postRequest(
+        path + 'api/Auth/logout'
+    )
+        .then(response => {
+            window.location.replace(path + 'index.html');
+        })
+        .catch(error => console.error(error))
 }
 
 //--------Wrappers for HTTP methods--------
