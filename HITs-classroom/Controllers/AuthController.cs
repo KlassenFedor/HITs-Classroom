@@ -56,14 +56,18 @@ namespace HITs_classroom.Controllers
             }
             try
             {
-                await _authService.LoginWithPassword(passwordModel.Password);
+                var result = await _authService.LoginWithPassword(passwordModel.Password);
 
-                return Ok();
+                if (result)
+                {
+                    return Ok();
+                }
+                return BadRequest("Incorrect password.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return BadRequest("Incorrect password.");
+                return BadRequest("Error during authorization.");
             }
         }
 

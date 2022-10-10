@@ -12,7 +12,7 @@ namespace HITs_classroom.Services
     {
         Task Register(string accountId, string accessToken);
         Task Login(string accountId, string accessToken);
-        Task LoginWithPassword(string password);
+        Task<bool> LoginWithPassword(string password);
         Task Logout();
     }
     public class AuthService : IAuthService
@@ -46,10 +46,11 @@ namespace HITs_classroom.Services
             await _signInManager.SignInAsync(user, authProperties);
         }
 
-        public async Task LoginWithPassword(string password)
+        public async Task<bool> LoginWithPassword(string password)
         {
             var user = await _userManager.FindByIdAsync("admin");
-            await _signInManager.PasswordSignInAsync(user, password, false, false);
+            var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
+            return result.Succeeded;
         }
 
         public async Task Logout()
