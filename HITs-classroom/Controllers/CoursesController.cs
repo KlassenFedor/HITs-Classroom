@@ -3,8 +3,8 @@ using HITs_classroom.Services;
 using Microsoft.AspNetCore.Mvc;
 using HITs_classroom.Models.Course;
 using System.Net;
-using HITs_classroom.Jobs;
 using Microsoft.AspNetCore.Authorization;
+using Google.Apis.Classroom.v1.Data;
 
 namespace HITs_classroom.Controllers
 {
@@ -469,7 +469,8 @@ namespace HITs_classroom.Controllers
             }
         }
 
-        //[Authorize]
+
+        [Authorize]
         [HttpPost("createList")]
         public async Task<IActionResult> CreateCoursesList([FromBody] List<string> courses)
         {
@@ -480,11 +481,50 @@ namespace HITs_classroom.Controllers
             try
             {
                 var task = await _coursesListService.CreateCoursesList(courses);
-                return Ok(new JsonResult(task).Value);
+                return Ok(task);
             }
             catch (Exception e)
             {
                 _logger.LogInformation("An error was found when executing the request 'createList'. {error}", e.Message);
+                return StatusCode(520, "Unknown error.");
+            }
+        }
+
+        
+        [Authorize]
+        [HttpGet("task/{int:id}")]
+        public async Task<IActionResult> GetTaskInfo(int id)
+        {
+            try
+            {
+                var response = await _coursesListService.GetTaskInfo(id);
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                _logger.LogInformation("An error was found when executing the request 'task/{id}'. {error}", id, e.Message);
+                return StatusCode(520, "Unknown error.");
+            }
+        }
+
+        /// <summary>
+        /// Cancel task.
+        /// </summary>
+        /// <remarks>
+        /// Deletes all courses that have already been created.
+        /// </remarks>
+        [Authorize]
+        [HttpPost("cancelTask/{int:id}")]
+        public async Task<IActionResult> CancelTask(int id)
+        {
+            try
+            {
+                await _coursesListService.CancelTask(id);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogInformation("An error was found when executing the request 'cancelTask/{id}'. {error}", id, e.Message);
                 return StatusCode(520, "Unknown error.");
             }
         }

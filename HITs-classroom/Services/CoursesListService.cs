@@ -1,4 +1,5 @@
-﻿using HITs_classroom.Enums;
+﻿using Google.Apis.Classroom.v1;
+using HITs_classroom.Enums;
 using HITs_classroom.Jobs;
 using HITs_classroom.Models.Course;
 using HITs_classroom.Models.CoursesList;
@@ -10,14 +11,18 @@ namespace HITs_classroom.Services
     public interface ICoursesListService
     {
         Task<int> CreateCoursesList(List<string> courses);
+        Task<TaskInfoModel> GetTaskInfo(int taskId);
+        Task CancelTask(int taskId);
     }
     public class CoursesListService: ICoursesListService
     {
         private ApplicationDbContext _context;
+        private ClassroomService _service;
 
-        public CoursesListService(ApplicationDbContext context)
+        public CoursesListService(ApplicationDbContext context, GoogleClassroomServiceForServiceAccount service)
         {
             _context = context;
+            _service = service.GetClassroomService();
         }
 
         public async Task<int> CreateCoursesList(List<string> courses)
@@ -96,6 +101,35 @@ namespace HITs_classroom.Services
             }
 
             return response;
+        }
+
+        public async Task CancelTask(int taskId)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null)
+            {
+                throw new NullReferenceException();
+            }
+            CoursesScheduler.Stop(taskId);
+            var createdCourses = await _context.PreCreatedCourses.Where(c => c.Task == task && c.RealCourse != null).ToListAsync();
+            foreach (var course in createdCourses)
+            {
+                await DeleteCourse(course.RealCourse.Id);
+            }
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task DeleteCourse(string courseId)
+        {
+            var response = await _service.Courses.Delete(courseId).ExecuteAsync();
+            CourseDbModel? course = await _context.Courses
+                .FirstOrDefaultAsync(c => c.Id == courseId);
+            if (course != null)
+            {
+                _context.Courses.Remove(course);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }
