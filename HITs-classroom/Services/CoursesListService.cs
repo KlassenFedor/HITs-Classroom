@@ -1,10 +1,13 @@
 ﻿using Google.Apis.Classroom.v1;
+using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Enums;
 using HITs_classroom.Jobs;
 using HITs_classroom.Models.Course;
 using HITs_classroom.Models.CoursesList;
 using HITs_classroom.Models.Task;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using static Google.Apis.Classroom.v1.CoursesResource.ListRequest;
 
 namespace HITs_classroom.Services
 {
@@ -80,8 +83,7 @@ namespace HITs_classroom.Services
                     response.Courses = new List<CourseNameAndIdModel>();
                     break;
                 case (int)TaskStatusEnum.COMPLETED:
-                    List<CoursePreCreatingModel> courses = await _context.PreCreatedCourses.Where(c => c.Task == task).ToListAsync();
-
+                    var courses = await _context.PreCreatedCourses.Where(c => c.Task == task).Include(c => c.RealCourse).ToListAsync();
                     response.CoursesCreated = courses.Where(c => c.IsCreated && c.RealCourse != null).Count();
                     response.CoursesAssigned = courses.Count();
                     response.Courses = new List<CourseNameAndIdModel>();
@@ -111,25 +113,7 @@ namespace HITs_classroom.Services
                 throw new NullReferenceException();
             }
             CoursesScheduler.Stop(taskId);
-            var createdCourses = await _context.PreCreatedCourses.Where(c => c.Task == task && c.RealCourse != null).ToListAsync();
-            foreach (var course in createdCourses)
-            {
-                await DeleteCourse(course.RealCourse.Id);
-            }
-            _context.Tasks.Remove(task);
-            await _context.SaveChangesAsync();
-        }
-
-        private async Task DeleteCourse(string courseId)
-        {
-            var response = await _service.Courses.Delete(courseId).ExecuteAsync();
-            CourseDbModel? course = await _context.Courses
-                .FirstOrDefaultAsync(c => c.Id == courseId);
-            if (course != null)
-            {
-                _context.Courses.Remove(course);
-                await _context.SaveChangesAsync();
-            }
+            TaskCancellationScheduler.Start(taskId);
         }
     }
 }

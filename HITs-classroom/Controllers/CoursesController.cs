@@ -492,7 +492,7 @@ namespace HITs_classroom.Controllers
 
         
         [Authorize]
-        [HttpGet("task/{int:id}")]
+        [HttpGet("task/{id:int}")]
         public async Task<IActionResult> GetTaskInfo(int id)
         {
             try
@@ -514,7 +514,7 @@ namespace HITs_classroom.Controllers
         /// Deletes all courses that have already been created.
         /// </remarks>
         [Authorize]
-        [HttpPost("cancelTask/{int:id}")]
+        [HttpPost("cancelTask/{id:int}")]
         public async Task<IActionResult> CancelTask(int id)
         {
             try

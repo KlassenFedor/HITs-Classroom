@@ -13,9 +13,9 @@ namespace HITs_classroom.Jobs
         public async Task Execute(IJobExecutionContext context)
         {
             IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json")
-                .Build();
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile("appsettings.json")
+                    .Build();
             string connection = configuration.GetConnectionString("DefaultConnection");
 
             var serviceProvider = new ServiceCollection()
@@ -23,23 +23,31 @@ namespace HITs_classroom.Jobs
                 .AddScoped<GoogleClassroomServiceForServiceAccount>()
                 .AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connection))
                 .BuildServiceProvider();
-
             var schedulerContext = context.Scheduler.Context;
-            var coursesService = serviceProvider.GetRequiredService<ICoursesService>();
-
-            var dbContext = (ApplicationDbContext)serviceProvider.GetRequiredService<DbContext>();
-            var task = await dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == (int)schedulerContext.Get("task"));
-
-            if (task != null) 
+            try
             {
-                task.Status = (int)TaskStatusEnum.IN_PROCESS;
-                await dbContext.SaveChangesAsync();
-                await CreateCoursesList(dbContext, task, coursesService);
+                var coursesService = serviceProvider.GetRequiredService<ICoursesService>();
+
+                var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+                var task = await dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == (int)schedulerContext.Get("task"));
+
+                if (task != null)
+                {
+                    task.Status = (int)TaskStatusEnum.IN_PROCESS;
+                    await dbContext.SaveChangesAsync();
+                    await CreateCoursesList(dbContext, task, coursesService);
+                }
+                else
+                {
+                    ILogger<CoursesCreator> logger = serviceProvider.GetRequiredService<ILogger<CoursesCreator>>();
+                    logger.LogError("Task with id={id} doesn't found.", (int)schedulerContext.Get("task"));
+                }
             }
-            else
+            catch (Exception e)
             {
                 ILogger<CoursesCreator> logger = serviceProvider.GetRequiredService<ILogger<CoursesCreator>>();
-                logger.LogError("Task with id={id} doesn't found.", (int)schedulerContext.Get("task"));
+                logger.LogError("Error during courses creating for task with id={id}. Error: {error}",
+                    (int)schedulerContext.Get("task"), e.Message);
             }
         }
 
@@ -85,12 +93,14 @@ namespace HITs_classroom.Jobs
                 task.EndTime = DateTimeOffset.Now.ToUniversalTime();
                 await dbContext.SaveChangesAsync();
             }
-            catch
+            catch (Exception e)
             {
                 task.Status = (int)TaskStatusEnum.FAILED;
                 await dbContext.SaveChangesAsync();
+                ILoggerFactory loggerFactory = new LoggerFactory();
+                ILogger<CoursesCreator> logger = new Logger<CoursesCreator>(loggerFactory);
+                logger.LogError(e.Message);
             }
         }
     }
-
 }
