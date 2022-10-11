@@ -1,4 +1,5 @@
-﻿using HITs_classroom.Enums;
+﻿using Google;
+using HITs_classroom.Enums;
 using HITs_classroom.Models.Course;
 using HITs_classroom.Models.CoursesList;
 using HITs_classroom.Models.Task;
@@ -95,6 +96,16 @@ namespace HITs_classroom.Jobs
             }
             catch (Exception e)
             {
+                if (e is GoogleApiException)
+                {
+                    var googleApiException = (GoogleApiException)e;
+                    if (googleApiException.HttpStatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                    {
+                        task.Status = (int)TaskStatusEnum.WAITING_TO_CONTINUE;
+                        await dbContext.SaveChangesAsync();
+                        return;
+                    }
+                }
                 task.Status = (int)TaskStatusEnum.FAILED;
                 await dbContext.SaveChangesAsync();
                 ILoggerFactory loggerFactory = new LoggerFactory();

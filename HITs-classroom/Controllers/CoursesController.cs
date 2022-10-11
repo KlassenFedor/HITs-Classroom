@@ -528,5 +528,27 @@ namespace HITs_classroom.Controllers
                 return StatusCode(520, "Unknown error.");
             }
         }
+
+        /// <summary>
+        /// Retry task.
+        /// </summary>
+        /// <remarks>
+        /// Retry task if task.Status == WAITING_TO_CONTINUE.
+        /// </remarks>
+        [Authorize]
+        [HttpPost("retryTask/{id:int}")]
+        public async Task<IActionResult> RetryTask(int id)
+        {
+            try
+            {
+                var result = await _coursesListService.RetryTask(id);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogInformation("An error was found when executing the request 'retryTask/{id}'. {error}", id, e.Message);
+                return StatusCode(520, "Unknown error.");
+            }
+        }
     }
 }

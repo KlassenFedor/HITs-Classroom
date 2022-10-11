@@ -1,13 +1,10 @@
 ﻿using Google.Apis.Classroom.v1;
-using Google.Apis.Classroom.v1.Data;
 using HITs_classroom.Enums;
 using HITs_classroom.Jobs;
 using HITs_classroom.Models.Course;
 using HITs_classroom.Models.CoursesList;
 using HITs_classroom.Models.Task;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using static Google.Apis.Classroom.v1.CoursesResource.ListRequest;
 
 namespace HITs_classroom.Services
 {
@@ -16,6 +13,7 @@ namespace HITs_classroom.Services
         Task<int> CreateCoursesList(List<string> courses);
         Task<TaskInfoModel> GetTaskInfo(int taskId);
         Task CancelTask(int taskId);
+        Task<bool> RetryTask(int taskId);
     }
     public class CoursesListService: ICoursesListService
     {
@@ -78,12 +76,14 @@ namespace HITs_classroom.Services
                     response.Courses = new List<CourseNameAndIdModel>();
                     break;
                 case (int)TaskStatusEnum.IN_PROCESS:
-                    response.CoursesCreated = _context.PreCreatedCourses.Where(c => c.Task == task && c.IsCreated).Count();
+                    response.CoursesCreated = _context.PreCreatedCourses
+                        .Where(c => c.Task == task && c.IsCreated).Count();
                     response.CoursesAssigned = _context.PreCreatedCourses.Where(c => c.Task == task).Count();
                     response.Courses = new List<CourseNameAndIdModel>();
                     break;
                 case (int)TaskStatusEnum.COMPLETED:
-                    var courses = await _context.PreCreatedCourses.Where(c => c.Task == task).Include(c => c.RealCourse).ToListAsync();
+                    var courses = await _context.PreCreatedCourses
+                        .Where(c => c.Task == task).Include(c => c.RealCourse).ToListAsync();
                     response.CoursesCreated = courses.Where(c => c.IsCreated && c.RealCourse != null).Count();
                     response.CoursesAssigned = courses.Count();
                     response.Courses = new List<CourseNameAndIdModel>();
@@ -97,6 +97,14 @@ namespace HITs_classroom.Services
                         }
                         response.Courses.Add(newResponseCourse);
                     }
+                    break;
+                case (int)TaskStatusEnum.WAITING_TO_CONTINUE:
+                    var preCreatedCourses = await _context.PreCreatedCourses
+                        .Where(c => c.Task == task).Include(c => c.RealCourse).ToListAsync();
+                    response.CoursesCreated = preCreatedCourses
+                        .Where(c => c.IsCreated && c.RealCourse != null).Count();
+                    response.CoursesAssigned = preCreatedCourses.Count();
+                    response.Courses = new List<CourseNameAndIdModel>();
                     break;
                 default:
                     break;
@@ -114,6 +122,22 @@ namespace HITs_classroom.Services
             }
             CoursesScheduler.Stop(taskId);
             TaskCancellationScheduler.Start(taskId);
+        }
+
+        public async Task<bool> RetryTask(int taskId)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null)
+            {
+                throw new NullReferenceException();
+            }
+            if (task.Status == (int)TaskStatusEnum.WAITING_TO_CONTINUE)
+            {
+                CoursesScheduler.Stop(taskId);
+                CoursesScheduler.Start(taskId);
+                return true;
+            }
+            return false;
         }
     }
 }
