@@ -23,6 +23,9 @@ window.addEventListener('load', function () {
     document.querySelector('#logout-btn')
         .addEventListener('click', logout);
 
+    document.querySelector('#invitations-create-btn')
+        .addEventListener('click', findTeachers);
+
     setCourseInfo();
     getMembers();
     getCourseInvitations();
@@ -140,6 +143,27 @@ function showCourseStatus(response) {
         statusPlace.innerHTML = 'Not all teachers accepted invitations';
         statusPlace.classList.add('text-danger');
     }
+}
+
+function findTeachers() {
+    console.log('findTeachers');
+    getRequest(
+        path + 'api/TeachersSearch/findTeachers/' + ''
+    )
+        .then(response => addTeachersToList(response))
+        .catch(error => { console.error(error)})
+}
+
+function addTeachersToList(teachers) {
+    var suitableTeachers = document.querySelector('#teachers');
+    suitableTeachers.innerHTML = '';
+    var teachersList = "";
+    for (let i = 0; i < teachers.length; i++) {
+        teachersList = teachersList +
+            '<option value="' + teachers[i]['email'] + '">'
+            + teachers[i]['name'] + '</option>';
+    }
+    suitableTeachers.innerHTML = teachersList;
 }
 
 //--------Members--------

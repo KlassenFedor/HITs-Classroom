@@ -2,6 +2,7 @@
 using HITs_classroom.Models.CoursesList;
 using HITs_classroom.Models.Invitation;
 using HITs_classroom.Models.Task;
+using HITs_classroom.Models.Teacher;
 using HITs_classroom.Models.TsuAccount;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace HITs_classroom
         public DbSet<TsuAccountUser> TsuUsers { get; set; }
         public DbSet<CoursePreCreatingModel> PreCreatedCourses { get; set; }
         public DbSet<AssignedTask> Tasks { get; set; }
+        public DbSet<Teacher> Teachers { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
         {

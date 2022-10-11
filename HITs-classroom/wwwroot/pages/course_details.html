@@ -153,7 +153,9 @@
                                 <form id="createInvitationForm">
                                     <div class="mb-3">
                                         <label for="invitation-creating-user" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="invitation-creating-user" name="email">
+                                        <input type="email" class="form-control" id="invitation-creating-user" name="email" list="teachers" autocomplete="off">
+                                        <datalist id="teachers">
+                                        </datalist>
                                     </div>
                                     <div>Role</div>
                                     <select class="form-select" id="invitation-creating-role" name="role">
