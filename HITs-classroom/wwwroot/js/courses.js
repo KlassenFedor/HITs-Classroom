@@ -135,6 +135,17 @@ function fillModalForEditing(event) {
     editCourseForm.querySelector('#courseState_Editing').value = event.currentTarget.currentCourseState;
 }
 
+//--------Alerts--------
+
+function showAlert(message) {
+    console.log('showAlert');
+    var alertsBox = document.querySelector('.alerts-box');
+    var newAlert = document.querySelector('.alert').cloneNode(true);
+    newAlert.querySelector('.message').innerHTML = message;
+    newAlert.classList.remove('d-none');
+    alertsBox.appendChild(newAlert);
+}
+
 //--------Wrappers for HTTP methods--------
 
 function logout() {
@@ -156,7 +167,7 @@ function archiveCourse(event) {
         data
     )
         .then(response => editCourseCard(response))
-        .catch(error => () => { console.error(error), alert('Failed to archive course') })
+        .catch(error => () => { console.error(error), showAlert('Failed to archive course') })
 }
 
 function editCourse() {
@@ -178,7 +189,7 @@ function editCourse() {
             data
         )
             .then(response => editCourseCard(response))
-            .catch(error => { console.error(error), alert('Failed to edit course') })
+            .catch(error => { console.error(error), showAlert('Failed to edit course') })
     }
 }
 
@@ -188,7 +199,7 @@ function deleteCourse(event) {
         path + 'api/Courses/delete/' + event.currentTarget.currentId.toString()
     )
         .then(deleteCourseCard(event.currentTarget.currentId.toString()))
-        .catch(error => { console.error(error), alert('Failed to delete course') })
+        .catch(error => { console.error(error), showAlert('Failed to delete course') })
 }
 
 function findActiveCourses() {
@@ -197,7 +208,7 @@ function findActiveCourses() {
         path + 'api/Courses/active'
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
-        .catch(error => {console.error(error), alert('Courses are currently unavailable') })
+        .catch(error => { console.error(error), showAlert('Courses are currently unavailable') })
 }
 
 function findCourses() {
@@ -214,7 +225,7 @@ function findCourses() {
         path + 'api/Courses/listFromDb?' + queryParameters
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
-        .catch(error => { console.error(error), alert('Failed to find courses') })
+        .catch(error => { console.error(error), showAlert('Failed to find courses') })
 }
 
 function findCourseById() {
@@ -224,7 +235,7 @@ function findCourseById() {
         path + 'api/Courses/get/' + Id.toString()
     )
         .then(response => addCoursesToPage([prepareCourseFromJson(response)]))
-        .catch(error => { console.error(error), alert('Failed to find course.') });
+        .catch(error => { console.error(error), showAlert('Failed to find course.') });
 }
 
 function updateCoursesStatuses() {
@@ -232,7 +243,7 @@ function updateCoursesStatuses() {
     postRequestWithoutResponseBody(
         path + 'api/Invitations/updateAll'
     )
-        .catch(error => { console.error(error), alert('Failed to update courses.') });
+        .catch(error => { console.error(error), showAlert('Failed to update courses.') });
 }
 
 function syncCourses() {
@@ -241,9 +252,9 @@ function syncCourses() {
     )
         .then(response => {
             if (response.ok) {
-                alert('Successfully synchronized');
+                showAlert('Successfully synchronized');
             } else {
-                alert('Failed to synchronize.');
+                showAlert('Failed to synchronize.');
             }
         })
         .catch(error => console.error(error));
@@ -264,12 +275,12 @@ function createCourse() {
         .then(response => {
             console.log(response.ok);
             if (response.ok) {
-                alert('Created successfully.');
+                showAlert('Created successfully.');
                 response.json().then(res => {
                     window.location.href = path + 'pages/course_details.html?id=' + res['courseId']
                 });
             } else {
-                alert('Failed to create.');
+                showAlert('Failed to create.');
             }
         })
         .catch(error => console.error(error));

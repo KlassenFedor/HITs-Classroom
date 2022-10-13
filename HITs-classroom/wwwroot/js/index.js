@@ -20,10 +20,10 @@ function loginViaPassword() {
                 window.location.replace(path + 'pages/courses.html');
             }
             else {
-                alert('Incorrect password.')
+                showAlert('Incorrect password.');
             }
         })
-        .catch(error => () => { console.error(error), alert('Incorrect passwrod.') })
+        .catch(error => () => { console.error(error), showAlert('Incorrect passwrod.') })
 }
 
 function postRequest(url, data) {
@@ -37,4 +37,15 @@ function postRequest(url, data) {
             body: data
         }
     ).then(response => response);
+}
+
+//--------Alerts--------
+
+function showAlert(message) {
+    console.log('showAlert');
+    var alertsBox = document.querySelector('.alerts-box');
+    var newAlert = document.querySelector('.alert').cloneNode(true);
+    newAlert.querySelector('.message').innerHTML = message;
+    newAlert.classList.remove('d-none');
+    alertsBox.appendChild(newAlert);
 }

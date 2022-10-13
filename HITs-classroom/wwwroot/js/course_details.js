@@ -263,7 +263,7 @@ function getGrades() {
 function getCourseWorks() {
     console.log('getCourseWorks');
     getRequest(
-        path + 'api/CourseWorks/courseWorkss/' + window.location.href.split('?')[1].split('=')[1]
+        path + 'api/CourseWorks/courseWorks/' + window.location.href.split('?')[1].split('=')[1]
     )
         .then(response => showCourseWorks(response))
         .catch(error => { console.error(error), showAlert('Unable to get course works') })
@@ -328,7 +328,7 @@ function showAlert(message) {
     alertsBox.appendChild(newAlert);
 }
 
-//--------Wrappers for HTTP methods--------
+//--------Implementing for HTTP methods--------
 
 function getRequest(url) {
     return fetch(url,
