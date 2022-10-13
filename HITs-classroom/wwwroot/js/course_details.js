@@ -41,13 +41,13 @@ function getCourseInvitations() {
         path + 'api/Invitations/update/' + window.location.href.split('?')[1].split('=')[1]
     )
         .then(response => () => { })
-        .catch(error => { console.error(error), alert('Invitations are currently unavailable') })
+        .catch(error => { console.error(error), showAlert('Invitations are currently unavailable') })
 
     getRequest(
         path + 'api/Invitations/list/' + window.location.href.split('?')[1].split('=')[1]
     )
         .then(response => (showInvitationsList(response)))
-        .catch(error => { console.error(error), alert('Invitations are currently unavailable') })
+        .catch(error => { console.error(error), showAlert('Invitations are currently unavailable') })
 }
 
 function deleteInvitation(event) {
@@ -56,7 +56,7 @@ function deleteInvitation(event) {
         path + 'api/Invitations/delete/' + event.currentTarget.invitationId
     )
         .then(response => () => { document.querySelector("[id='" + event.currentTarget.invitationId + "']").remove() })
-        .catch(error => { console.error(error), alert('Unable to delete invitation') })
+        .catch(error => { console.error(error), showAlert('Unable to delete invitation') })
 }
 
 function resendInvitation(event) {
@@ -65,7 +65,7 @@ function resendInvitation(event) {
         path + 'api/Invitations/resend/' + event.currentTarget.invitationId
     )
         .then(response => () => { getCourseInvitations() })
-        .catch(error => { console.error(error), alert('Unable to delete invitation') })
+        .catch(error => { console.error(error), showAlert('Unable to delete invitation') })
 }
 
 function createInvitation() {
@@ -89,7 +89,7 @@ function createInvitation() {
                 alert('Failed to create invitation.');
             }
         })
-        .catch(error => { console.error(error), alert('Failed to create invitation') })
+        .catch(error => { console.error(error), showAlert('Failed to create invitation') })
 }
 
 function showInvitationsList(json) {
@@ -128,7 +128,7 @@ function updateTeachersInvitations() {
         path + 'api/Invitations/checkTeachersInvitations/' + window.location.href.split('?')[1].split('=')[1]
     )
         .then(response => showCourseStatus(response))
-        .catch(error => { console.error(error), alert('Unable to get update teachers invitations') })
+        .catch(error => { console.error(error), showAlert('Unable to check teachers invitations') })
 }
 
 function showCourseStatus(response) {
@@ -180,7 +180,7 @@ function getTeachers() {
         + window.location.href.split('?')[1].split('=')[1]
     )
         .then(response => showTeachers(response))
-        .catch(error => { console.error(error), alert('Unable to get teachers') })
+        .catch(error => { console.error(error), showAlert('Unable to get teachers') })
 }
 
 function getStudents() {
@@ -190,7 +190,7 @@ function getStudents() {
         + window.location.href.split('?')[1].split('=')[1]
     )
         .then(response => showStudents(response))
-        .catch(error => { console.error(error), alert('Unable to get students') })
+        .catch(error => { console.error(error), showAlert('Unable to get students') })
 }
 
 function deleteStudent(event) {
@@ -201,7 +201,7 @@ function deleteStudent(event) {
             + '/students/' + event.currentTarget.studentId
     )
         .then(response => () => { document.querySelector("[id='" + event.currentTarget.studentId + "']").remove() })
-        .catch(error => { console.error(error), alert('Unable to delete student') })
+        .catch(error => { console.error(error), showAlert('Unable to delete student') })
 }
 
 function deleteTeacher(event) {
@@ -212,7 +212,7 @@ function deleteTeacher(event) {
         + '/teachers/' + event.currentTarget.teacherId
     )
         .then(response => () => { document.querySelector("[id='" + event.currentTarget.teacherId + "']").remove() })
-        .catch(error => { console.error(error), alert('Unable to delete teacher') })
+        .catch(error => { console.error(error), showAlert('Unable to delete teacher') })
 }
 
 function showTeachers(json) {
@@ -257,16 +257,16 @@ function getGrades() {
         path + 'api/CourseWorks/courseGrades/' + window.location.href.split('?')[1].split('=')[1]
     )
         .then(response => console.log(response))
-        .catch(error => { console.error(error), alert('Unable to get grades') })
+        .catch(error => { console.error(error), showAlert('Unable to get grades') })
 }
 
 function getCourseWorks() {
     console.log('getCourseWorks');
     getRequest(
-        path + 'api/CourseWorks/courseWorks/' + window.location.href.split('?')[1].split('=')[1]
+        path + 'api/CourseWorks/courseWorkss/' + window.location.href.split('?')[1].split('=')[1]
     )
         .then(response => showCourseWorks(response))
-        .catch(error => { console.error(error), alert('Unable to get course works') })
+        .catch(error => { console.error(error), showAlert('Unable to get course works') })
 }
 
 function showCourseWorks(works) {
@@ -291,7 +291,7 @@ function setCourseInfo() {
         + window.location.href.split('?')[1].split('=')[1]
     )
         .then(response => showCourseInfo(response))
-        .catch(error => { console.error(error), alert('Unable to get course info') })
+        .catch(error => { console.error(error), showAlert('Unable to get course info') })
 }
 
 function showCourseInfo(json) {
@@ -315,6 +315,17 @@ function logout() {
             window.location.replace(path + 'index.html');
         })
         .catch(error => console.error(error))
+}
+
+//--------Alerts--------
+
+function showAlert(message) {
+    console.log('showAlert');
+    var alertsBox = document.querySelector('.alerts-box');
+    var newAlert = document.querySelector('.alert').cloneNode(true);
+    newAlert.querySelector('.message').innerHTML = message;
+    newAlert.classList.remove('d-none');
+    alertsBox.appendChild(newAlert);
 }
 
 //--------Wrappers for HTTP methods--------
