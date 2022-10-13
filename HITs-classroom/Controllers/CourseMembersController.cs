@@ -40,13 +40,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'students/list/{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course does not exist.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'students/list/{{courseId}}'. {error}", e.Message);
                     return StatusCode(403, "You are not allowed to get students.");
                 }
@@ -55,13 +55,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                             " 'students/list/{{courseId}}'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                             " 'students/list/{{courseId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
@@ -95,13 +95,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'teachers/list/{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course does not exist.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'teachers/list/{{courseId}}'. {error}", e.Message);
                     return StatusCode(403, "You are not allowed to get teachers.");
                 }
@@ -110,13 +110,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                             " 'teachers/list/{{courseId}}'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'teachers/list/{{courseId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
@@ -148,13 +148,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'delete/courses/{{courseId}}/students/{{studentId}}'. {error}", e.Message);
                     return StatusCode(404, "Course does not exist.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'delete/courses/{{courseId}}/students/{{studentId}}'. {error}", e.Message);
                     return StatusCode(403, "You are not allowed to delete this student.");
                 }
@@ -163,13 +163,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                             " 'delete/courses/{{courseId}}/students/{{studentId}}'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'delete/courses/{{courseId}}/students/{{studentId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
@@ -201,13 +201,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'delete/courses/{{courseId}}/teachers/{{teacherId}}'. {error}", e.Message);
                     return StatusCode(404, "Course does not exist.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'delete/courses/{{courseId}}/teachers/{{teacherId}}'. {error}", e.Message);
                     return StatusCode(403, "You are not allowed to delete this teacher.");
                 }
@@ -216,13 +216,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                             " 'delete/courses/{{courseId}}/teachers/{{teacherId}}'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'delete/courses/{{courseId}}/teachers/{{teacherId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }

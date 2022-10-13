@@ -46,12 +46,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e is NullReferenceException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'get/{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'get/{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course does not exist.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'get/{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'get/{{courseId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -86,12 +86,12 @@ namespace HITs_classroom.Controllers
             {
                 if (e is ArgumentNullException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'list'. {error}", e.Message);
                     return StatusCode(404, "No courses found.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'list'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'list'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -115,7 +115,7 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogInformation("An error was found when executing the request 'active'. {error}", e.Message);
+                _logger.LogError("An error was found when executing the request 'active'. {error}", e.Message);
                 return StatusCode(520, "Unknown error.");
             }
         }
@@ -138,7 +138,7 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogInformation("An error was found when executing the request 'archived'. {error}", e.Message);
+                _logger.LogError("An error was found when executing the request 'archived'. {error}", e.Message);
                 return StatusCode(520, "Unknown error.");
             }
         }
@@ -171,17 +171,17 @@ namespace HITs_classroom.Controllers
             {
                 if (e is GoogleApiException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'create'. {error}", e.Message);
                     return StatusCode(400, "Google api error.");
                 }
                 else if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'create'. {error}", e.Message);
                     return StatusCode(500, "Credentials error");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'create'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'create'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -216,34 +216,34 @@ namespace HITs_classroom.Controllers
 
                 if (errorResponse == HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course was not found.");
                 }
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
                     return StatusCode(400, "Unable to change course," +
                         " you should check that you are trying to change only the available fields");
                 }
 
-                _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
+                _logger.LogError("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
                 return StatusCode(520, "Unknown error");
             }
             catch (Exception e)
             {
                 if (e is NullReferenceException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course not found in database.");
                 }
                 else if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'archive{{courseId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error");
                 }
             }
@@ -279,34 +279,34 @@ namespace HITs_classroom.Controllers
 
                 if (errorResponse == HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course was not found.");
                 }
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
                     return StatusCode(400, "Unable to change course," +
                         " you should check that you are trying to change only the available fields.");
                 }
 
-                _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
+                _logger.LogError("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
                 return StatusCode(520, "Unknown error.");
             }
             catch (Exception e)
             {
                 if (e is NullReferenceException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course not found in database.");
                 }
                 else if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'patch{{courseId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -341,33 +341,33 @@ namespace HITs_classroom.Controllers
 
                 if (errorResponse == HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course was not found.");
                 }
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                     return StatusCode(400, "You are not permitted to modify this course or course is not modifable.");
                 }
 
-                _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
+                _logger.LogError("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                 return StatusCode(520, "Unknown error.");
             }
             catch (Exception e)
             {
                 if (e is NullReferenceException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course not found in database.");
                 }
                 else if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'update{{courseId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -398,33 +398,33 @@ namespace HITs_classroom.Controllers
 
                 if (errorResponse == HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course was not found.");
                 }
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
                     return StatusCode(400, "Precondition check failed. Perhaps you should archive the course first.");
                 }
 
-                _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
+                _logger.LogError("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
                 return StatusCode(520, "Unknown error.");
             }
             catch (Exception e)
             {
                 if (e is NullReferenceException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course not found in database.");
                 }
                 else if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'delete{{courseId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -453,17 +453,17 @@ namespace HITs_classroom.Controllers
             {
                 if (e is GoogleApiException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'synchronize'. {error}", e.Message);
                     return StatusCode(400, "GoogleApi exception.");
                 }
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'synchronize'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request 'synchronize'. {error}", e.Message);
+                    _logger.LogError("An error was found when executing the request 'synchronize'. {error}", e.Message);
                     return StatusCode(520, "Unknown error.");
                 }
             }
@@ -485,7 +485,7 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogInformation("An error was found when executing the request 'createList'. {error}", e.Message);
+                _logger.LogError("An error was found when executing the request 'createList'. {error}", e.Message);
                 return StatusCode(520, "Unknown error.");
             }
         }
@@ -502,7 +502,7 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogInformation("An error was found when executing the request 'task/{id}'. {error}", id, e.Message);
+                _logger.LogError("An error was found when executing the request 'task/{id}'. {error}", id, e.Message);
                 return StatusCode(520, "Unknown error.");
             }
         }
@@ -524,7 +524,7 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogInformation("An error was found when executing the request 'cancelTask/{id}'. {error}", id, e.Message);
+                _logger.LogError("An error was found when executing the request 'cancelTask/{id}'. {error}", id, e.Message);
                 return StatusCode(520, "Unknown error.");
             }
         }
@@ -546,7 +546,7 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogInformation("An error was found when executing the request 'retryTask/{id}'. {error}", id, e.Message);
+                _logger.LogError("An error was found when executing the request 'retryTask/{id}'. {error}", id, e.Message);
                 return StatusCode(520, "Unknown error.");
             }
         }

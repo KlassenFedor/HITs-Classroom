@@ -35,18 +35,18 @@ namespace HITs_classroom.Controllers
 
                 if (errorResponse == HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", e.Message);
                     return StatusCode(404, "Not found.");
                 }
                 else if (errorResponse == HttpStatusCode.BadRequest)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", e.Message);
                     return StatusCode(400, "Failed precondition.");
                 }
 
-                _logger.LogInformation("An error was found when executing the request" +
+                _logger.LogError("An error was found when executing the request" +
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", e.Message);
                 return StatusCode(520, "Unknown error");
             }
@@ -54,13 +54,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'acces/course/{{courseId}}/courseWork/{{courseWorkId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error");
                 }
@@ -90,13 +90,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e.HttpStatusCode == HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'courseGrades/{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course not found.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'courseGrades/{{courseId}}'. {error}", e.Message);
                     return StatusCode(400, "Unable to get course grades.");
                 }
@@ -105,13 +105,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'courseGrades/{{courseId}}'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'courseGrades/{{courseId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error");
                 }
@@ -141,13 +141,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e.HttpStatusCode == HttpStatusCode.NotFound)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'courseWorks/{{courseId}}'. {error}", e.Message);
                     return StatusCode(404, "Course not found.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'courseWorks/{{courseId}}'. {error}", e.Message);
                     return StatusCode(400, "Unable to get course grades.");
                 }
@@ -156,13 +156,13 @@ namespace HITs_classroom.Controllers
             {
                 if (e is AggregateException)
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'courseWorks/{{courseId}}'. {error}", e.Message);
                     return StatusCode(500, "Credentials error.");
                 }
                 else
                 {
-                    _logger.LogInformation("An error was found when executing the request" +
+                    _logger.LogError("An error was found when executing the request" +
                         " 'courseWorks/{{courseId}}'. {error}", e.Message);
                     return StatusCode(520, "Unknown error");
                 }

@@ -28,7 +28,7 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogInformation("An error was found when executing the request 'findTeachers/{namePart}'. {error}",
+                _logger.LogError("An error was found when executing the request 'findTeachers/{namePart}'. {error}",
                     namePart, e.Message);
                 return StatusCode(520, "Unknown error.");
             }
@@ -45,7 +45,7 @@ namespace HITs_classroom.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogInformation("An error was found when executing the request 'findTeachers'. {error}",
+                _logger.LogError("An error was found when executing the request 'findTeachers'. {error}",
                     e.Message);
                 return StatusCode(520, "Unknown error.");
             }
