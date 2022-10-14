@@ -120,8 +120,14 @@ namespace HITs_classroom.Services
             {
                 throw new NullReferenceException();
             }
-            CoursesScheduler.Stop(taskId);
-            TaskCancellationScheduler.Start(taskId);
+            if (task.Status != (int)TaskStatusEnum.CANCELLED &&
+                task.Status != (int)TaskStatusEnum.FAILED)
+            {
+                task.Status = (int)TaskStatusEnum.CANCELLED;
+                await _context.SaveChangesAsync();
+                CoursesScheduler.Stop(taskId);
+                TaskCancellationScheduler.Start(taskId);
+            }
         }
 
         public async Task<bool> RetryTask(int taskId)

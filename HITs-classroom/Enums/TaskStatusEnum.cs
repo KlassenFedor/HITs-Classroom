@@ -7,6 +7,7 @@
         COMPLETED = 2,
         FAILED = 3,
         NOT_FOUND = 4,
-        WAITING_TO_CONTINUE = 5
+        WAITING_TO_CONTINUE = 5,
+        CANCELLED = 6
     }
 }

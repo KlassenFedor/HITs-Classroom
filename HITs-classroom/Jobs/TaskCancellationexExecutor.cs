@@ -43,7 +43,11 @@ namespace HITs_classroom.Jobs
                             await DeleteCourse(course.RealCourse.Id, dbContext, classroomService);
                         }
                     }
-                    dbContext.Tasks.Remove(task);
+                    foreach (var preCreatedCourse in
+                        await dbContext.PreCreatedCourses.Where(c => c.Task == task).ToListAsync())
+                    {
+                        dbContext.Remove(preCreatedCourse);
+                    }
                     await dbContext.SaveChangesAsync();
                 }
                 else
