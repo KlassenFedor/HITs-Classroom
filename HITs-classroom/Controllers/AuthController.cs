@@ -1,7 +1,9 @@
 ﻿using HITs_classroom.Models.Password;
+using HITs_classroom.Models.Tsu;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace HITs_classroom.Controllers
 {
@@ -17,28 +19,35 @@ namespace HITs_classroom.Controllers
             _logger = logger;
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] string token)
+        [HttpGet("finishLogin")]
+        public async Task<IActionResult> Login([FromQuery] string token)
         {
             try
             {
                 HttpClient client = new HttpClient();
+                var myConfig = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+                var applicationId = myConfig.GetValue<string>("TsuApplicationId");
+                string? secretKey;
+                using (StreamReader reader = new StreamReader("../Keys/tsu-secret-key.txt"))
+                {
+                    secretKey = reader.ReadToEnd();
+                }
                 var values = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "applicationId", "" },
-                    { "secretKey", "" }
+                    { "applicationId", applicationId },
+                    { "secretKey", secretKey }
                 };
 
-                var content = new FormUrlEncodedContent(values);
+                var content = new StringContent(values.ToString(), Encoding.UTF8, "application/json");
                 var response = await client.PostAsync("https://accounts.tsu.ru/api/Account/", content);
-                var responseString = await response.Content.ReadAsStringAsync();
+                var responseString = await response.Content.ReadFromJsonAsync<TsuAuthData>();
 
-                string accountId = "";
-                string accessToken = "";
+                string accountId = responseString.AccountId;
+                string accessToken = responseString.AccessToken;
                 await _authService.Login(accountId, accessToken);
 
-                return Ok();
+                return Redirect("https://localhost:7284/pages/courses.html");
             }
             catch (Exception ex)
             {

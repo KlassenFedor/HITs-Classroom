@@ -18,6 +18,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Keys\tsu-secret-key.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Keys\tsu-secret-key.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Google.Apis.Classroom.v1" Version="1.57.0.2639" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.9">
