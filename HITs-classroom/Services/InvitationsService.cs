@@ -180,8 +180,16 @@ namespace HITs_classroom.Services
             request.CourseId = courseId;
             var response = await request.ExecuteAsync();
 
-            var hasAllteachers = response.Invitations
-                .Where(i => i.Role == CourseRolesEnum.TEACHER.ToString()).Count() == 0;
+            bool hasAllteachers;
+            if (response.Invitations == null)
+            {
+                hasAllteachers = true;
+            }
+            else
+            {
+                hasAllteachers = response.Invitations
+                    .Where(i => i.Role == CourseRolesEnum.TEACHER.ToString()).Count() == 0;
+            }
             
             var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
             if (course != null)
