@@ -180,12 +180,16 @@ namespace HITs_classroom.Services
             request.CourseId = courseId;
             var response = await request.ExecuteAsync();
 
-            if (response.Invitations != null)
+            var hasAllteachers = response.Invitations
+                .Where(i => i.Role == CourseRolesEnum.TEACHER.ToString()).Count() == 0;
+            
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            if (course != null)
             {
-                return response.Invitations.Where(i => i.Role == CourseRolesEnum.TEACHER.ToString()).Count() == 0;
+                course.HasAllTeachers = hasAllteachers;
             }
-
-            return true;
+            await _context.SaveChangesAsync();
+            return hasAllteachers;
         }
 
         public async Task<List<InvitationInfoModel>> GetCourseInvitations(string courseId)

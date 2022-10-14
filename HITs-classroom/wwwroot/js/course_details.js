@@ -84,9 +84,9 @@ function createInvitation() {
     )
         .then(response => {
             if (response.ok) {
-                alert('Created successfully.');
+                showAlert('Created successfully.');
             } else {
-                alert('Failed to create invitation.');
+                showAlert('Failed to create invitation.');
             }
         })
         .catch(error => { console.error(error), showAlert('Failed to create invitation') })
