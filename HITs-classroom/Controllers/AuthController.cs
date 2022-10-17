@@ -19,7 +19,7 @@ namespace HITs_classroom.Controllers
             _logger = logger;
         }
 
-        [HttpGet("finishLogin")]
+        [HttpGet("tsuLogin")]
         public async Task<IActionResult> Login([FromQuery] string token)
         {
             try
