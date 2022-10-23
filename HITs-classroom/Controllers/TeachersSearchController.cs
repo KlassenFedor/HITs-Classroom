@@ -1,12 +1,12 @@
 ﻿using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HITs_classroom.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TeachersSearchController : ControllerBase
     {
         private readonly ILogger _logger;
@@ -17,7 +17,12 @@ namespace HITs_classroom.Controllers
             _service = service;
         }
 
-        [Authorize]
+        /// <summary>
+        /// Find teachers suitable for given part of the name.
+        /// </summary>
+        /// <remarks>
+        /// Returns list of teachers suitable for given part of the name (names and emails).
+        /// </remarks>
         [HttpGet("findTeachers/{namePart}")]
         public async Task<IActionResult> GetSuitableTeachers(string namePart)
         {
@@ -34,7 +39,12 @@ namespace HITs_classroom.Controllers
             }
         }
 
-        [Authorize]
+        /// <summary>
+        /// Get all teachers.
+        /// </summary>
+        /// <remarks>
+        /// Returns list of all teachers (name and email).
+        /// </remarks>
         [HttpGet("findTeachers")]
         public async Task<IActionResult> GetAllTeachers()
         {

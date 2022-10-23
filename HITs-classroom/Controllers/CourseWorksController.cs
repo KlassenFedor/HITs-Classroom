@@ -1,15 +1,14 @@
 ﻿using Google;
-using Google.Apis.Classroom.v1;
 using HITs_classroom.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Security.Claims;
 
 namespace HITs_classroom.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CourseWorksController : ControllerBase
     {
         private readonly ICourseWorksService _courseWorksService;
@@ -20,7 +19,6 @@ namespace HITs_classroom.Controllers
             _logger = logger;
         }
 
-        [Authorize]
         [HttpPost("acces/course/{courseId}/courseWork/{courseWorkId}")]
         public IActionResult SetAdmittedStudentsToCourseWork(string courseId, string courseWorkId, [FromBody] List<string>? users)
         {
@@ -77,7 +75,6 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
         [HttpGet("courseGrades/{courseId}")]
         public async Task<IActionResult> GetCourseGrades(string courseId)
         {
@@ -128,7 +125,6 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credential Not found.</response>
-        [Authorize]
         [HttpGet("courseWorks/{courseId}")]
         public async Task<IActionResult> GetCourseWorks(string courseId)
         {

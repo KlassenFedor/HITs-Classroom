@@ -4,13 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using HITs_classroom.Models.Course;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
-using Google.Apis.Classroom.v1.Data;
-using System.Threading.Tasks;
 
 namespace HITs_classroom.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CoursesController : ControllerBase
     {
         private readonly ICoursesService _coursesService;
@@ -34,7 +33,6 @@ namespace HITs_classroom.Controllers
         /// </remarks>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course does not exist.</response>
-        [Authorize]
         [HttpGet("get/{courseId}")]
         public async Task<IActionResult> GetCourse(string courseId)
         {
@@ -70,7 +68,6 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Invalid input data.</response>
         /// <response code="401">Not authorized.</response>
         /// <response code="404">No courses found.</response>
-        [Authorize]
         [HttpGet("listFromDb")]
         public async Task<IActionResult> GetCoursesListFromDb([FromQuery] string? courseState)
         {
@@ -105,7 +102,6 @@ namespace HITs_classroom.Controllers
         /// Returns courses with the ACTIVE courseState.
         /// </remarks>
         /// <response code="401">Not authorized.</response>
-        [Authorize]
         [HttpGet("active")]
         public async Task<IActionResult> GetActiveCoursesList()
         {
@@ -128,7 +124,6 @@ namespace HITs_classroom.Controllers
         /// Returns courses with the ACHIVED courseState.
         /// </remarks>
         /// <response code="401">Not authorized.</response>
-        [Authorize]
         [HttpGet("archived")]
         public IActionResult GetArchivedCoursesList()
         {
@@ -155,7 +150,6 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">OwnerId not specified.</response>
         /// <response code="500">Credentials error.</response>
-        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateCourse([FromBody] CourseShortModel course)
         {
@@ -200,7 +194,6 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credentials error.</response>
-        [Authorize]
         [HttpPatch("archive/{courseId}")]
         public async Task<IActionResult> ArchiveCourse(string courseId)
         {
@@ -261,7 +254,6 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credentials error.</response>
-        [Authorize]
         [HttpPatch("patch/{courseId}")]
         public async Task<IActionResult> PatchCourse(string courseId, [FromBody] CoursePatching course)
         {
@@ -323,7 +315,6 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credentials error.</response>
-        [Authorize]
         [HttpPut("update/{courseId}")]
         public async Task<IActionResult> UpdateCourse(string courseId, [FromBody] CoursePatching course)
         {
@@ -384,7 +375,6 @@ namespace HITs_classroom.Controllers
         /// <response code="401">Not authorized.</response>
         /// <response code="404">Course was not found.</response>
         /// <response code="500">Credentials error.</response>
-        [Authorize]
         [HttpDelete("delete/{courseId}")]
         public async Task<IActionResult> DeleteCourse(string courseId)
         {
@@ -441,7 +431,6 @@ namespace HITs_classroom.Controllers
         /// <response code="400">Google api exception.</response>
         /// <response code="401">Not authorized.</response>
         /// <response code="500">Credentials error.</response>
-        [Authorize]
         [HttpPost("synchronize")]
         public async Task<IActionResult> SynchronizeCourses()
         {
@@ -476,7 +465,6 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// Get array of courses names, returns task id.
         /// </remarks>
-        [Authorize]
         [HttpPost("createList")]
         public async Task<IActionResult> CreateCoursesList([FromBody] List<string> courses)
         {
@@ -502,7 +490,6 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// Returns detailed info about task.
         /// </remarks>
-        [Authorize]
         [HttpGet("task/{id:int}")]
         public async Task<IActionResult> GetTaskInfo(int id)
         {
@@ -528,7 +515,6 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// Deletes all courses that have already been created.
         /// </remarks>
-        [Authorize]
         [HttpPost("cancelTask/{id:int}")]
         public async Task<IActionResult> CancelTask(int id)
         {
@@ -554,7 +540,6 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// Retry task if task.Status == WAITING_TO_CONTINUE.
         /// </remarks>
-        [Authorize]
         [HttpPost("retryTask/{id:int}")]
         public async Task<IActionResult> RetryTask(int id)
         {
@@ -580,7 +565,6 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// Returns real courses which were created for this task.
         /// </remarks>
-        [Authorize]
         [HttpGet("taskCourses/{taskId:int}")]
         public async Task<IActionResult> GetTaskCourses(int taskId)
         {
@@ -606,7 +590,6 @@ namespace HITs_classroom.Controllers
         /// <remarks>
         /// Returns short info about tasks related to the specified status.
         /// </remarks>
-        [Authorize]
         [HttpGet("getTasks")]
         public async Task<IActionResult> GetTasks([FromQuery] string? status)
         {

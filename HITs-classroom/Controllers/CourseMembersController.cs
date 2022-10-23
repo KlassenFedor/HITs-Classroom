@@ -7,6 +7,7 @@ namespace HITs_classroom.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CourseMembersController : ControllerBase
     {
         private readonly ICourseMembersService _courseMembersService;
@@ -27,7 +28,6 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to get students.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credentials error.</response>
-        [Authorize]
         [HttpGet("students/list/{courseId}")]
         public async Task<IActionResult> GetStudentsList(string courseId)
         {
@@ -78,7 +78,6 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to get teachers.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credentials error.</response>
-        [Authorize]
         [HttpGet("teachers/list/{courseId}")]
         public async Task<IActionResult> GetTeachersList(string courseId)
         {
@@ -135,7 +134,6 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to delete this student.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credentials error.</response>
-        [Authorize]
         [HttpDelete("delete/courses/{courseId}/students/{studentId}")]
         public async Task<IActionResult> DeleteStudent(string courseId, string studentId)
         {
@@ -188,7 +186,6 @@ namespace HITs_classroom.Controllers
         /// <response code="403">You are not allowed to delete this teacher.</response>
         /// <response code="404">Course does not exist.</response>
         /// <response code="500">Credentials error.</response>
-        [Authorize]
         [HttpDelete("delete/courses/{courseId}/teachers/{teacherId}")]
         public async Task<IActionResult> DeleteTeacher(string courseId, string teacherId)
         {
