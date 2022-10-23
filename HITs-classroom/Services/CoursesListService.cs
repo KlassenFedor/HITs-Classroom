@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Classroom.v1;
 using HITs_classroom.Enums;
+using HITs_classroom.Helpers;
 using HITs_classroom.Jobs;
 using HITs_classroom.Models.Course;
 using HITs_classroom.Models.CoursesList;
@@ -14,6 +15,8 @@ namespace HITs_classroom.Services
         Task<TaskInfoModel> GetTaskInfo(int taskId);
         Task CancelTask(int taskId);
         Task<bool> RetryTask(int taskId);
+        Task<List<CourseInfoModel>> GetTaskCourses(int taskId);
+        Task<List<TaskInfoModel>> GetTasks(string? status);
     }
     public class CoursesListService: ICoursesListService
     {
@@ -144,6 +147,44 @@ namespace HITs_classroom.Services
                 return true;
             }
             return false;
+        }
+
+        public async Task<List<CourseInfoModel>> GetTaskCourses(int taskId)
+        {
+            var preCreatedCourses = await _context.PreCreatedCourses
+                .Where(c => c.TaskId == taskId && c.RealCourse != null)
+                .Include(c => c.RealCourse)
+                .ToListAsync();
+            List<CourseInfoModel> courses = preCreatedCourses
+                .Select(c => ModelsConverter.CreateCourseInfoModelFromCourseDbModel(c.RealCourse))
+                .ToList();
+            return courses;
+        }
+
+        public async Task<List<TaskInfoModel>> GetTasks(string? status)
+        {
+            List<TaskInfoModel> tasks = new List<TaskInfoModel>();
+            List<AssignedTask> allTasks = new List<AssignedTask>();
+            if (string.IsNullOrEmpty(status))
+            {
+                allTasks = await _context.Tasks.ToListAsync();
+            }
+            else
+            {
+                allTasks = await _context.Tasks
+                    .Where(t => t.Status == (int)Enum.Parse<TaskStatusEnum>(status.ToUpper()))
+                    .ToListAsync();
+            }
+            foreach (var task in allTasks)
+            {
+                tasks.Add(new TaskInfoModel
+                {
+                    TaskId = task.Id,
+                    Status = ((TaskStatusEnum)task.Status).ToString()
+                });
+            }
+
+            return tasks;
         }
     }
 }

@@ -5,6 +5,7 @@ using HITs_classroom.Models.Course;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Google.Apis.Classroom.v1.Data;
+using System.Threading.Tasks;
 
 namespace HITs_classroom.Controllers
 {
@@ -469,7 +470,12 @@ namespace HITs_classroom.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Create courses list.
+        /// </summary>
+        /// <remarks>
+        /// Get array of courses names, returns task id.
+        /// </remarks>
         [Authorize]
         [HttpPost("createList")]
         public async Task<IActionResult> CreateCoursesList([FromBody] List<string> courses)
@@ -490,11 +496,20 @@ namespace HITs_classroom.Controllers
             }
         }
 
-        
+        /// <summary>
+        /// Get task detailed info.
+        /// </summary>
+        /// <remarks>
+        /// Returns detailed info about task.
+        /// </remarks>
         [Authorize]
         [HttpGet("task/{id:int}")]
         public async Task<IActionResult> GetTaskInfo(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
             try
             {
                 var response = await _coursesListService.GetTaskInfo(id);
@@ -517,6 +532,10 @@ namespace HITs_classroom.Controllers
         [HttpPost("cancelTask/{id:int}")]
         public async Task<IActionResult> CancelTask(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
             try
             {
                 await _coursesListService.CancelTask(id);
@@ -539,6 +558,10 @@ namespace HITs_classroom.Controllers
         [HttpPost("retryTask/{id:int}")]
         public async Task<IActionResult> RetryTask(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
             try
             {
                 var result = await _coursesListService.RetryTask(id);
@@ -547,6 +570,54 @@ namespace HITs_classroom.Controllers
             catch (Exception e)
             {
                 _logger.LogError("An error was found when executing the request 'retryTask/{id}'. {error}", id, e.Message);
+                return StatusCode(520, "Unknown error.");
+            }
+        }
+
+        /// <summary>
+        /// Find task's courses.
+        /// </summary>
+        /// <remarks>
+        /// Returns real courses which were created for this task.
+        /// </remarks>
+        [Authorize]
+        [HttpGet("taskCourses/{taskId:int}")]
+        public async Task<IActionResult> GetTaskCourses(int taskId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(400, "Invalid input data.");
+            }
+            try
+            {
+                var result = await _coursesListService.GetTaskCourses(taskId);
+                return Ok(result);
+            }
+            catch(Exception e)
+            {
+                _logger.LogError("An error was found when executing the request 'taskCourses/{taskId}'. {error}", taskId, e.Message);
+                return StatusCode(520, "Unknown error.");
+            }
+        }
+
+        /// <summary>
+        /// Find tasks info.
+        /// </summary>
+        /// <remarks>
+        /// Returns short info about tasks related to the specified status.
+        /// </remarks>
+        [Authorize]
+        [HttpGet("getTasks")]
+        public async Task<IActionResult> GetTasks([FromQuery] string? status)
+        {
+            try
+            {
+                var result = await _coursesListService.GetTasks(status);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("An error was found when executing the request 'getTasks'. {error}", e.Message);
                 return StatusCode(520, "Unknown error.");
             }
         }

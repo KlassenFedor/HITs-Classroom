@@ -17,7 +17,15 @@ window.addEventListener('load', function () {
     document.querySelector('#logout-btn')
         .addEventListener('click', logout);
 
-    findActiveCourses();
+    const urlParams = new URLSearchParams(window.location.search);
+    const taskId = urlParams.get('taskId');
+    console.log(taskId);
+    if (taskId != undefined && taskId != '') {
+        findTaskCourses(taskId);
+    }
+    else {
+        findActiveCourses();
+    }
 });
 
 //--------Adding, deleting, changing courses on the page--------
@@ -226,6 +234,15 @@ function findCourses() {
     )
         .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
         .catch(error => { console.error(error), showAlert('Failed to find courses') })
+}
+
+function findTaskCourses(taskId) {
+    console.log('findTaskCourses');
+    getRequest(
+        path + 'api/Courses/taskCourses/' + taskId
+    )
+        .then(response => addCoursesToPage(convertCoursesFromJsonToArray(response)))
+        .catch(error => { console.error(error), showAlert('Failed to find task courses') })
 }
 
 function findCourseById() {

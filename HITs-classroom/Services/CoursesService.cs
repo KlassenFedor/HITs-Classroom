@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Classroom.v1;
 using Google.Apis.Classroom.v1.Data;
+using HITs_classroom.Helpers;
 using HITs_classroom.Jobs;
 using HITs_classroom.Models.Course;
 using HITs_classroom.Models.CoursesList;
@@ -46,7 +47,7 @@ namespace HITs_classroom.Services
                     .FirstOrDefaultAsync(c => c.Id == courseId);
             if (course != null)
             {
-                return CreateCourseInfoModelFromCourseDbModel(course);
+                return ModelsConverter.CreateCourseInfoModelFromCourseDbModel(course);
             }
             throw new NullReferenceException();
         }
@@ -95,7 +96,7 @@ namespace HITs_classroom.Services
             {
                 courseDbModels = await _context.Courses.ToListAsync();
             }
-            List<CourseInfoModel> courses = courseDbModels.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
+            List<CourseInfoModel> courses = courseDbModels.Select(c => ModelsConverter.CreateCourseInfoModelFromCourseDbModel(c)).ToList();
 
             return courses;
         }
@@ -105,7 +106,7 @@ namespace HITs_classroom.Services
             List<CourseDbModel> courses = new List<CourseDbModel>();
             courses = await _context.Courses
                 .Where(c => c.CourseState == (int)CourseStatesEnum.ACTIVE).ToListAsync();
-            return courses.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
+            return courses.Select(c => ModelsConverter.CreateCourseInfoModelFromCourseDbModel(c)).ToList();
         }
 
         public async Task<List<CourseInfoModel>> GetArchivedCoursesListFromDb()
@@ -113,7 +114,7 @@ namespace HITs_classroom.Services
             List<CourseDbModel> courses = new List<CourseDbModel>();
             courses = await _context.Courses
                 .Where(c => c.CourseState == (int)CourseStatesEnum.ARCHIVED).ToListAsync();
-            return courses.Select(c => CreateCourseInfoModelFromCourseDbModel(c)).ToList();
+            return courses.Select(c => ModelsConverter.CreateCourseInfoModelFromCourseDbModel(c)).ToList();
         }
 
         public async Task<CourseInfoModel> CreateCourse(CourseShortModel parameters)
@@ -149,7 +150,7 @@ namespace HITs_classroom.Services
 
             await UpdateCourse(newCourse.Id, new CoursePatching { CourseState = "ACTIVE"});
 
-            return CreateCourseInfoModelFromCourseDbModel(courseDb);
+            return ModelsConverter.CreateCourseInfoModelFromCourseDbModel(courseDb);
 
         }
 
@@ -196,7 +197,7 @@ namespace HITs_classroom.Services
                 _context.Entry(courseDb).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
-                return CreateCourseInfoModelFromCourseDbModel(courseDb);
+                return ModelsConverter.CreateCourseInfoModelFromCourseDbModel(courseDb);
             }
 
             throw new NullReferenceException();
@@ -228,7 +229,7 @@ namespace HITs_classroom.Services
                 _context.Entry(courseDb).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
-                return CreateCourseInfoModelFromCourseDbModel(courseDb);
+                return ModelsConverter.CreateCourseInfoModelFromCourseDbModel(courseDb);
             }
 
             throw new NullReferenceException();
@@ -272,36 +273,36 @@ namespace HITs_classroom.Services
             return result;
         }
 
-        private CourseInfoModel CreateCourseInfoModelFromCourseDbModel(CourseDbModel courseDb)
-        {
-            CourseInfoModel courseInfoModel = new CourseInfoModel();
-            courseInfoModel.CourseId = courseDb.Id;
-            courseInfoModel.Name = courseDb.Name;
-            courseInfoModel.Room = courseDb.Room;
-            courseInfoModel.Description = courseDb.Description;
-            courseInfoModel.DescriptionHeading = courseDb.DescriptionHeading;
-            courseInfoModel.Section = courseDb.Section;
-            courseInfoModel.EnrollmentCode = courseDb.EnrollmentCode;
-            courseInfoModel.CourseState = ((CourseStatesEnum)courseDb.CourseState).ToString();
-            courseInfoModel.HasAllTeachers = courseDb.HasAllTeachers;
+        //private CourseInfoModel ModelsConverter.CreateCourseInfoModelFromCourseDbModel(CourseDbModel courseDb)
+        //{
+        //    CourseInfoModel courseInfoModel = new CourseInfoModel();
+        //    courseInfoModel.CourseId = courseDb.Id;
+        //    courseInfoModel.Name = courseDb.Name;
+        //    courseInfoModel.Room = courseDb.Room;
+        //    courseInfoModel.Description = courseDb.Description;
+        //    courseInfoModel.DescriptionHeading = courseDb.DescriptionHeading;
+        //    courseInfoModel.Section = courseDb.Section;
+        //    courseInfoModel.EnrollmentCode = courseDb.EnrollmentCode;
+        //    courseInfoModel.CourseState = ((CourseStatesEnum)courseDb.CourseState).ToString();
+        //    courseInfoModel.HasAllTeachers = courseDb.HasAllTeachers;
 
-            return courseInfoModel;
-        }
+        //    return courseInfoModel;
+        //}
 
-        private CourseInfoModel CreateCourseInfoModelFromGoogleCourseModel(Course course)
-        {
-            CourseInfoModel courseInfoModel = new CourseInfoModel();
-            courseInfoModel.CourseId = course.Id;
-            courseInfoModel.Name = course.Name;
-            courseInfoModel.Room = course.Room;
-            courseInfoModel.Description = course.Description;
-            courseInfoModel.DescriptionHeading = course.DescriptionHeading;
-            courseInfoModel.Section = course.Section;
-            courseInfoModel.EnrollmentCode = course.EnrollmentCode;
-            courseInfoModel.CourseState = course.CourseState;
+        //private CourseInfoModel CreateCourseInfoModelFromGoogleCourseModel(Course course)
+        //{
+        //    CourseInfoModel courseInfoModel = new CourseInfoModel();
+        //    courseInfoModel.CourseId = course.Id;
+        //    courseInfoModel.Name = course.Name;
+        //    courseInfoModel.Room = course.Room;
+        //    courseInfoModel.Description = course.Description;
+        //    courseInfoModel.DescriptionHeading = course.DescriptionHeading;
+        //    courseInfoModel.Section = course.Section;
+        //    courseInfoModel.EnrollmentCode = course.EnrollmentCode;
+        //    courseInfoModel.CourseState = course.CourseState;
 
-            return courseInfoModel;
-        }
+        //    return courseInfoModel;
+        //}
 
         public async Task<List<CourseInfoModel>> SynchronizeCoursesListsInDbAndGoogleClassroom()
         {
@@ -351,7 +352,7 @@ namespace HITs_classroom.Services
 
             await _context.SaveChangesAsync();
 
-            return CreateCourseInfoModelFromCourseDbModel(courseDb);
+            return ModelsConverter.CreateCourseInfoModelFromCourseDbModel(courseDb);
         }
     }
 }

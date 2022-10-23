@@ -1,0 +1,147 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HITs-classroom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/tasks.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script type="text/javascript" src="../js/tasks.js"></script>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Classroom</a>
+            <form class="d-flex">
+                <a class="btn btn-outline-success m-2" href="../index.html">Auth page</a>
+                <button class="btn btn-outline-primary m-2" id="logout-btn">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <content>
+        <div class="container-fluid h-100">
+            <div class="row h-100">
+
+                <div class="col-2 p-2 bg-light">
+                    <ul>
+                        <li>
+                            <a href="./courses.html">Courses management</a>
+                        </li>
+                        <li>
+                            <a href="#">Tasks management</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-10 p-2 justify-content-center">
+
+                    <div class="m-2">
+
+                        <div class="d-grid gap-2 mx-auto col-3 m-2">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#find-task-btn"
+                                    aria-expanded="false" aria-controls="find-task">
+                                Find detailed task info
+                            </button>
+                        </div>
+                        <div class="collapse m-2" id="find-task-btn">
+                            <div class="card card-body">
+                                <form id="find-task-form">
+                                    <div class="mb-3 col">
+                                        <label for="task-id-input" class="form-label">Task id</label>
+                                        <input type="text" class="form-control" id="task-id-input">
+                                    </div>
+                                    <div class="col">
+                                        <button type="button" class="btn btn-primary" id="find-task-submit-btn">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mx-auto col-3 m-2">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#find-tasks-by-status-btn"
+                                    aria-expanded="false" aria-controls="find-task">
+                                Find tasks by status
+                            </button>
+                        </div>
+                        <div class="collapse m-2" id="find-tasks-by-status-btn">
+                            <div class="card card-body">
+                                <form id="find-tasks-by-status-form">
+                                    <div class="mb-3 col">
+                                        <label class="form-label">Tasks status</label>
+                                        <select class="form-select form-select-sm" aria-label=".form-select-sm">
+                                            <option value="">All</option>
+                                            <option value="NEW">NEW</option>
+                                            <option value="IN_PROCESS">IN PROCESS</option>
+                                            <option value="COMPLETED">COMPLETED</option>
+                                            <option value="FAILED">FAILED</option>
+                                            <option value="CANCELLED">CANCELLED</option>
+                                            <option value="WAITING_TO_CONTINUE">WAITING TO CONTINUE</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <button type="button" class="btn btn-primary" id="find-tasks-by-status-submit-btn">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="tasks m-2">
+                    </div>
+                    
+                </div>
+
+                </div>
+
+            </div>
+
+        <div class="alerts-box">
+            <div class="alert d-none">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <div class="message"></div>
+            </div>
+        </div>
+
+        <d-none-elements>
+            <div class="card task-card m-2 d-none">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col task-id fw-bold">Task id: </div>
+                        <div class="col task-status">Task status: </div>
+                        <div class="col courses-created">Courses created: </div>
+                        <div class="col courses-assigned">Courses assigned: </div>
+                        <div class="col">
+                            <a class="btn btn-primary view-courses-btn" href="courses.html?taskId=">View courses</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card task-short-card m-2 d-none">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col task-id fw-bold">Task id: </div>
+                        <div class="col task-status">Task status: </div>
+                        <div class="col">
+                            <button class="btn btn-primary view-detailed-info-btn">View detailed info</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </d-none-elements>
+
+    </content>
+
+    <footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+        <!--<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>-->
+    </footer>
+
+</body>
+</html>
