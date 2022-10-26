@@ -1,6 +1,5 @@
 ﻿using Quartz.Impl;
 using Quartz;
-using System.Diagnostics;
 
 namespace HITs_classroom.Jobs
 {

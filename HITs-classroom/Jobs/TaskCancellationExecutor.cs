@@ -8,7 +8,7 @@ using static Google.Apis.Classroom.v1.CoursesResource.ListRequest;
 
 namespace HITs_classroom.Jobs
 {
-    public class TaskCancellationexExecutor: IJob
+    public class TaskCancellationExecutor: IJob
     {
         public async Task Execute(IJobExecutionContext context)
         {
@@ -52,15 +52,15 @@ namespace HITs_classroom.Jobs
                 }
                 else
                 {
-                    ILogger<TaskCancellationexExecutor> logger =
-                        serviceProvider.GetRequiredService<ILogger<TaskCancellationexExecutor>>();
+                    ILogger<TaskCancellationExecutor> logger =
+                        serviceProvider.GetRequiredService<ILogger<TaskCancellationExecutor>>();
                     logger.LogError("Task with id={id} doesn't found.", (int)schedulerContext.Get("task"));
                 }
             }
             catch (Exception e)
             {
-                ILogger<TaskCancellationexExecutor> logger =
-                    serviceProvider.GetRequiredService<ILogger<TaskCancellationexExecutor>>();
+                ILogger<TaskCancellationExecutor> logger =
+                    serviceProvider.GetRequiredService<ILogger<TaskCancellationExecutor>>();
                 logger.LogError("Error during task cancellation with taskId={id}. Error: {error}",
                     (int)schedulerContext.Get("task"), e.Message);
             }

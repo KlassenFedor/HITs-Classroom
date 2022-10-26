@@ -11,7 +11,7 @@ namespace HITs_classroom.Jobs
             await scheduler.Start();
             scheduler.Context.Put("task", taskId);
 
-            IJobDetail job = JobBuilder.Create<TaskCancellationexExecutor>()
+            IJobDetail job = JobBuilder.Create<TaskCancellationExecutor>()
                 .WithIdentity("jobKeyCancellation_" + taskId.ToString()).Build();
 
             ITrigger trigger = TriggerBuilder.Create()
