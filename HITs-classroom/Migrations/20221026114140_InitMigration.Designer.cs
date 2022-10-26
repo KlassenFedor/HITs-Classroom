@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HITs_classroom.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20221011064757_TeachersMigration")]
-    partial class TeachersMigration
+    [Migration("20221026114140_InitMigration")]
+    partial class InitMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

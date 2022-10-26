@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HITs_classroom.Migrations
 {
-    public partial class FirstMigaration : Migration
+    public partial class InitMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -41,6 +41,35 @@ namespace HITs_classroom.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Courses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tasks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    CreationTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    EndTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tasks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Teachers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Teachers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -108,6 +137,37 @@ namespace HITs_classroom.Migrations
                         name: "FK_Invitations_Courses_CourseId",
                         column: x => x.CourseId,
                         principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PreCreatedCourses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Section = table.Column<string>(type: "text", nullable: true),
+                    DescriptionHeading = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    Room = table.Column<string>(type: "text", nullable: true),
+                    TaskId = table.Column<int>(type: "integer", nullable: false),
+                    IsCreated = table.Column<bool>(type: "boolean", nullable: false),
+                    RealCourseId = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PreCreatedCourses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PreCreatedCourses_Courses_RealCourseId",
+                        column: x => x.RealCourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_PreCreatedCourses_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -229,6 +289,16 @@ namespace HITs_classroom.Migrations
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PreCreatedCourses_RealCourseId",
+                table: "PreCreatedCourses",
+                column: "RealCourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PreCreatedCourses_TaskId",
+                table: "PreCreatedCourses",
+                column: "TaskId");
+
+            migrationBuilder.CreateIndex(
                 name: "EmailIndex",
                 table: "TsuUsers",
                 column: "NormalizedEmail");
@@ -258,6 +328,12 @@ namespace HITs_classroom.Migrations
                 name: "Invitations");
 
             migrationBuilder.DropTable(
+                name: "PreCreatedCourses");
+
+            migrationBuilder.DropTable(
+                name: "Teachers");
+
+            migrationBuilder.DropTable(
                 name: "Tokens");
 
             migrationBuilder.DropTable(
@@ -265,6 +341,9 @@ namespace HITs_classroom.Migrations
 
             migrationBuilder.DropTable(
                 name: "Courses");
+
+            migrationBuilder.DropTable(
+                name: "Tasks");
 
             migrationBuilder.DropTable(
                 name: "TsuUsers");
